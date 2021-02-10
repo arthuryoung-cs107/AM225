@@ -36,6 +36,7 @@ all: prob1_solve prob2_solve
 
 clean:
 	rm -f prob1_solve
+	rm -f prob2_solve
 	rm -f *.o
 clean1:
 	rm -f prob1_solve

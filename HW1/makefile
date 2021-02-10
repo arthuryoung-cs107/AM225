@@ -1,7 +1,7 @@
 CXX=g++-10
 CC=gcc-10
 OS=OSX
-CFLAGS= -Ofast -fopenmp -fomit-frame-pointer -ffast-math -fstrict-aliasing -finline-functions -I. -DGSL -DKNUTH
+CFLAGS= -O3 -I. -fopenmp -DGSL -DKNUTH
 
 LDIR= -I/usr/local/include/
 LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas
@@ -24,9 +24,15 @@ OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 prob1_solve: $(OBJS1)
 	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
 
+prob2_solve: $(OBJS2)
+	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
+
+
 prob1: prob1_solve
 
-all: prob1_solve
+prob2: prob2_solve
+
+all: prob1_solve prob2_solve
 
 clean:
 	rm -f prob1_solve

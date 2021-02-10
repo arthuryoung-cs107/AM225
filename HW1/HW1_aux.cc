@@ -67,7 +67,6 @@ int update_rule(int status, int sum)
       return_val = 0;
     }
   }
-
   return return_val;
 }
 
@@ -94,7 +93,6 @@ void update_row(int ** cell_old, int i, int n, int ** cell)
         cell[i][j] = update_rule(cell_old[i][j], sum_range(cell_old, i-1, i, j-1, j+1) - cell_old[i][j]);
       }
       cell[i][n-1] = update_rule(cell_old[i][n-1], sum_range(cell_old, i-1, i, n-2, n-1) - cell_old[i][n-1]);
-
     }
     else
     {

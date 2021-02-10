@@ -7,6 +7,5 @@ uint64_t lcg_uni(uint64_t *lcg_carry); // call this evertime you want a random i
 uint64_t lcg_fwd(uint64_t seed,uint64_t jump); // eq to srand(seed)
 double lcg_sze(); // replaces randmax
 double boxmuller_knuth(double mean, double variance, uint64_t * carry, double sze);
-double uniform_random(double low, double high, uint64_t * carry);
 
 #endif // knuth_lcg_H

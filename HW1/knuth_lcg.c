@@ -5,7 +5,7 @@
 #include <math.h>
 #include "knuth_lcg.h"
 
-u_int64_t lcg_uni(u_int64_t *lcg_carry) // call this evertime you want a random integer, or rand()
+uint64_t lcg_uni(uint64_t *lcg_carry) // call this evertime you want a random integer, or rand()
 {
   // **********************************************
   // * KNUTH's 64-BIT LCG RANDOM NUMBER GENERATOR *
@@ -21,7 +21,7 @@ u_int64_t lcg_uni(u_int64_t *lcg_carry) // call this evertime you want a random 
   return *lcg_carry;
 }
 
-u_int64_t lcg_fwd(u_int64_t seed,u_int64_t jump) // eq to srand(seed)
+uint64_t lcg_fwd(uint64_t seed,uint64_t jump) // eq to srand(seed)
 {
   // *********************
   // * LCG JUMP FUNCTION *
@@ -30,8 +30,8 @@ u_int64_t lcg_fwd(u_int64_t seed,u_int64_t jump) // eq to srand(seed)
   //being lazy here, should use the function  a^k x + (a^k-1)*c/(a-1)
 
   #ifdef KNUTH
-    u_int64_t ix;
-    u_int64_t ret;
+    uint64_t ix;
+    uint64_t ret;
     ret=0;
     for(ix=0;ix<jump;ix++)
     {
@@ -56,7 +56,7 @@ double lcg_sze() // replaces randmax
     return (double) RAND_MAX + 1.0;
   #endif
 }
-double boxmuller_knuth(double mean, double variance, u_int64_t * carry, double sze)
+double boxmuller_knuth(double mean, double variance, uint64_t * carry, double sze)
 {
   double rand_uni1 = ((double) lcg_uni(carry))/sze; //numerator is double, forces double arithmatic
   double rand_uni2 = ((double) lcg_uni(carry))/sze;
@@ -71,11 +71,4 @@ double boxmuller_knuth(double mean, double variance, u_int64_t * carry, double s
 
   gauss = (gauss * pow(variance, 0.5)) + mean;
   return gauss;
-}
-
-double uniform_random(double low, double high, u_int64_t * carry)
-{
-  double rand_uni = ((double) lcg_uni(carry))/lcg_sze(); //numerator is double, forces double arithmatic
-  rand_uni = rand_uni*(high - low) + ((high - low)/2 - 0.5);
-  return rand_uni;
 }

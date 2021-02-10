@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include "HW1_aux.hh"
 #include "omp.h"
 
@@ -9,19 +7,27 @@ extern "C" {
   #include "knuth_lcg.h"
 }
 
+double random_uni(double low, double high, uint64_t * carry)
+{
+  double rand_uni = ((double) lcg_uni(carry))/(lcg_sze());
+  rand_uni = rand_uni*(high - low) + ((high - low)/2 - 0.5);
+  return rand_uni;
+}
 
 uint64_t casino_game(uint64_t * seed)
 {
   double end_cond = 1;
   double cond = 0;
   uint64_t count = 0;
+  uint64_t carry = *(seed);
 
   while(cond < end_cond)
   {
-    cond = cond + uniform_random(0, 1, seed);
+    cond += random_uni(0, 1, &carry);
     count++;
   }
 
+  *(seed) = carry;
   return count;
 }
 
@@ -120,7 +126,7 @@ void cell_automaton(int m, int n, int number_threads)
   {
     for ( j = ((n/2) - 6); j < ((n/2) + 6); j++)
     {
-      if (uniform_random(0, 1, &seed) < 0.75)
+      if (random_uni(0, 1, &seed) < 0.75)
       {
         cell[i][j] = 1;
       }

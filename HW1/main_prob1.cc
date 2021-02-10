@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <stdint.h>
 
 #include "HW1_aux.hh"
 #include "omp.h"
@@ -16,10 +17,10 @@ int main()
   // int trials = 1e9;
   int trials = 5;
   int thread_num = 1;
-  u_int64_t start_seed = 888888888;
-  u_int64_t jump = 100;
+  uint64_t start_seed = 888888888;
+  uint64_t jump = 100;
 
-  u_int64_t * seed_vec = (u_int64_t *) malloc(thread_num*sizeof(u_int64_t));
+  uint64_t * seed_vec = (uint64_t *) malloc(thread_num*sizeof(uint64_t));
   int * count_vec = ivector(0, trials-1);
 
   seed_vec[0] = lcg_fwd(start_seed, jump);

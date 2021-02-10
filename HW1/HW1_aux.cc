@@ -10,7 +10,7 @@ extern "C" {
 }
 
 
-int casino_game(u_int64_t * seed)
+int casino_game(uint64_t * seed)
 {
   int return_val;
   double end_cond = 1;

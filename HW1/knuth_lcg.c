@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include "knuth_lcg.h"
 
 u_int64_t lcg_uni(u_int64_t *lcg_carry) // call this evertime you want a random integer, or rand()
 {

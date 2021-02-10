@@ -22,7 +22,6 @@ int main()
   int ** cell = imatrix(0, m-1, 0, n-1);
   int ** cell_old = imatrix(0, m-1, 0, n-1);
 
-
   cell_automaton(m, n, 1);
 
 }

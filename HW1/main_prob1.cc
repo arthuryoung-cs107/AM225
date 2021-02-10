@@ -54,7 +54,7 @@ int main()
     count = count_vec[0] + count_vec[1] + count_vec[2] + count_vec[3];
 
     mean_count = ((double) count )/( (double) trials );
-    printf("number of threads: %d, end mean count: %f, end wall time: %f seconds \n", thread_num, mean_count, t_end);
+    printf("number of threads: %ld, end mean count: %f, end wall time: %f seconds \n", thread_num, mean_count, t_end);
 
   }
 

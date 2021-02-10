@@ -17,12 +17,12 @@ int main()
   uint64_t trials = 1e9;
   uint64_t count;
   uint64_t jump = 100;
-  int max_threads = 4;
+  int max_threads = 8;
   int thread_num;
   double mean_count, t0, t1, t_end;
 
-  uint64_t start_seed_vec[4] = {888888888, 5555555555, 77777777777, 9999999999};
-  int thread_num_vec[4] = {1, 2, 4};
+  uint64_t start_seed_vec[8] = {222222222222, 3333333333333, 444444444444, 55555555555, 66666666666, 77777777777, 888888888, 9999999999};
+  int thread_num_vec[3] = {1, 2, 4};
 
   uint64_t * seed_vec = (uint64_t *) malloc(max_threads*sizeof(u_int64_t));
 
@@ -40,7 +40,6 @@ int main()
         for(i=0; i<trials; i++)
         {
           uint64_t local_count = casino_game(seed_vec + omp_get_thread_num() );
-    #pragma omp atomic
           count += local_count;
         }
     t1 = omp_get_wtime();

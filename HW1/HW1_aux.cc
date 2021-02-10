@@ -14,18 +14,16 @@ double random_uni(double low, double high, uint64_t * carry)
   return rand_uni;
 }
 
-uint64_t casino_game(uint64_t *  seed)
+uint64_t casino_game(uint64_t * carry)
 {
   double end_cond = 1;
   double cond = 0;
   uint64_t count = 0;
-  uint64_t carry = *(seed);
   while(cond < end_cond)
   {
-    cond += random_uni(0, 1, &carry);
+    cond += random_uni(0, 1, carry);
     count++;
   }
-  *(seed) = carry;
   return count;
 }
 
@@ -74,7 +72,7 @@ int update_rule(int status, int sum)
   return return_val;
 }
 
-void update_row(int ** cell_old, int i, int n, int ** cell)
+void update_row(int ** cell_old, int i, int m, int n, int ** cell)
 {
   int j;
   int local_sum;
@@ -89,7 +87,7 @@ void update_row(int ** cell_old, int i, int n, int ** cell)
   }
   else
   {
-    if (i == (n-1))
+    if (i == (m-1))
     {
       cell[i][0] = update_rule(cell_old[i][0], sum_range(cell_old, i-1, i, 0, 1) - cell_old[i][0]);
       for ( j = 1; j < (n-1); j++)
@@ -106,6 +104,37 @@ void update_row(int ** cell_old, int i, int n, int ** cell)
       }
     }
   }
+}
+
+void print_cell(int ** cell, int m, int n)
+{
+  int i, j ;
+  for ( i = 0; i < n; i++)
+  {
+    printf("--");
+  }
+  printf("--\n");
+  for ( i = 0; i < m; i++)
+  {
+    printf("|");
+    for ( j = 0; j < n; j++)
+    {
+      if(cell[i][j] == 1)
+      {
+        printf("o ");
+      }
+      else
+      {
+        printf("  ");
+      }
+    }
+    printf("|\n");
+  }
+  for ( i = 0; i < n; i++)
+  {
+    printf("--");
+  }
+  printf("--\n");
 }
 
 void cell_automaton(int m, int n, int number_threads)
@@ -137,9 +166,13 @@ void cell_automaton(int m, int n, int number_threads)
     #pragma omp parallel for num_threads(number_threads)
         for(i=0; i<m; i++)
         {
-          update_row(cell_old, i, n, cell);
+          update_row(cell_old, i, m, n, cell);
         }
-
+      if (gen_count%25 == 0)
+      {
+        printf("Gen %d cell: \n", gen_count);
+        print_cell(cell, m, n);
+      }
   }
 
 }

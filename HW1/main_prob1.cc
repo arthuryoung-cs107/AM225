@@ -15,7 +15,7 @@ int main()
 {
   uint64_t i, j;
   uint64_t trials = 1e9;
-  uint64_t count = 0;
+  uint64_t count;
   uint64_t jump = 100;
   int max_threads = 4;
   int thread_num;
@@ -33,6 +33,7 @@ int main()
 
   for ( j = 0; j < 3; j++)
   {
+    count = 0;
     thread_num = thread_num_vec[j];
     t0 = omp_get_wtime();
     #pragma omp parallel for num_threads(thread_num)

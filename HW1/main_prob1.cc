@@ -44,7 +44,7 @@ int main()
     #pragma omp parallel for num_threads(thread_num)
         for(i=0; i<trials; i++)
         {
-          uint64_t local_count = casino_game(seed_vec + omp_get_thread_num() );
+          uint64_t local_count = casino_game(seed_vec + omp_get_thread_num());
           count_vec[omp_get_thread_num()] += local_count;
         }
     t1 = omp_get_wtime();

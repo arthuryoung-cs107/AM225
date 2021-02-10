@@ -14,19 +14,17 @@ double random_uni(double low, double high, uint64_t * carry)
   return rand_uni;
 }
 
-uint64_t casino_game(uint64_t * seed)
+uint64_t casino_game(uint64_t *  seed)
 {
   double end_cond = 1;
   double cond = 0;
   uint64_t count = 0;
   uint64_t carry = *(seed);
-
   while(cond < end_cond)
   {
     cond += random_uni(0, 1, &carry);
     count++;
   }
-
   *(seed) = carry;
   return count;
 }

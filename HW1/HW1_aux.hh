@@ -4,6 +4,6 @@
 #include <cstdio>
 #include <stdint.h>
 
-int casino_game(uint64_t * carry);
+uint64_t casino_game(uint64_t * carry);
 
 #endif

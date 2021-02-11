@@ -215,11 +215,15 @@ uint64_t * find_primes(uint64_t max) // dummy simple Sieve of Eratosthenes since
 {
   uint64_t i, j, prime_it;
   int stop = 0;
-  int * status_vec = ivector(2, max);
-  for ( i = 2; i <= max; i++) status_vec[i] = 1;
+  // -1 denotes unsearched, 1 denotes prime, 0 denotes not prime
+  int * status_vec = ivector(0, max);
+  status_vec[0] = 0;
+  status_vec[1] = 0;
+  status_vec[2] = 1;
+  status_vec[3] = 1;
+  for ( i = 4; i <= max; i++) status_vec[i] = -1;
 
-  prime_it = 2;
-  status_vec[2] = 0;
+  prime_it = 3;
   while(stop == 0)
   {
     if (prime_it*prime_it > max)
@@ -234,7 +238,10 @@ uint64_t * find_primes(uint64_t max) // dummy simple Sieve of Eratosthenes since
         status_vec[i] = 0;
       }
     }
-
   }
+
+  for ( i = 0; i < count; i++) ;
+
+
 
 }

@@ -40,4 +40,6 @@ int main()
   }
   fclose(prob2_file);
 
+  free_dvector(out_vec, 0, 2);
+
 }

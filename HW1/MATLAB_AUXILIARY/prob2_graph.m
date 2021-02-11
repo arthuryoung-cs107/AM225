@@ -34,10 +34,9 @@ m = dims(1);
 n = dims(2);
 
 fig1 = figure('Name', 'Jet space, view 1', 'Renderer', 'painters', 'Position', fig_pos(1, :));
-ylabel('x')
-xlabel('t')
-xlim([0 6])
-ylim([0 9])
+ylabel('efficiency')
+% xlabel('n')
+box on
 hold on
 
 % un-noised G matrix
@@ -46,3 +45,31 @@ thread1_results = (fread(fopen('../dat_dir/prob2_results_threads1.dat'), [n, m],
 thread2_results = (fread(fopen('../dat_dir/prob2_results_threads2.dat'), [n, m], 'float64=>float64'))';
 thread3_results = (fread(fopen('../dat_dir/prob2_results_threads3.dat'), [n, m], 'float64=>float64'))';
 thread4_results = (fread(fopen('../dat_dir/prob2_results_threads4.dat'), [n, m], 'float64=>float64'))';
+
+thread_all_results = [thread1_results; thread2_results; thread3_results; thread4_results];
+n_all = thread_all_results(:, 2);
+n_all = reshape(n_all,[m, 4]);
+time_all = thread_all_results(:, 3);
+time_all = reshape(time_all,[m, 4]);
+
+efficiency = zeros(7, 4);
+
+for i = 1:m
+  for j = 1:4
+    efficiency(i, j) = time_all(i, 1)/( j*time_all(i, j));
+  end
+end
+
+figure(fig1.Number)
+plot(log2(n_all(:, 2)), efficiency(:, 2), '- s', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(log2(n_all(:, 3)), efficiency(:, 3), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '3 threads')
+plot(log2(n_all(:, 4)), efficiency(:, 4), '- ^', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', '4 threads')
+legend('Show', 'Location', 'SouthEast')
+set(gca, 'XTickLabel',[])                      %# suppress current x-labels
+xt = get(gca, 'XTick');
+yl = get(gca, 'YLim');
+str = cellstr( num2str(xt(:),'2^{%d}') );      %# format x-ticks as 2^{xx}
+hTxt = text(xt, yl(ones(size(xt))), str, ...   %# create text at same locations
+    'Interpreter','tex', ...                   %# specify tex interpreter
+    'VerticalAlignment','top', ...             %# v-align to be underneath
+    'HorizontalAlignment','center');           %# h-aligh to be centered

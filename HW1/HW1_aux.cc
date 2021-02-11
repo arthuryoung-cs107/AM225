@@ -160,7 +160,7 @@ void cell_automaton(int m, int n, int number_threads)
     }
   }
 
-  for ( gen_count = 0; gen_count < gen_max; gen_count++)
+  for ( gen_count = 1; gen_count <= gen_max; gen_count++)
   {
     imatrix_cpy(cell, 0, m-1, 0, n-1, cell_old , 0, m-1, 0, n-1);
     #pragma omp parallel for num_threads(number_threads)

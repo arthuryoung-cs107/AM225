@@ -1,38 +1,12 @@
 #include "HW1_aux.hh"
 #include "omp.h"
+#include "gsl/gsl_rng.h"
 
 extern "C" {
   #include "nrutil.h"
   #include "auxiliary_functions.h"
   #include "knuth_lcg.h"
 }
-
-/** Custom random number generator based of "Ran" routine in Numerical Recipes
- * by Press et al. */
-class custom_rng {
-    public:
-        unsigned long a,b,c;
-        custom_rng(unsigned long seed) : b(4101842887655102017L), c(1) {
-            if(sizeof(unsigned long)<8) {
-                fputs("Error: 'unsigned long' type too short\n",stderr);
-                exit(1);
-            }
-            a=seed^b;int64();
-            b=a;int64();
-            c=b;int64();
-        }
-        unsigned long int64() {
-            a=a*2862933555777941757L+7046029254386353087L;
-            b^=b>>17;b^=b<<31;b^=b>>8;
-            c=4294957665U*(c&0xffffffff)+(c>>32);
-            unsigned long d=a^(a<<21);
-            d^=d>>35;d^=d<<4;
-            return (d+b)^c;
-        }
-        inline double doub() {
-            return 5.42101086242752217E-20*int64();
-        }
-};
 
 double random_uni(double low, double high, uint64_t * carry) // knuth rng
 {
@@ -164,42 +138,53 @@ void print_cell(int ** cell, int m, int n)
   printf("--\n");
 }
 
-void cell_automaton(int m, int n, int number_threads)
+void cell_automation(int m, int n, int gen_max, double * out_vec)
 {
-  int i, j, gen_count;
-  int gen_max = 150;
-  uint64_t start_seed = 123456789;
-  uint64_t seed = lcg_fwd(start_seed, 100);
-
+  int i, j, trial_count, gen_count;
+  double t0, t1, t_end, t_avg;
   int ** cell = imatrix(0, m-1, 0, n-1);
   int ** cell_old = imatrix(0, m-1, 0, n-1);
+  gsl_rng * T = gsl_rng_alloc(gsl_rng_taus);
 
   zeromint_init(cell, 0, m-1, 0, n-1);
-
   for ( i = ((m/2) - 6); i < ((m/2) + 6); i++)
   {
     for ( j = ((n/2) - 6); j < ((n/2) + 6); j++)
     {
-      if (random_uni(0, 1, &seed) < 0.75)
+      if (gsl_rng_uniform(T) < 0.75)
       {
         cell[i][j] = 1;
       }
     }
   }
-
   for ( gen_count = 1; gen_count <= gen_max; gen_count++)
   {
-    imatrix_cpy(cell, 0, m-1, 0, n-1, cell_old , 0, m-1, 0, n-1);
-    #pragma omp parallel for num_threads(number_threads)
+    imatrix_cpy(cell, 0, m-1, 0, n-1, cell_old, 0, m-1, 0, n-1);
+    t0 = omp_get_wtime();
+    #pragma omp parallel for
         for(i=0; i<m; i++)
         {
           update_row(cell_old, i, m, n, cell);
         }
-      if (gen_count%25 == 0)
-      {
-        printf("Gen %d cell: \n", gen_count);
-        print_cell(cell, m, n);
-      }
+    t1 = omp_get_wtime();
+    t_end += (t1-t0);
+      // if (gen_count%25 == 0)
+      // {
+      //   printf("Gen %d cell: \n", gen_count);
+      //   print_cell(cell, m, n);
+      // }
   }
+  // printf("Trial: %d final cell: \n", gen_count);
+  // print_cell(cell, m, n);
 
+  t_avg = (t_end)/( (double) gen_max );
+  printf("num threads: %d, generation num: %d, mean gen calc time: %f\n", omp_get_max_threads(), gen_max, t_avg);
+
+  out_vec[0] = (double) omp_get_max_threads();
+  out_vec[1] = (double) gen_max;
+  out_vec[2] = t_avg;
+
+  free_imatrix(cell, 0, m-1, 0, n-1);
+  free_imatrix(cell_old, 0, m-1, 0, n-1);
+  gsl_rng_free(T);
 }

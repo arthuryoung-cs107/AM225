@@ -22,7 +22,6 @@ int main()
   int thread_num_vec[3] = {1, 2, 4};
 
   gsl_rng ** generators = (gsl_rng **)malloc(omp_get_max_threads()*(sizeof(gsl_rng *)));
-
   for ( i = 0; i < omp_get_max_threads(); i++) generators[i] = gsl_rng_alloc(gsl_rng_taus);
 
   count = 0;
@@ -42,6 +41,9 @@ int main()
   mean_count = ((double) count )/( (double) trials );
   printf("number of threads: %d, end mean count: %f, end wall time: %f seconds \n", omp_get_max_threads(), mean_count, t_end);
 
+
+  for ( i = 0; i < omp_get_max_threads(); i++) gsl_rng_free(generators[i]);
+  free(generators);
 
   return 0;
 

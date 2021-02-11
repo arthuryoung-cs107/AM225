@@ -179,10 +179,10 @@ void cell_automation(int m, int n, int gen_max, double * out_vec)
   // print_cell(cell, m, n);
 
   t_avg = (t_end)/( (double) gen_max );
-  printf("num threads: %d, generation num: %d, mean gen calc time: %f\n", omp_get_max_threads(), gen_max, t_avg);
+  printf("num threads: %d, n: %d, mean gen calc time: %f\n", omp_get_max_threads(), n, t_avg);
 
   out_vec[0] = (double) omp_get_max_threads();
-  out_vec[1] = (double) gen_max;
+  out_vec[1] = (double) n;
   out_vec[2] = t_avg;
 
   free_imatrix(cell, 0, m-1, 0, n-1);

@@ -42,3 +42,7 @@ hold on
 
 % un-noised G matrix
 thread8_results = (fread(fopen('../dat_dir/prob2_results_threads8.dat'), [n, m], 'float64=>float64'))';
+thread1_results = (fread(fopen('../dat_dir/prob2_results_threads1.dat'), [n, m], 'float64=>float64'))';
+thread2_results = (fread(fopen('../dat_dir/prob2_results_threads2.dat'), [n, m], 'float64=>float64'))';
+thread3_results = (fread(fopen('../dat_dir/prob2_results_threads3.dat'), [n, m], 'float64=>float64'))';
+thread4_results = (fread(fopen('../dat_dir/prob2_results_threads4.dat'), [n, m], 'float64=>float64'))';

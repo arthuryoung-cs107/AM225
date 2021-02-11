@@ -189,3 +189,52 @@ void cell_automation(int m, int n, int gen_max, double * out_vec)
   free_imatrix(cell_old, 0, m-1, 0, n-1);
   gsl_rng_free(T);
 }
+
+uint64_t next_prime(int * status_vec, uint64_t last_prime)
+{
+  int stop = 0;
+  uint64_t index = last_prime+2;
+  uint64_t return_index;
+
+  while(stop == 0)
+  {
+    if (status_vec[index] == 0)
+    {
+      return_index = index;
+      stop = 1;
+    }
+    else
+    {
+      index = index + 2;
+    }
+  }
+  return return_index;
+}
+
+uint64_t * find_primes(uint64_t max) // dummy simple Sieve of Eratosthenes since I'm not clever enough to implement the optimizations
+{
+  uint64_t i, j, prime_it;
+  int stop = 0;
+  int * status_vec = ivector(2, max);
+  for ( i = 2; i <= max; i++) status_vec[i] = 1;
+
+  prime_it = 2;
+  status_vec[2] = 0;
+  while(stop == 0)
+  {
+    if (prime_it*prime_it > max)
+    {
+      stop = 1;
+    }
+    else
+    {
+      prime_it = next_prime(status_vec, prime_it);
+      for ( i = 2*prime_it; i <= max; i = i + prime_it)
+      {
+        status_vec[i] = 0;
+      }
+    }
+
+  }
+
+}

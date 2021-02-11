@@ -157,6 +157,7 @@ void cell_automation(int m, int n, int gen_max, double * out_vec)
       }
     }
   }
+  t_end = 0;
   for ( gen_count = 1; gen_count <= gen_max; gen_count++)
   {
     imatrix_cpy(cell, 0, m-1, 0, n-1, cell_old, 0, m-1, 0, n-1);

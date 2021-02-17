@@ -13,7 +13,7 @@ CPPDEPS = HW1_aux.hh
 
 OBJS1 = main_prob1.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
-OBJS2 = main_prob3.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
+OBJS3 = main_prob3.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)

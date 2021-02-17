@@ -5,8 +5,19 @@
 #include <stdint.h>
 #include "gsl/gsl_rng.h"
 
+struct Prime_struct
+{
+  long * primes;
+  long max;
+  long len;
+} ;
+typedef struct Prime_struct primes;
+
 double random_uni(double low, double high, uint64_t * carry);
 uint64_t casino_game(gsl_rng * T);
 void cell_automation(int m, int n, int gen_max, double * out_vec);
+primes * find_primes(long check_prime);
+
+
 
 #endif

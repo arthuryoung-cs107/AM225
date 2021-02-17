@@ -190,7 +190,7 @@ void cell_automation(int m, int n, int gen_max, double * out_vec)
   gsl_rng_free(T);
 }
 
-uint64_t next_prime(int * status_vec, uint64_t last_prime)
+uint64_t next_prime(short * status_vec, long last_prime)
 {
   int stop = 0;
   uint64_t index = last_prime+2;
@@ -198,8 +198,9 @@ uint64_t next_prime(int * status_vec, uint64_t last_prime)
 
   while(stop == 0)
   {
-    if (status_vec[index] == 0)
+    if (status_vec[index] == -1)
     {
+      status_vec[index] = 1; // is prime
       return_index = index;
       stop = 1;
     }
@@ -211,37 +212,48 @@ uint64_t next_prime(int * status_vec, uint64_t last_prime)
   return return_index;
 }
 
-uint64_t * find_primes(uint64_t max) // dummy simple Sieve of Eratosthenes since I'm not clever enough to implement the optimizations
+primes * find_primes(long check_prime)
 {
-  uint64_t i, j, prime_it;
+  primes * return_primes;
+  long i, j, prime_it;
   int stop = 0;
   // -1 denotes unsearched, 1 denotes prime, 0 denotes not prime
-  int * status_vec = ivector(0, max);
+  short * status_vec = (short *)malloc((check_prime + 1)*sizeof(short));
   status_vec[0] = 0;
   status_vec[1] = 0;
   status_vec[2] = 1;
-  status_vec[3] = 1;
-  for ( i = 4; i <= max; i++) status_vec[i] = -1;
+  for ( i = 3; i <= check_prime; i = i + 2) status_vec[i] = -1;
+  for ( i = 4; i <= check_prime; i = i + 2) status_vec[i] = 0;
 
-  prime_it = 3;
+  prime_it = 1;
   while(stop == 0)
   {
-    if (prime_it*prime_it > max)
+    if (prime_it*prime_it > check_prime)
     {
       stop = 1;
     }
     else
     {
       prime_it = next_prime(status_vec, prime_it);
-      for ( i = 2*prime_it; i <= max; i = i + prime_it)
+      for ( i = 2*prime_it; i <= check_prime; i = i + prime_it)
       {
         status_vec[i] = 0;
       }
     }
   }
 
-  for ( i = 0; i < count; i++) ;
+  for ( i = 3; i <= check_prime; i = i + 2)
+  {
+    if (status_vec[i] == -1) status_vec[i] = 1; 
+  }
 
+  for (int i = 0; i <= check_prime; i++)
+  {
+    if (status_vec[i] == 1)
+    {
+      printf("%d \n", i);
+    }
+  }
 
-
+  return return_primes;
 }

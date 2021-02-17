@@ -14,8 +14,8 @@ extern "C" {
 
 int main()
 {
-  uint64_t check_prime = 1e5;
-  uint64_t * prime_vec = find_primes(check_prime)
+  long check_prime = 100;
+  primes * case1 = find_primes(check_prime);
 
   return 0;
 }

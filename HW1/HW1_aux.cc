@@ -1,6 +1,6 @@
 #include "HW1_aux.hh"
 #include "omp.h"
-#include "gsl/gsl_rng.h"
+
 
 extern "C" {
   #include "nrutil.h"
@@ -190,11 +190,11 @@ void cell_automation(int m, int n, int gen_max, double * out_vec)
   gsl_rng_free(T);
 }
 
-uint64_t next_prime(short * status_vec, long last_prime)
+long next_prime(short * status_vec, long last_prime)
 {
   int stop = 0;
-  uint64_t index = last_prime+2;
-  uint64_t return_index;
+  long index = last_prime+2;
+  long return_index;
 
   while(stop == 0)
   {
@@ -212,10 +212,10 @@ uint64_t next_prime(short * status_vec, long last_prime)
   return return_index;
 }
 
-primes * find_primes(long check_prime)
+Primes * find_primes(long check_prime)
 {
-  primes * return_primes;
-  long i, j, prime_it;
+  struct Prime_struct * return_primes = (Primes *)malloc(sizeof(Primes));
+  long i, j, prime_it, num_primes;
   int stop = 0;
   // -1 denotes unsearched, 1 denotes prime, 0 denotes not prime
   short * status_vec = (short *)malloc((check_prime + 1)*sizeof(short));
@@ -226,6 +226,7 @@ primes * find_primes(long check_prime)
   for ( i = 4; i <= check_prime; i = i + 2) status_vec[i] = 0;
 
   prime_it = 1;
+  num_primes = 1;
   while(stop == 0)
   {
     if (prime_it*prime_it > check_prime)
@@ -234,6 +235,7 @@ primes * find_primes(long check_prime)
     }
     else
     {
+      num_primes++;
       prime_it = next_prime(status_vec, prime_it);
       for ( i = 2*prime_it; i <= check_prime; i = i + prime_it)
       {
@@ -242,18 +244,100 @@ primes * find_primes(long check_prime)
     }
   }
 
-  for ( i = 3; i <= check_prime; i = i + 2)
+  for ( i = prime_it+2; i <= check_prime; i = i + 2)
   {
-    if (status_vec[i] == -1) status_vec[i] = 1; 
-  }
-
-  for (int i = 0; i <= check_prime; i++)
-  {
-    if (status_vec[i] == 1)
+    if (status_vec[i] == -1)
     {
-      printf("%d \n", i);
+      status_vec[i] = 1;
+      num_primes++;
     }
   }
 
+  long * prime_vec = (long *)malloc((num_primes)*sizeof(long));
+
+  prime_vec[0] = 2;
+  j = 1;
+  for ( i = 3; i <= check_prime; i = i + 2)
+  {
+    if (status_vec[i] == 1)
+    {
+      prime_vec[j] = i;
+      j++;
+    }
+  }
+
+  return_primes->primes = prime_vec;
+  return_primes->max = check_prime;
+  return_primes->len = num_primes;
+
+  free(status_vec);
   return return_primes;
+}
+
+Mersenne * Mersenne_expand(long n, long m_base)
+{
+  double pow_d;
+  long i, local_pow, old_pow;
+  long base = (long) pow((double) 2, (double) m_base);
+  long base_1m = base - 1;
+  long k = n/m_base; // integer division
+  struct Mersenne_Struct * return_mersenne = (Mersenne *)malloc(sizeof(Mersenne));
+
+  long * coeffs = (long * )malloc((k+1)*sizeof(long));
+  return_mersenne->m = m_base;
+  return_mersenne->k_max = k;
+  return_mersenne->coeffs = coeffs;
+  return_mersenne->base = base;
+
+
+  old_pow = n;
+  local_pow = old_pow - (m_base*k);
+  pow_d = pow((double) 2, (double) local_pow);
+  coeffs[k] = (long) pow_d - 1;
+
+  for ( i = 0; i < k; i++) coeffs[i] = base_1m;
+
+  return return_mersenne;
+}
+
+long general_divide(Mersenne * num_in, long divide)
+{
+
+  long i, whole, check1, check2;
+  long acc = 0;
+  long rem = 0;
+  long base = (long) pow((double) 2, (double) num_in->m);
+  for ( i = 0; i <= num_in->k_max; i++)
+  {
+    rem += ( (long) pow( (double) base, (double) i ) )*((num_in->coeffs[i])%divide);
+    num_in->coeffs[i] = (num_in->coeffs[i])/divide;
+    acc += rem/divide;
+    rem = rem%divide;
+  }
+
+  num_in->coeffs[0] += acc;
+
+  for ( i = 0; i <= num_in->k_max; i++)
+  {
+    if (num_in->coeffs[i] >= base)
+    {
+      num_in->coeffs[i+1]++;
+      num_in->coeffs[i] -= base;
+      i = i - 1;
+    }
+  }
+
+  return rem;
+}
+
+void free_Primes(Primes * prime_structure)
+{
+  free(prime_structure->primes);
+  free(prime_structure);
+}
+
+void free_Mersenne(Mersenne * mers_struct)
+{
+  free(mers_struct->coeffs);
+  free(mers_struct);
 }

@@ -14,11 +14,8 @@ extern "C" {
 
 int main()
 {
-  long check_prime = 1e5;
+  long check_prime = 2e5;
   Primes * case1 = find_primes(check_prime);
-
-  // long power_1 = 8258993;
-  // long m_base = 40;
 
   long power_1 = 7;
   long m_base = 2;
@@ -26,8 +23,21 @@ int main()
   Mersenne * test1 = Mersenne_expand(power_1, m_base);
   long remain = general_divide(test1, 2);
 
-  
-  long num_primes = Count_Primes();
+  long power_2 = 8258993;
+  long m_base2 = 40;
+  Mersenne * M = Mersenne_expand(power_2, m_base2);
+  long num_primes = Count_Primes(case1, M);
+  printf("number of dividing primes: %ld \n", num_primes);
+
+  long check_prime2 = 1e6;
+  Primes * case2 = find_primes(check_prime2);
+
+  long power_3 = 8258992;
+  long m_base3 = 40;
+  Mersenne * M2 = Mersenne_expand(power_3, m_base3);
+  long num_primes2 = Count_Primes(case2, M2);
+  printf("number of dividing primes: %ld \n", num_primes2);
+
 
   free_Primes(case1);
   free_Mersenne(test1);

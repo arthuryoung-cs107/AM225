@@ -29,6 +29,7 @@ void cell_automation(int m, int n, int gen_max, double * out_vec);
 Primes * find_primes(long check_prime);
 Mersenne * Mersenne_expand(long pow, long m_base);
 long general_divide(Mersenne * num_in, long divide);
+long Count_Primes(Primes * prime_in, Mersenne * mers_in);
 void free_Primes(Primes * prime_structure);
 void free_Mersenne(Mersenne * mers_struct);
 

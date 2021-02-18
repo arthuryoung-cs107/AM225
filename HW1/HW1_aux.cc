@@ -306,7 +306,7 @@ long general_divide(Mersenne * num_in, long divide)
   long i, whole, check1, check2;
   long acc = 0;
   long rem = 0;
-  long base = (long) pow((double) 2, (double) num_in->m);
+  long base = num_in->base;
   for ( i = 0; i <= num_in->k_max; i++)
   {
     rem += ( (long) pow( (double) base, (double) i ) )*((num_in->coeffs[i])%divide);
@@ -329,6 +329,41 @@ long general_divide(Mersenne * num_in, long divide)
 
   return rem;
 }
+
+long Does_Divide(Mersenne * num_in, long divide)
+{
+  long i, ret_val;
+  long rem = 0;
+  long base = num_in->base;
+  for ( i = 0; i <= num_in->k_max; i++)
+  {
+    rem += ( (long) pow( (double) base, (double) i ) )*((num_in->coeffs[i])%divide);
+    rem = rem%divide;
+  }
+  if (rem == 0)
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+long Count_Primes(Primes * prime_in, Mersenne * mers_in)
+{
+  long i, count;
+
+  count = 0;
+  #pragma omp parallel for reduction(+:count)
+      for(i=0; i<prime_in->len; i++)
+      {
+        count += Does_Divide(mers_in, (prime_in->primes)[i] );
+
+      }
+  return count;
+}
+
 
 void free_Primes(Primes * prime_structure)
 {

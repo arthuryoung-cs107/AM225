@@ -478,6 +478,7 @@ double solve_grid(int N)
   del_t = pad*(h*h)/(4*ag_max);
   grid_init(Grid, dom_low, h, N);
 
+  t1 = omp_get_wtime();
   for ( i = 0; i < it_max; i++)
   {
     dmatrix_cpy(Grid_old, 0, N-1, 0, N-1, Grid, 0, N-1, 0, N-1);
@@ -487,6 +488,8 @@ double solve_grid(int N)
           row_update(Grid[j], Grid_old, alpha, beta, gamma, h, del_t, j, N);
         }
   }
+  t2 = omp_get_wtime();
+  t_end = t2-t1; 
 
   return t_end;
 }

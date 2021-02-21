@@ -52,4 +52,6 @@ clean:
 	rm -f *.o
 clean_dat:
 	rm -f *.dat
+	rm -f *.aysml
+	rm -f *.aydat
 clean_all: clean clean_dat

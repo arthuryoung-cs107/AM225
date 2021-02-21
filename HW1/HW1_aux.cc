@@ -481,7 +481,7 @@ double solve_grid(int N)
   t1 = omp_get_wtime();
   for ( i = 0; i < it_max; i++)
   {
-    dmatrix_cpy(Grid_old, 0, N-1, 0, N-1, Grid, 0, N-1, 0, N-1);
+    dmatrix_cpy(Grid, 0, N-1, 0, N-1, Grid_old, 0, N-1, 0, N-1);
     #pragma omp parallel for
         for (j = 0; j < N; j++) // breaking up by row
         {
@@ -490,7 +490,7 @@ double solve_grid(int N)
   }
   t2 = omp_get_wtime();
   t_end = t2-t1;
-
+  
   return t_end;
 }
 
@@ -556,7 +556,7 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
     s_it2 = 0;
     time_it += del_t;
     count++;
-    dmatrix_cpy(Grid_old, 0, N-1, 0, N-1, Grid, 0, N-1, 0, N-1);
+    dmatrix_cpy(Grid, 0, N-1, 0, N-1, Grid_old, 0, N-1, 0, N-1);
     #pragma omp parallel for
         for (j = 0; j < N; j++) // breaking up by row
         {

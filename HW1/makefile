@@ -14,6 +14,7 @@ CPPDEPS = HW1_aux.hh
 OBJS1 = main_prob1.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 OBJS3 = main_prob3.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
+OBJS5 = main_prob5.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)
@@ -30,16 +31,24 @@ prob2_solve: $(OBJS2)
 prob3_solve: $(OBJS3)
 	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
 
+prob5_solve: $(OBJS5)
+	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
+
 prob1: prob1_solve
 
 prob2: prob2_solve
 
-all: prob1_solve prob2_solve prob3_solve
+prob3: prob3_solve
+
+prob5: prob5_solve
+
+all: prob1_solve prob2_solve prob3_solve prob5_solve
 
 clean:
 	rm -f prob1_solve
 	rm -f prob2_solve
 	rm -f prob3_solve
+	rm -f prob4_solve
 	rm -f *.o
 clean_dat:
 	rm -f *.dat

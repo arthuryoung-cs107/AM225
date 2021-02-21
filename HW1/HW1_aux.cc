@@ -1,6 +1,9 @@
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_linalg.h>
+
 #include "HW1_aux.hh"
 #include "omp.h"
-
 
 extern "C" {
   #include "nrutil.h"
@@ -364,7 +367,6 @@ long Count_Primes(Primes * prime_in, Mersenne * mers_in)
   return count;
 }
 
-
 void free_Primes(Primes * prime_structure)
 {
   free(prime_structure->primes);
@@ -375,4 +377,116 @@ void free_Mersenne(Mersenne * mers_struct)
 {
   free(mers_struct->coeffs);
   free(mers_struct);
+}
+
+void grid_init(double ** Grid, double dom_low, double h, int N)
+{
+  int i, j, y_it;
+  double X, Y, val;
+  y_it = 0;
+  for ( i = N-1; i >= 0; i--)
+  {
+    Y = ((double) y_it)*(h) + dom_low;
+    for ( j = 0; j < N; j++)
+    {
+      X = ( (double) j)*(h) + dom_low;
+      Grid[i][j] = exp(-cos(2* M_PI*X) - sin(2* M_PI*Y));
+    }
+    y_it++;
+  }
+}
+
+void row_update(double * row, double ** G, double alpha, double beta, double gamma, double h, double del_t, int i, int N)
+{
+  int j;
+  double wa = (del_t * alpha)/(h*h);
+  double wb = (del_t * beta)/(4*h*h);
+  double wg = (del_t * gamma)/(h*h);
+
+  if (i == 0) // top row
+  {
+    j = 0;
+    row[j] = wa*(G[i][N-1] - 2*G[i][j] + G[i][j+1]) + wb*(G[i+1][j+1] - G[i+1][N-1] - G[N-1][j+1] + G[N-1][N-1]) + wg*(G[N-1][j] - 2*G[i][j] + G[i+1][j]) + G[i][j];
+    for ( j = 1; j <= N-2; j++)
+    {
+      row[j] = wa*(G[i][j-1] - 2*G[i][j] + G[i][j+1]) + wb*(G[i+1][j+1] - G[i+1][j-1] - G[N-1][j+1] + G[N-1][j-1]) + wg*(G[N-1][j] - 2*G[i][j] + G[i+1][j]) + G[i][j];
+    }
+    j = N-1;
+    row[j] = wa*(G[i][j-1] - 2*G[i][j] + G[i][0]) + wb*(G[i+1][0] - G[i+1][j-1] - G[N-1][0] + G[N-1][j-1]) + wg*(G[N-1][j] - 2*G[i][j] + G[i+1][j]) + G[i][j];
+  }
+  else
+  {
+    if (i == N-1) // bottom row
+    {
+      j = 0;
+      row[j] = wa*(G[i][N-1] - 2*G[i][j] + G[i][j+1]) + wb*(G[0][j+1] - G[0][N-1] - G[i-1][j+1] + G[i-1][N-1]) + wg*(G[i-1][j] - 2*G[i][j] + G[0][j]) + G[i][j];
+      for ( j = 1; j <= N-2; j++)
+      {
+        row[j] = wa*(G[i][j-1] - 2*G[i][j] + G[i][j+1]) + wb*(G[0][j+1] - G[0][j-1] - G[i-1][j+1] + G[i-1][j-1]) + wg*(G[i-1][j] - 2*G[i][j] + G[0][j]) + G[i][j];
+      }
+      j = N-1;
+      row[j] = wa*(G[i][j-1] - 2*G[i][j] + G[i][0]) + wb*(G[0][0] - G[0][j-1] - G[i-1][0] + G[i-1][j-1]) + wg*(G[i-1][j] - 2*G[i][j] + G[0][j]) + G[i][j];
+    }
+    else // middle rows
+    {
+      j = 0;
+      row[j] = wa*(G[i][N-1] - 2*G[i][j] + G[i][j+1]) + wb*(G[i+1][j+1] - G[i+1][N-1] - G[i-1][j+1] + G[i-1][N-1]) + wg*(G[i-1][j] - 2*G[i][j] + G[i+1][j]) + G[i][j];
+      for ( j = 1; j <= N-2; j++)
+      {
+        row[j] = wa*(G[i][j-1] - 2*G[i][j] + G[i][j+1]) + wb*(G[i+1][j+1] - G[i+1][j-1] - G[i-1][j+1] + G[i-1][j-1]) + wg*(G[i-1][j] - 2*G[i][j] + G[i+1][j]) + G[i][j];
+      }
+      j = N-1;
+      row[j] = wa*(G[i][j-1] - 2*G[i][j] + G[i][0]) + wb*(G[i+1][0] - G[i+1][j-1] - G[i-1][0] + G[i-1][j-1]) + wg*(G[i-1][j] - 2*G[i][j] + G[i+1][j]) + G[i][j];
+    }
+  }
+}
+
+double solve_grid(int N)
+{
+  int i, j;
+  int it_max = 1000;
+  double alpha, beta, gamma, h, del_t, t1, t2, t_end, ag_max;
+  double pad = 0.5;
+  double dom_low = 0; //presuming this applies to the alternative domain
+  double dom_high = 1;
+
+  double T11 = 1;
+  double T12 = 0.5;
+  double T21 = 0;
+  double T22 = 1;
+
+  double ** Grid = dmatrix(0, N-1, 0, N-1);
+  double ** Grid_old = dmatrix(0, N-1, 0, N-1);
+  double ** T = dmatrix(0, 1, 0, 1);
+
+  T[0][0] = T11;
+  T[0][1] = T12;
+  T[1][0] = T21;
+  T[1][1] = T22;
+
+  alpha = ((T22*T22)/( (T11*T22 - T12*T21)*(T11*T22 - T12*T21) )) + ((T12*T12)/( (T21*T12 - T11*T22)*(T21*T12 - T11*T22) ));
+  beta = 2*((T22*T21)/((T11*T22 - T12*T21) * (T12*T21 - T11*T22)) + (T12*T11)/((T21*T12 - T11*T22) * (T11*T22 - T12*T21)));
+  gamma = ((T21*T21)/( (T12*T21 - T11*T22)*(T12*T21 - T11*T22) )) + ((T11*T11)/( (T11*T22 - T12*T21)*(T11*T22 - T12*T21) )) ;
+
+  ag_max = alpha;
+  if (gamma > alpha)
+  {
+    ag_max = gamma;
+  }
+
+  h = (dom_high - dom_low)/(N-1);
+  del_t = pad*(h*h)/(4*ag_max);
+  grid_init(Grid, dom_low, h, N);
+
+  for ( i = 0; i < it_max; i++)
+  {
+    dmatrix_cpy(Grid_old, 0, N-1, 0, N-1, Grid, 0, N-1, 0, N-1);
+    #pragma omp parallel for
+        for (j = 0; j < N; j++) // breaking up by row
+        {
+          row_update(Grid[j], Grid_old, alpha, beta, gamma, h, del_t, j, N);
+        }
+  }
+
+  return t_end;
 }

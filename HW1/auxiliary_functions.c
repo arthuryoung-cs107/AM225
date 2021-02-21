@@ -6,6 +6,17 @@
 #include "auxiliary_functions.h"
 #include "nrutil.h"
 
+void aysml_gen(char name[], int m, int n)
+{
+  char specfile[300];
+  memset(specfile, 0, 299);
+  snprintf(specfile, 300, "%s.aysml", name);
+  FILE * aysml_file = fopen(specfile, "w");
+  fprintf(aysml_file, "%d %d", m, n);
+  fclose(aysml_file);
+}
+
+
 // access functions
 float t_acc( float * ptr, int i) //ptr to each curve, so inputting members of pointer array
 {

@@ -1,6 +1,8 @@
 #ifndef auxiliary_functions_H  /* Include guard */
 #define auxiliary_functions_H
 
+void aysml_gen(char name[], int m, int n);
+
 // access functions
 float t_acc(float * ptr, int i);
 float x_acc(float * ptr, int i);

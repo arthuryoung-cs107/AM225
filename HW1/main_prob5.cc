@@ -29,24 +29,24 @@ N_vec[3] = 512;
 N_vec[4] = 1024;
 N_vec[5] = 2048;
 
-memset(prefix, 0, 99);
-memset(specfile, 0, 199);
-snprintf(prefix, 100, "./dat_dir/prob5_threads%d_runtime", omp_get_max_threads());
-snprintf(specfile, 200, "%s.aydat", prefix);
-FILE * prob5_data_file = fopen(specfile, "wb");
-
-for ( i = 0; i < 6; i++)
-{
-  runtime = solve_grid(N_vec[i]);
-  N_cast = (double) N_vec[i];
-  thread_count_cast = (double) omp_get_max_threads();
-  fwrite(&(thread_count_cast), sizeof(double), 1, prob5_data_file);
-  fwrite(&(N_cast), sizeof(double), 1, prob5_data_file);
-  fwrite(&(runtime), sizeof(double), 1, prob5_data_file);
-}
-fclose(prob5_data_file);
-
-aysml_gen(prefix, 6, 3);
+// memset(prefix, 0, 99);
+// memset(specfile, 0, 199);
+// snprintf(prefix, 100, "./dat_dir/prob5_threads%d_runtime", omp_get_max_threads());
+// snprintf(specfile, 200, "%s.aydat", prefix);
+// FILE * prob5_data_file = fopen(specfile, "wb");
+//
+// for ( i = 0; i < 6; i++)
+// {
+//   runtime = solve_grid(N_vec[i]);
+//   N_cast = (double) N_vec[i];
+//   thread_count_cast = (double) omp_get_max_threads();
+//   fwrite(&(thread_count_cast), sizeof(double), 1, prob5_data_file);
+//   fwrite(&(N_cast), sizeof(double), 1, prob5_data_file);
+//   fwrite(&(runtime), sizeof(double), 1, prob5_data_file);
+// }
+// fclose(prob5_data_file);
+//
+// aysml_gen(prefix, 6, 3);
 
 T1[0][0] = 1;
 T1[0][1] = 0.5;

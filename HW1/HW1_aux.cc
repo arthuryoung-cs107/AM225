@@ -583,7 +583,7 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
     if (count%10000 == 0)
     {
       memset(specfile, 0, 199);
-      snprintf(specfile, 200, "%s_it%d_mat", prefix);
+      snprintf(specfile, 200, "%s_it%d_mat", prefix, count);
       fprintf_matrix( Grid,  N,  N, prefix);
     }
   }

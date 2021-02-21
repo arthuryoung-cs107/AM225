@@ -494,25 +494,27 @@ double solve_grid(int N)
   return t_end;
 }
 
-double s_eval(double ** Grid, double h, int N, int i)
+void four_corner(double ** Grid, double h, int N, int i, double * int_mat)
 {
-  double s_return;
+  double s1 = 0;
+  double s2 = 0;
   int j;
 
-  s_return = 0;
   for ( j = 0; j < (N-1); j++)
   {
-    s_return += 0.25*(Grid[i][j] + Grid[i+1][j] + Grid[i][j+1] + Grid[i+1][j+1])*h*h;
+    s1 += 0.25*(Grid[i][j] + Grid[i+1][j] + Grid[i][j+1] + Grid[i+1][j+1])*h*h;
+    s2 += 0.25*(Grid[i][j]*Grid[i][j] + Grid[i+1][j]*Grid[i+1][j] + Grid[i][j+1]*Grid[i][j+1] + Grid[i+1][j+1]*Grid[i+1][j+1])*h*h;
   }
 
-  return s_return;
+  int_mat[0] += s1;
+  int_mat[1] += s2;
 }
 
 
 void solve_grid_integrate(int N, double ** T, char prefix[])
 {
   int i, j, count;
-  double alpha, beta, gamma, h, del_t, t1, t2, t_end, ag_max, time_it, s_it, T11, T12, T21, T22;
+  double alpha, beta, gamma, h, del_t, t1, t2, t_end, ag_max, time_it, T11, T12, T21, T22, s_it1, s_it2, s_it;
   double time_max = 0.1;
   double pad = 0.5;
   double dom_low = 0;
@@ -520,6 +522,7 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
   char specfile[200];
   double ** Grid = dmatrix(0, N-1, 0, N-1);
   double ** Grid_old = dmatrix(0, N-1, 0, N-1);
+  double ** int_mat = dmatrix(0, omp_get_max_threads(), 0, 1);
 
   T11 = T[0][0];
   T12 = T[0][1];
@@ -545,18 +548,12 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
   FILE * prob5_data_file = fopen(specfile, "wb");
 
   time_it = 0;
-  count = 1;
-  s_it = 0;
-  #pragma omp parallel for reduction(+:s_it)
-      for (j = 0; j < N-1; j++) // breaking up by row
-      {
-        s_it += s_eval(Grid, h, N, j);
-      }
-  fwrite(&(time_it), sizeof(double), 1, prob5_data_file);
-  fwrite(&(s_it), sizeof(double), 1, prob5_data_file);
+  count = 0;
   while (time_it < time_max)
   {
-    s_it = 0;
+    zerom_init(int_mat, 0, omp_get_max_threads(), 0, 1);
+    s_it1 = 0;
+    s_it2 = 0;
     time_it += del_t;
     count++;
     dmatrix_cpy(Grid_old, 0, N-1, 0, N-1, Grid, 0, N-1, 0, N-1);
@@ -565,12 +562,20 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
         {
           row_update(Grid[j], Grid_old, alpha, beta, gamma, h, del_t, j, N);
         }
-
-    #pragma omp parallel for reduction(+:s_it)
+    #pragma omp parallel for
         for (j = 0; j < N-1; j++) // breaking up by row
         {
-          s_it += s_eval(Grid, h, N, j);
+          four_corner(Grid, h, N, j, int_mat[omp_get_thread_num()]);
         }
+
+    for ( j = 0; j < omp_get_max_threads(); j++)
+    {
+      s_it1 += int_mat[j][0];
+      s_it2 += int_mat[j][1];
+    }
+
+    s_it1 = s_it1*s_it1;
+    s_it = sqrt(s_it2 - s_it1);
 
     fwrite(&(time_it), sizeof(double), 1, prob5_data_file);
     fwrite(&(s_it), sizeof(double), 1, prob5_data_file);

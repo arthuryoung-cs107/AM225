@@ -44,6 +44,9 @@ xlabel('time')
 box on
 hold on
 
+fig3 = figure('Name', 'T1', 'Renderer', 'painters', 'Position', fig_pos(5, :));
+fig4 = figure('Name', 'Tid', 'Renderer', 'painters', 'Position', fig_pos(6, :));
+
 
 thread1_results = aysml_read('../dat_dir/prob5_threads1_runtime');
 thread2_results = aysml_read('../dat_dir/prob5_threads2_runtime');
@@ -65,5 +68,16 @@ plot(thread4_results(:, 2), thread4_results(:, 3), '- o', 'Color', blue5, 'LineW
 figure(fig2.Number)
 plot(s_vs_t_T1(:, 1), s_vs_t_T1(:, 2), '- .', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'T original')
 plot(s_vs_t_Tid(:, 1), s_vs_t_Tid(:, 2), '- .', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'T identity')
-
 legend('Show', 'Location', 'NorthEast')
+
+
+
+for i=10000:10000:150000
+  figure(fig3.Number)
+  mesh(aysml_read(['../dat_dir/prob5_threads8_s_vs_t_T1_it' num2str(i) '_mat']))
+
+  figure(fig4.Number)
+  mesh(aysml_read(['../dat_dir/prob5_threads8_s_vs_t_Tid_it' num2str(i) '_mat']))
+
+  pause
+end

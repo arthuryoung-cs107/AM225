@@ -29,8 +29,8 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure
-mesh(aysml_read('../interim_matrix_check'));
+% figure
+% mesh(aysml_read('../interim_matrix_check'));
 
 fig1 = figure('Name', 'Jet space, view 1', 'Renderer', 'painters', 'Position', fig_pos(1, :));
 ylabel('Wall time (seconds)')
@@ -63,7 +63,7 @@ plot(thread4_results(:, 2), thread4_results(:, 3), '- o', 'Color', blue5, 'LineW
 % plot(thread8_results(:, 2), thread8_results(:, 3), '- o', 'Color', pink(1, :), 'LineWidth', 1.5, 'DisplayName', '8 threads')
 
 figure(fig2.Number)
-plot(s_vs_t_T1(:, 1), s_vs_t_T1(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'T original')
-plot(s_vs_t_Tid(:, 1), s_vs_t_Tid(:, 2), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'T identity')
+plot(s_vs_t_T1(:, 1), s_vs_t_T1(:, 2), '- .', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'T original')
+plot(s_vs_t_Tid(:, 1), s_vs_t_Tid(:, 2), '- .', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'T identity')
 
-legend('Show', 'Location', 'SouthEast')
+legend('Show', 'Location', 'NorthEast')

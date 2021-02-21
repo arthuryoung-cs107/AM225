@@ -490,7 +490,7 @@ double solve_grid(int N)
   }
   t2 = omp_get_wtime();
   t_end = t2-t1;
-  
+
   return t_end;
 }
 
@@ -579,6 +579,13 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
 
     fwrite(&(time_it), sizeof(double), 1, prob5_data_file);
     fwrite(&(s_it), sizeof(double), 1, prob5_data_file);
+
+    if (count%10000 == 0)
+    {
+      memset(specfile, 0, 199);
+      snprintf(specfile, 200, "%s_it%d_mat", prefix);
+      fprintf_matrix( Grid,  N,  N, prefix);
+    }
   }
   fclose(prob5_data_file);
 

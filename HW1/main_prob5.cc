@@ -58,7 +58,12 @@ Tid[0][1] = 0;
 Tid[1][0] = 0;
 Tid[1][1] = 1;
 
-solve_grid_integrate(400, T1);
-solve_grid_integrate(400, Tid);
+memset(prefix, 0, 99);
+snprintf(prefix, 100, "./dat_dir/prob5_threads%d_s_vs_t_T1", omp_get_max_threads());
+solve_grid_integrate(400, T1, prefix);
+
+memset(prefix, 0, 99);
+snprintf(prefix, 100, "./dat_dir/prob5_threads%d_s_vs_t_Tid", omp_get_max_threads());
+solve_grid_integrate(400, Tid, prefix);
 
 }

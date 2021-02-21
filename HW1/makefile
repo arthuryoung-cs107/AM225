@@ -48,7 +48,7 @@ clean:
 	rm -f prob1_solve
 	rm -f prob2_solve
 	rm -f prob3_solve
-	rm -f prob4_solve
+	rm -f prob5_solve
 	rm -f *.o
 clean_dat:
 	rm -f *.dat

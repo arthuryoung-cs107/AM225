@@ -34,6 +34,6 @@ long Count_Primes(Primes * prime_in, Mersenne * mers_in);
 void free_Primes(Primes * prime_structure);
 void free_Mersenne(Mersenne * mers_struct);
 double solve_grid(int N);
-void solve_grid_integrate(int N, double ** T);
+void solve_grid_integrate(int N, double ** T, char prefix[]);
 
 #endif

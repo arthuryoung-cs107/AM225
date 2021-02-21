@@ -509,7 +509,7 @@ double s_eval(double ** Grid, double h, int N, int i)
 }
 
 
-void solve_grid_integrate(int N, double ** T)
+void solve_grid_integrate(int N, double ** T, char prefix[])
 {
   int i, j, count;
   double alpha, beta, gamma, h, del_t, t1, t2, t_end, ag_max, time_it, s_it, T11, T12, T21, T22;
@@ -517,7 +517,6 @@ void solve_grid_integrate(int N, double ** T)
   double pad = 0.5;
   double dom_low = 0;
   double dom_high = 1;
-  char prefix[100];
   char specfile[200];
   double ** Grid = dmatrix(0, N-1, 0, N-1);
   double ** Grid_old = dmatrix(0, N-1, 0, N-1);
@@ -541,9 +540,7 @@ void solve_grid_integrate(int N, double ** T)
   del_t = pad*(h*h)/(4*ag_max);
   grid_init(Grid, dom_low, h, N);
 
-  memset(prefix, 0, 99);
   memset(specfile, 0, 199);
-  snprintf(prefix, 100, "./dat_dir/prob5_threads%d_s_vs_t", omp_get_max_threads());
   snprintf(specfile, 200, "%s.aydat", prefix);
   FILE * prob5_data_file = fopen(specfile, "wb");
 

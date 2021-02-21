@@ -584,7 +584,7 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
     {
       memset(specfile, 0, 199);
       snprintf(specfile, 200, "%s_it%d_mat", prefix, count);
-      fprintf_matrix( Grid,  N,  N, prefix);
+      fprintf_matrix( Grid,  N,  N, specfile);
     }
   }
   fclose(prob5_data_file);

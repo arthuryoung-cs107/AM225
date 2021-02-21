@@ -1,8 +1,10 @@
 #include <cstdio>
 #include <cstdlib>
+#include <stdint.h>
 
 #include "HW1_aux.hh"
 #include "omp.h"
+#include "gsl/gsl_rng.h"
 
 extern "C" {
   #include "nrutil.h"
@@ -12,30 +14,38 @@ extern "C" {
 
 int main()
 {
-  int i, j;
-  // int trials = 1e9;
-  int trials = 5;
-  int thread_num = 1;
-  u_int64_t start_seed = 888888888;
-  u_int64_t jump = 100;
+  uint64_t i, j, k, count, carry, thread_num;
+  uint64_t trials = 1e9;
+  uint64_t jump = 10;
+  double mean_count, t0, t1, t_end;
 
-  u_int64_t * seed_vec = (u_int64_t *) malloc(thread_num*sizeof(u_int64_t));
-  int * count_vec = ivector(0, trials-1);
+  int thread_num_vec[3] = {1, 2, 4};
 
-  seed_vec[0] = lcg_fwd(start_seed, jump);
-  for ( i = 1; i < thread_num; i++)
-  {
-    start_seed += 1;
-    seed_vec[i] = lcg_fwd(start_seed, jump);
-  }
+  gsl_rng ** generators = (gsl_rng **)malloc(omp_get_max_threads()*(sizeof(gsl_rng *)));
+  for ( i = 0; i < omp_get_max_threads(); i++) generators[i] = gsl_rng_alloc(gsl_rng_taus);
 
-  #pragma omp parallel for num_threads(thread_num)
+  count = 0;
+  thread_num = thread_num_vec[j];
+
+  t0 = omp_get_wtime();
+  #pragma omp parallel for reduction(+:count)
       for(i=0; i<trials; i++)
       {
-        count_vec[i] = casino_game(seed_vec + omp_get_thread_num() );
-        printf("trial: %d, thread: %d, count: %d \n", i, omp_get_thread_num(), count_vec[i]);
+        count += casino_game(generators[omp_get_thread_num()]);
       }
+  t1 = omp_get_wtime();
 
+  t_end = t1 - t0;
+
+
+  mean_count = ((double) count )/( (double) trials );
+  printf("number of threads: %d, end mean count: %f, end wall time: %f seconds \n", omp_get_max_threads(), mean_count, t_end);
+
+
+  for ( i = 0; i < omp_get_max_threads(); i++) gsl_rng_free(generators[i]);
+  free(generators);
 
   return 0;
+
+
 }

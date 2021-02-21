@@ -6,6 +6,38 @@
 #include "auxiliary_functions.h"
 #include "nrutil.h"
 
+void aysml_gen(char name[], int m, int n)
+{
+  char specfile[300];
+  memset(specfile, 0, 299);
+  snprintf(specfile, 300, "%s.aysml", name);
+  FILE * aysml_file = fopen(specfile, "w");
+  fprintf(aysml_file, "%d %d", m, n);
+  fclose(aysml_file);
+}
+
+void fprintf_matrix(double ** matrix, int M, int N, char name[])
+{
+  int i, j;
+  char specfile[200];
+  memset(specfile, 0, 199);
+  snprintf(specfile, 200, "%s.aydat", name);
+  FILE * data_file = fopen(specfile, "wb");
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      fwrite(&(matrix[i][j]), sizeof(double), 1, data_file);
+    }
+  }
+  fclose(data_file);
+
+  aysml_gen( name, M, N);
+
+}
+
+
 // access functions
 float t_acc( float * ptr, int i) //ptr to each curve, so inputting members of pointer array
 {

@@ -1,6 +1,9 @@
 #ifndef auxiliary_functions_H  /* Include guard */
 #define auxiliary_functions_H
 
+void aysml_gen(char name[], int m, int n);
+void fprintf_matrix(double ** matrix, int M, int N, char prefix[]);
+
 // access functions
 float t_acc(float * ptr, int i);
 float x_acc(float * ptr, int i);

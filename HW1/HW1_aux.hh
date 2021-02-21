@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <stdint.h>
+#include <string.h>
 #include <math.h>
 #include "gsl/gsl_rng.h"
 
@@ -33,5 +34,6 @@ long Count_Primes(Primes * prime_in, Mersenne * mers_in);
 void free_Primes(Primes * prime_structure);
 void free_Mersenne(Mersenne * mers_struct);
 double solve_grid(int N);
+void solve_grid_integrate(int N, double ** T);
 
 #endif

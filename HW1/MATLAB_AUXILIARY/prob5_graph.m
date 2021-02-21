@@ -29,47 +29,23 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dims = dlmread('../dat_dir/prob2_specs_threads8.dat');
-m = dims(1);
-n = dims(2);
-
 fig1 = figure('Name', 'Jet space, view 1', 'Renderer', 'painters', 'Position', fig_pos(1, :));
-ylabel('efficiency')
-% xlabel('n')
+ylabel('Wall time (seconds)')
+xlabel('N')
 box on
 hold on
 
-% un-noised G matrix
-thread8_results = (fread(fopen('../dat_dir/prob2_results_threads8.dat'), [n, m], 'float64=>float64'))';
-thread1_results = (fread(fopen('../dat_dir/prob2_results_threads1.dat'), [n, m], 'float64=>float64'))';
-thread2_results = (fread(fopen('../dat_dir/prob2_results_threads2.dat'), [n, m], 'float64=>float64'))';
-thread3_results = (fread(fopen('../dat_dir/prob2_results_threads3.dat'), [n, m], 'float64=>float64'))';
-thread4_results = (fread(fopen('../dat_dir/prob2_results_threads4.dat'), [n, m], 'float64=>float64'))';
-
-thread_all_results = [thread1_results; thread2_results; thread3_results; thread4_results];
-n_all = thread_all_results(:, 2);
-n_all = reshape(n_all,[m, 4]);
-time_all = thread_all_results(:, 3);
-time_all = reshape(time_all,[m, 4]);
-
-efficiency = zeros(7, 4);
-
-for i = 1:m
-  for j = 1:4
-    efficiency(i, j) = time_all(i, 1)/( j*time_all(i, j));
-  end
-end
+thread1_results = aysml_read('../dat_dir/prob5_threads1_runtime');
+thread2_results = aysml_read('../dat_dir/prob5_threads2_runtime');
+thread3_results = aysml_read('../dat_dir/prob5_threads3_runtime');
+thread4_results = aysml_read('../dat_dir/prob5_threads4_runtime');
+thread8_results = aysml_read('../dat_dir/prob5_threads8_runtime');
 
 figure(fig1.Number)
-plot(log2(n_all(:, 2)), efficiency(:, 2), '- s', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(log2(n_all(:, 3)), efficiency(:, 3), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '3 threads')
-plot(log2(n_all(:, 4)), efficiency(:, 4), '- ^', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', '4 threads')
+plot(thread1_results(:, 2), thread1_results(:, 3), '- o', 'Color', [0 0 0], 'LineWidth', 1.5, 'DisplayName', '1 thread')
+plot(thread2_results(:, 2), thread2_results(:, 3), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(thread3_results(:, 2), thread3_results(:, 3), '- o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', '3 threads')
+plot(thread4_results(:, 2), thread4_results(:, 3), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '4 threads')
+% plot(thread8_results(:, 2), thread8_results(:, 3), '- o', 'Color', pink(1, :), 'LineWidth', 1.5, 'DisplayName', '8 threads')
+
 legend('Show', 'Location', 'SouthEast')
-set(gca, 'XTickLabel',[])                      %# suppress current x-labels
-xt = get(gca, 'XTick');
-yl = get(gca, 'YLim');
-str = cellstr( num2str(xt(:),'2^{%d}') );      %# format x-ticks as 2^{xx}
-hTxt = text(xt, yl(ones(size(xt))), str, ...   %# create text at same locations
-    'Interpreter','tex', ...                   %# specify tex interpreter
-    'VerticalAlignment','top', ...             %# v-align to be underneath
-    'HorizontalAlignment','center');           %# h-aligh to be centered

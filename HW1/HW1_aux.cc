@@ -489,7 +489,97 @@ double solve_grid(int N)
         }
   }
   t2 = omp_get_wtime();
-  t_end = t2-t1; 
+  t_end = t2-t1;
 
   return t_end;
+}
+
+double s_eval(double ** Grid, double h, int N, int i)
+{
+  double s_return;
+  int j;
+
+  s_return = 0;
+  for ( j = 0; j < (N-1); j++)
+  {
+    s_return += 0.25*(Grid[i][j] + Grid[i+1][j] + Grid[i][j+1] + Grid[i+1][j+1])*h*h;
+  }
+
+  return s_return;
+}
+
+
+void solve_grid_integrate(int N, double ** T)
+{
+  int i, j, count;
+  double alpha, beta, gamma, h, del_t, t1, t2, t_end, ag_max, time_it, s_it, T11, T12, T21, T22;
+  double time_max = 0.1;
+  double pad = 0.5;
+  double dom_low = 0;
+  double dom_high = 1;
+  char prefix[100];
+  char specfile[200];
+  double ** Grid = dmatrix(0, N-1, 0, N-1);
+  double ** Grid_old = dmatrix(0, N-1, 0, N-1);
+
+  T11 = T[0][0];
+  T12 = T[0][1];
+  T21 = T[1][0];
+  T22 = T[1][1];
+
+  alpha = ((T22*T22)/( (T11*T22 - T12*T21)*(T11*T22 - T12*T21) )) + ((T12*T12)/( (T21*T12 - T11*T22)*(T21*T12 - T11*T22) ));
+  beta = 2*((T22*T21)/((T11*T22 - T12*T21) * (T12*T21 - T11*T22)) + (T12*T11)/((T21*T12 - T11*T22) * (T11*T22 - T12*T21)));
+  gamma = ((T21*T21)/( (T12*T21 - T11*T22)*(T12*T21 - T11*T22) )) + ((T11*T11)/( (T11*T22 - T12*T21)*(T11*T22 - T12*T21) )) ;
+
+  ag_max = alpha;
+  if (gamma > alpha)
+  {
+    ag_max = gamma;
+  }
+
+  h = (dom_high - dom_low)/(N-1);
+  del_t = pad*(h*h)/(4*ag_max);
+  grid_init(Grid, dom_low, h, N);
+
+  memset(prefix, 0, 99);
+  memset(specfile, 0, 199);
+  snprintf(prefix, 100, "./dat_dir/prob5_threads%d_s_vs_t", omp_get_max_threads());
+  snprintf(specfile, 200, "%s.aydat", prefix);
+  FILE * prob5_data_file = fopen(specfile, "wb");
+
+  time_it = 0;
+  count = 1;
+  s_it = 0;
+  #pragma omp parallel for reduction(+:s_it)
+      for (j = 0; j < N-1; j++) // breaking up by row
+      {
+        s_it += s_eval(Grid, h, N, j);
+      }
+  fwrite(&(time_it), sizeof(double), 1, prob5_data_file);
+  fwrite(&(s_it), sizeof(double), 1, prob5_data_file);
+  while (time_it < time_max)
+  {
+    s_it = 0;
+    time_it += del_t;
+    count++;
+    dmatrix_cpy(Grid_old, 0, N-1, 0, N-1, Grid, 0, N-1, 0, N-1);
+    #pragma omp parallel for
+        for (j = 0; j < N; j++) // breaking up by row
+        {
+          row_update(Grid[j], Grid_old, alpha, beta, gamma, h, del_t, j, N);
+        }
+
+    #pragma omp parallel for reduction(+:s_it)
+        for (j = 0; j < N-1; j++) // breaking up by row
+        {
+          s_it += s_eval(Grid, h, N, j);
+        }
+
+    fwrite(&(time_it), sizeof(double), 1, prob5_data_file);
+    fwrite(&(s_it), sizeof(double), 1, prob5_data_file);
+  }
+  fclose(prob5_data_file);
+
+  aysml_gen(prefix, count, 2);
+
 }

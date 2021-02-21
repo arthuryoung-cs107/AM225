@@ -17,6 +17,8 @@ int main()
 int i;
 double runtime, thread_count_cast, N_cast;
 int * N_vec = ivector(0, 5);
+double ** T1 = dmatrix(0, 1, 0, 1);
+double ** Tid = dmatrix(0, 1, 0, 1);
 char prefix[100];
 char specfile[200];
 
@@ -45,5 +47,18 @@ for ( i = 0; i < 6; i++)
 fclose(prob5_data_file);
 
 aysml_gen(prefix, 6, 3);
+
+T1[0][0] = 1;
+T1[0][1] = 0.5;
+T1[1][0] = 0;
+T1[1][1] = 1;
+
+Tid[0][0] = 1;
+Tid[0][1] = 0;
+Tid[1][0] = 0;
+Tid[1][1] = 1;
+
+solve_grid_integrate(400, T1);
+solve_grid_integrate(400, Tid);
 
 }

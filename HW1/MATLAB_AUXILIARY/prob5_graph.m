@@ -72,7 +72,7 @@ legend('Show', 'Location', 'NorthEast')
 
 
 
-for i=10000:10000:150000
+for i=2000:2000:10000
   figure(fig3.Number)
   mesh(aysml_read(['../dat_dir/prob5_threads8_s_vs_t_T1_it' num2str(i) '_mat']))
 

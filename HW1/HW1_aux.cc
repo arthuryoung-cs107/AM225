@@ -580,7 +580,7 @@ void solve_grid_integrate(int N, double ** T, char prefix[])
     fwrite(&(time_it), sizeof(double), 1, prob5_data_file);
     fwrite(&(s_it), sizeof(double), 1, prob5_data_file);
 
-    if (count%10000 == 0)
+    if (count%2000 == 0)
     {
       memset(specfile, 0, 199);
       snprintf(specfile, 200, "%s_it%d_mat", prefix, count);

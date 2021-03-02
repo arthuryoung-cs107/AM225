@@ -6,12 +6,11 @@ CFLAGS= -O3 -I. -fopenmp -DGSL -DKNUTH
 LDIR= -I/usr/local/include/
 LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas
 
-
 CDEPS = nrutil.h auxiliary_functions.h
 
-CPPDEPS = Cash_Karp.hh HW2_aux.hh
+CPPDEPS = Cash_Karp.hh
 
-OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o
+OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o Cash_Karp.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)
@@ -19,12 +18,12 @@ OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o
 %.o: %.cc $(CPPDEPS)
 	$(CXX) -c -o $@ $< $(CFLAGS) $(LDIR)
 
+all: prob2_solve
+
 prob2_solve: $(OBJS2)
 	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
 
 prob2: prob2_solve
-
-all: prob2_solve
 
 clean:
 	rm -f prob2_solve

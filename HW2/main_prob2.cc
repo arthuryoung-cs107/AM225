@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdint.h>
+#include <string.h>
 
 #include "omp.h"
 #include "Cash_Karp.hh"
@@ -18,6 +19,11 @@ int main()
 
   double * lambda_vec = dvector(0, 11);
   int * tag_vec = ivector(0, 11);
+  double evals, lambda_local;
+  char prefix[100];
+  memset(prefix, 0, 99);
+  snprintf(prefix, 100, "./dat_dir/prob2_Bruss_eval_results");
+
   lambda_vec[0] = 1e-3;
   lambda_vec[1] = 1e-4;
   lambda_vec[2] = 1e-5;
@@ -45,16 +51,19 @@ int main()
   tag_vec[11] = -15;
 
   Brusselator * B_ref;
-  // B_ref(lambda_vec[i], lambda_vec[i], tag_vec[i]);
-
-
+  FILE * eval_file = fopen("./dat_dir/prob2_Bruss_eval_results.aydat", "wb");
   for ( i = 0; i < 12; i++)
   {
     Brusselator * B1;
     B1 = new Brusselator(lambda_vec[i], lambda_vec[i], tag_vec[i]);
     B1->solve(0, 20);
+    evals = (double) B1->evals;
+    lambda_local = lambda_vec[i];
+    fwrite(&(lambda_local), sizeof(double), 1, eval_file);
+    fwrite(&(evals), sizeof(double), 1, eval_file);
     delete B1;
   }
-
+  fclose(eval_file);
+  aysml_gen(prefix, 12, 2);
   return 0;
 }

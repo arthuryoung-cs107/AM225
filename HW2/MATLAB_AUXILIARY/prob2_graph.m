@@ -82,6 +82,23 @@ prob2_part_a_10 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-10');
 prob2_part_a_11 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-11');
 prob2_part_a_12 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-12');
 prob2_part_a_13 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-13');
+prob2_part_a_15 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-15');
+
+eval_results = aysml_read('../dat_dir/prob2_Bruss_eval_results');
+
+precision_vec = zeros(11, 1);
+precision_vec(1) = precision_func(prob2_part_a_3, prob2_part_a_15);
+precision_vec(2) = precision_func(prob2_part_a_4, prob2_part_a_15);
+precision_vec(3) = precision_func(prob2_part_a_5, prob2_part_a_15);
+precision_vec(4) = precision_func(prob2_part_a_6, prob2_part_a_15);
+precision_vec(5) = precision_func(prob2_part_a_7, prob2_part_a_15);
+precision_vec(6) = precision_func(prob2_part_a_8, prob2_part_a_15);
+precision_vec(7) = precision_func(prob2_part_a_9, prob2_part_a_15);
+precision_vec(8) = precision_func(prob2_part_a_10, prob2_part_a_15);
+precision_vec(9) = precision_func(prob2_part_a_11, prob2_part_a_15);
+precision_vec(10) = precision_func(prob2_part_a_12, prob2_part_a_15);
+precision_vec(11) = precision_func(prob2_part_a_13, prob2_part_a_15);
+
 
 figure(fig1.Number)
 plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'y1: lamba = 1e-3')
@@ -89,8 +106,9 @@ plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 3), '- o', 'Color', blue5, 'LineWid
 
 figure(fig2.Number)
 plot(euler_data(:, 2), euler_data(:, 1), '- o', 'Color', purple1, 'LineWidth', 1.5, 'DisplayName', 'Euler')
-loglog(ralston_data(:, 2), ralston_data(:, 1), '- o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'Ralston')
-loglog(heun3_data(:, 2), heun3_data(:, 1), '- o', 'Color', blue1, 'LineWidth', 1.5, 'DisplayName', '3rd order Heun')
-loglog(rk4_data(:, 2), rk4_data(:, 1), '- o', 'Color', orange5, 'LineWidth', 1.5, 'DisplayName', '4th order Runge-Kutta')
+plot(ralston_data(:, 2), ralston_data(:, 1), '- o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'Ralston')
+plot(heun3_data(:, 2), heun3_data(:, 1), '- o', 'Color', blue1, 'LineWidth', 1.5, 'DisplayName', '3rd order Heun')
+plot(rk4_data(:, 2), rk4_data(:, 1), '- o', 'Color', orange5, 'LineWidth', 1.5, 'DisplayName', '4th order Runge-Kutta')
+plot(precision_vec, eval_results(1:(length(precision_vec)) , 2), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'Cash-Karp with Richardson extrap')
 
 legend('show', 'Location', 'SouthEast')

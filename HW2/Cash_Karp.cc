@@ -9,7 +9,7 @@ extern "C"
   #include "auxiliary_functions.h"
 }
 
-Cash_Karp::Cash_Karp(int dof_in): dof(dof_in), h_init(0.01), fac(0.9), facmax(3.0), facmin(1.0/3.0),
+Cash_Karp::Cash_Karp(int dof_in): dof(dof_in), evals(0), h_init(0.01), fac(0.9), facmax(3.0), facmin(1.0/3.0),
 k1(new double[dof]), k2(new double[dof]), k3(new double[dof]), k4(new double[dof]), k5(new double[dof]), k6(new double[dof]),
 w_it(new double[dof]), y_init(new double[dof]), y0(new double[dof]), y1(new double[dof]), y2(new double[dof]), yw(new double[dof]), yhat1(new double[dof]), yhat2(new double[dof]) {}
 

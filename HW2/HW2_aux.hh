@@ -27,6 +27,7 @@ public:
   {
     y_out[0] = 1 + y_in[0]*(y_in[0]*y_in[1]-4.0);
     y_out[1] = y_in[0]*(3.0 - y_in[0]*y_in[1] );
+    evals++;
   }
 
 };

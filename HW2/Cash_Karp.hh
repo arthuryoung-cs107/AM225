@@ -9,6 +9,7 @@ class Cash_Karp
     FILE * out_file_ptr;
 
     const int dof;
+    int evals; 
     const double facmax, facmin, fac;
     double a_tol, r_tol, h_init, hfull, h, t_it;
     double *k1, *k2, *k3, *k4, *k5, *k6;

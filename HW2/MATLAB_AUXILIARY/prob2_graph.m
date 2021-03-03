@@ -29,14 +29,44 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fig1 = figure('Name', 'Jet space, view 1', 'Renderer', 'painters', 'Position', fig_pos(1, :));
+fig1 = figure('Name', 'Brusselator results, problem 2', 'Renderer', 'painters', 'Position', fig_pos(1, :));
 ylabel('efficiency')
 % xlabel('n')
 box on
 hold on
 
-prob2_part_a = aysml_read('../dat_dir/prob2_Bruss_results');
+prob2_part_a_3 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-3');
+prob2_part_a_4 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-4');
+prob2_part_a_5 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-5');
+prob2_part_a_6 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-6');
+prob2_part_a_7 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-7');
+prob2_part_a_8 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-8');
+prob2_part_a_9 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-9');
+prob2_part_a_10 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-10');
+prob2_part_a_11 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-11');
+prob2_part_a_12 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-12');
+prob2_part_a_13 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-13');
 
 figure(fig1.Number)
-plot(prob2_part_a(:, 1), prob2_part_a(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a(:, 1), prob2_part_a(:, 3), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 3), '- s', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_4(:, 1), prob2_part_a_4(:, 2), '- o', 'Color', pink(1, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_4(:, 1), prob2_part_a_4(:, 3), '- s', 'Color', pink(1, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_5(:, 1), prob2_part_a_5(:, 2), '- o', 'Color', pink(2, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_5(:, 1), prob2_part_a_5(:, 3), '- s', 'Color', pink(2, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_6(:, 1), prob2_part_a_6(:, 2), '- o', 'Color', pink(3, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_6(:, 1), prob2_part_a_6(:, 3), '- s', 'Color', pink(3, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_7(:, 1), prob2_part_a_7(:, 2), '- o', 'Color', pink(4, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_7(:, 1), prob2_part_a_7(:, 3), '- s', 'Color', pink(4, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_8(:, 1), prob2_part_a_8(:, 2), '- o', 'Color', pink(5, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_8(:, 1), prob2_part_a_8(:, 3), '- s', 'Color', pink(5, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_9(:, 1), prob2_part_a_9(:, 2), '- o', 'Color', pink(6, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_9(:, 1), prob2_part_a_9(:, 3), '- s', 'Color', pink(6, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_10(:, 1), prob2_part_a_10(:, 2), '- o', 'Color', pink(7, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_10(:, 1), prob2_part_a_10(:, 3), '- s', 'Color', pink(7, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_11(:, 1), prob2_part_a_11(:, 2), '- o', 'Color', pink(8, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_11(:, 1), prob2_part_a_11(:, 3), '- s', 'Color', pink(8, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_12(:, 1), prob2_part_a_12(:, 2), '- o', 'Color', pink(9, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_12(:, 1), prob2_part_a_12(:, 3), '- s', 'Color', pink(9, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_13(:, 1), prob2_part_a_13(:, 2), '- o', 'Color', pink(10, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_13(:, 1), prob2_part_a_13(:, 3), '- s', 'Color', pink(10, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')

@@ -16,8 +16,8 @@ int main()
 {
   int i;
 
-  double * lambda_vec = dvector(0, 10);
-  int * tag_vec = ivector(0, 10);
+  double * lambda_vec = dvector(0, 11);
+  int * tag_vec = ivector(0, 11);
   lambda_vec[0] = 1e-3;
   lambda_vec[1] = 1e-4;
   lambda_vec[2] = 1e-5;
@@ -29,6 +29,7 @@ int main()
   lambda_vec[8] = 1e-11;
   lambda_vec[9] = 1e-12;
   lambda_vec[10] = 1e-13;
+  lambda_vec[11] = 1e-15;
 
   tag_vec[0] = -3;
   tag_vec[1] = -4;
@@ -41,12 +42,13 @@ int main()
   tag_vec[8] = -11;
   tag_vec[9] = -12;
   tag_vec[10] = -13;
+  tag_vec[11] = -15;
 
   Brusselator * B_ref;
   // B_ref(lambda_vec[i], lambda_vec[i], tag_vec[i]);
 
 
-  for ( i = 0; i < 11; i++)
+  for ( i = 0; i < 12; i++)
   {
     Brusselator * B1;
     B1 = new Brusselator(lambda_vec[i], lambda_vec[i], tag_vec[i]);

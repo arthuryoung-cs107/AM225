@@ -4,6 +4,27 @@ close all
 fig_pos = [10, 455, 350, 350;
     360, 455, 350, 350; 710, 455, 350, 350; 1060, 455, 350, 350; 10, 30, 350, 350; 360, 30, 350, 350; 710, 30, 350, 350; 1060, 30, 350, 350];
 
+grey1 = [178/250, 186/250, 187/250];
+grey2 = [131/250, 145/250, 146/250];
+grey3 = [97/250, 106/250, 107/250];
+grey4 = [66/250, 73/250, 73/250];
+grey5 = [20/100 20/100 20/100];
+grey = [grey1; grey2; grey3; grey4; grey5];
+
+purple1 = [102/250, 0/250, 102/250];
+purple2 = [153/250, 0/250, 153/250];
+purple3 = [204/250, 0/250, 204/250];
+purple4 = [250/250, 0/250, 250/250];
+purple5 = [250/250, 50/250, 250/250];
+purple = [purple1; purple2; purple3; purple4; purple5];
+
+orange1 = [255/255 90/255 0];
+orange2 = [255/255 123/255 0];
+orange3 = [255/255 165/255 0];
+orange4 = [255/255 208/255 0];
+orange5 = [255/255 229/255 0];
+orange = [orange1; orange2; orange3; orange4; orange5];
+
 green1 = [88/250, 214/250, 141/250];
 green2 = [40/250, 180/250, 99/250];
 green3 = [34/250, 153/250, 84/250];
@@ -30,10 +51,25 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fig1 = figure('Name', 'Brusselator results, problem 2', 'Renderer', 'painters', 'Position', fig_pos(1, :));
-ylabel('efficiency')
-% xlabel('n')
+ylabel('y')
+xlabel('t')
 box on
 hold on
+
+fig2 = figure('Name', 'Brusselator work precision, problem 2', 'Renderer', 'painters', 'Position', fig_pos(2, :));
+set(gca, 'YScale', 'log')
+set(gca, 'XScale', 'log')
+set(gca, 'xdir', 'reverse')
+hold on
+ylabel('evals')
+xlabel('precision')
+% box on
+
+
+euler_data = dlmread('../am225_hw2_files/euler.conv_dat');
+heun3_data = dlmread('../am225_hw2_files/heun3.conv_dat');
+rk4_data = dlmread('../am225_hw2_files/rk4.conv_dat');
+ralston_data = dlmread('../am225_hw2_files/ralston.conv_dat');
 
 prob2_part_a_3 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-3');
 prob2_part_a_4 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-4');
@@ -48,25 +84,13 @@ prob2_part_a_12 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-12');
 prob2_part_a_13 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-13');
 
 figure(fig1.Number)
-plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 3), '- s', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_4(:, 1), prob2_part_a_4(:, 2), '- o', 'Color', pink(1, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_4(:, 1), prob2_part_a_4(:, 3), '- s', 'Color', pink(1, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_5(:, 1), prob2_part_a_5(:, 2), '- o', 'Color', pink(2, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_5(:, 1), prob2_part_a_5(:, 3), '- s', 'Color', pink(2, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_6(:, 1), prob2_part_a_6(:, 2), '- o', 'Color', pink(3, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_6(:, 1), prob2_part_a_6(:, 3), '- s', 'Color', pink(3, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_7(:, 1), prob2_part_a_7(:, 2), '- o', 'Color', pink(4, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_7(:, 1), prob2_part_a_7(:, 3), '- s', 'Color', pink(4, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_8(:, 1), prob2_part_a_8(:, 2), '- o', 'Color', pink(5, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_8(:, 1), prob2_part_a_8(:, 3), '- s', 'Color', pink(5, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_9(:, 1), prob2_part_a_9(:, 2), '- o', 'Color', pink(6, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_9(:, 1), prob2_part_a_9(:, 3), '- s', 'Color', pink(6, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_10(:, 1), prob2_part_a_10(:, 2), '- o', 'Color', pink(7, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_10(:, 1), prob2_part_a_10(:, 3), '- s', 'Color', pink(7, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_11(:, 1), prob2_part_a_11(:, 2), '- o', 'Color', pink(8, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_11(:, 1), prob2_part_a_11(:, 3), '- s', 'Color', pink(8, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_12(:, 1), prob2_part_a_12(:, 2), '- o', 'Color', pink(9, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_12(:, 1), prob2_part_a_12(:, 3), '- s', 'Color', pink(9, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_13(:, 1), prob2_part_a_13(:, 2), '- o', 'Color', pink(10, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
-plot(prob2_part_a_13(:, 1), prob2_part_a_13(:, 3), '- s', 'Color', pink(10, :), 'LineWidth', 1.5, 'DisplayName', '2 threads')
+plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'y1: lamba = 1e-3')
+plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 3), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'y2: lamba = 1e-3')
+
+figure(fig2.Number)
+plot(euler_data(:, 2), euler_data(:, 1), '- o', 'Color', purple1, 'LineWidth', 1.5, 'DisplayName', 'Euler')
+loglog(ralston_data(:, 2), ralston_data(:, 1), '- o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'Ralston')
+loglog(heun3_data(:, 2), heun3_data(:, 1), '- o', 'Color', blue1, 'LineWidth', 1.5, 'DisplayName', '3rd order Heun')
+loglog(rk4_data(:, 2), rk4_data(:, 1), '- o', 'Color', orange5, 'LineWidth', 1.5, 'DisplayName', '4th order Runge-Kutta')
+
+legend('show', 'Location', 'SouthEast')

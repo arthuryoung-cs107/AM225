@@ -42,15 +42,17 @@ int main()
   tag_vec[9] = -12;
   tag_vec[10] = -13;
 
+  Brusselator * B_ref;
+  // B_ref(lambda_vec[i], lambda_vec[i], tag_vec[i]);
+
+
   for ( i = 0; i < 11; i++)
   {
-    Brusselator B1(lambda_vec[i], lambda_vec[i], tag_vec[i]);
-    B1.solve(0, 20);
-    // delete B1;
+    Brusselator * B1;
+    B1 = new Brusselator(lambda_vec[i], lambda_vec[i], tag_vec[i]);
+    B1->solve(0, 20);
+    delete B1;
   }
-
-
-
 
   return 0;
 }

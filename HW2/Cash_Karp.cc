@@ -11,7 +11,9 @@ extern "C"
 
 Cash_Karp::Cash_Karp(int dof_in): dof(dof_in), evals(0), h_init(0.01), fac(0.9), facmax(3.0), facmin(1.0/3.0),
 k1(new double[dof]), k2(new double[dof]), k3(new double[dof]), k4(new double[dof]), k5(new double[dof]), k6(new double[dof]),
-w_it(new double[dof]), y_init(new double[dof]), y0(new double[dof]), y1(new double[dof]), y2(new double[dof]), yw(new double[dof]), yhat1(new double[dof]), yhat2(new double[dof]) {}
+k_old(new double[dof]), k_new(new double[dof]),
+w_it(new double[dof]), y_init(new double[dof]), y0(new double[dof]), y1(new double[dof]), y2(new double[dof]), yw(new double[dof]), yhat1(new double[dof]), yhat2(new double[dof]),
+Theta(gsl_matrix_alloc(4, 4)), a_full(gsl_matrix_alloc(dof, 6)), b_vec(gsl_vector_alloc(4)), a_vec(gsl_vector_alloc(4)), perm_it(gsl_permutation_alloc(4)) {}
 
 Cash_Karp::~Cash_Karp()
 {
@@ -21,6 +23,8 @@ Cash_Karp::~Cash_Karp()
   delete [] k4;
   delete [] k5;
   delete [] k6;
+  delete [] k_old;
+  delete [] k_new;
   delete [] w_it;
   delete [] y_init;
   delete [] y0;
@@ -29,6 +33,12 @@ Cash_Karp::~Cash_Karp()
   delete [] yw;
   delete [] yhat1;
   delete [] yhat2;
+
+  gsl_matrix_free(Theta);
+  gsl_matrix_free(a_full);
+  gsl_vector_free(b_vec);
+  gsl_vector_free(a_vec);
+  gsl_permutation_free(perm_it);
 }
 
 void Cash_Karp::step(double * y_in, double * y_k, double t)
@@ -96,10 +106,12 @@ double Cash_Karp::h_select(double * y_in, double h_in)
   int i;
   double err, h_new, h_it;
   h_it = h_in;
+  for ( i = 0; i < dof; i++) k_old[i] = k_new[i];
   do
   {
+    for ( i = 0; i < dof; i++) k1[i] = k_old[i];
     h = h_it;
-    eval(t_it, y_in, k1);
+
     step(y_in, yw, t_it);
 
     h = h_it/(2.0);
@@ -149,6 +161,7 @@ int Cash_Karp::solve(double t_start, double t_end)
   double h_new;
   hfull = h_init;
   t_it = t_start;
+  dense_evals = 0;
   fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
   for ( i = 0; i < dof; i++)
   {
@@ -156,6 +169,112 @@ int Cash_Karp::solve(double t_start, double t_end)
     fwrite(&(y0[i]), sizeof(double), 1, out_file_ptr);
   }
 
+  eval(t_it, y0, k_new);
+
+  count = 1;
+  while (t_it < t_end)
+  {
+    count++;
+
+    if ( (t_end-t_it) < h_new )
+    {
+      h_new = h_select(y0, t_end-t_it);
+    }
+    else
+    {
+      h_new = h_select(y0, hfull);
+    }
+    eval(t_it, yhat2, k_new);
+
+    fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+    for ( i = 0; i < dof; i++)
+    {
+      y0[i] = yhat2[i];
+      fwrite(&(y0[i]), sizeof(double), 1, out_file_ptr);
+    }
+    hfull = h_new;
+  }
+  fclose(out_file_ptr);
+  aysml_gen(prefix, count, 3);
+  return 1;
+}
+
+void Cash_Karp::dense_interp(double del_t)
+{
+  double a_0, a_1, pow_it, y_it, t_old, t_diff, theta_it, theta_acc;
+  int signum;
+  int n = 4;
+  int i, j;
+  t_old = t_it - 2.0*h;
+
+  for ( i = 0; i < dof; i++) // gonna have to do the whole thing in the loop, otherwise, we're going to need to store multiple solves.
+  {
+    a_0 = y0[i];
+    a_1 = 2*h*k_old[i];
+    gsl_vector_set(b_vec, 0, yhat1[i] - a_0 - 0.5*a_1);
+    gsl_vector_set(b_vec, 1, yhat2[i] - a_0 - a_1);
+    gsl_vector_set(b_vec, 2, 2.0*h*k1[i] - a_1);
+    gsl_vector_set(b_vec, 3, 2.0*h*k_new[i] - a_1);
+
+    pow_it = 0.5;
+    for ( j = 0; j < 4; j++)
+    {
+      pow_it *= pow_it;
+      gsl_matrix_set(Theta, 0, j, pow_it);
+      gsl_matrix_set(Theta, 1, j, 1.0);
+      gsl_matrix_set(Theta, 2, j, ( (double) j + 2 )*pow_it);
+      gsl_matrix_set(Theta, 3, j, ( (double) j + 2 ));
+    }
+
+    gsl_linalg_LU_decomp(Theta, perm_it, &signum);
+    gsl_linalg_LU_solve(Theta, perm_it, b_vec, a_vec);
+    gsl_matrix_set(a_full, i, 0, a_0);
+    gsl_matrix_set(a_full, i, 1, a_1);
+    gsl_matrix_set(a_full, i, 2, gsl_vector_get(a_vec, 0) );
+    gsl_matrix_set(a_full, i, 3, gsl_vector_get(a_vec, 1) );
+    gsl_matrix_set(a_full, i, 4, gsl_vector_get(a_vec, 2) );
+    gsl_matrix_set(a_full, i, 5, gsl_vector_get(a_vec, 3) );
+  }
+
+  while (t_dense < t_it)
+  {
+    dense_evals++;
+    t_diff = t_dense - t_old;
+    theta_it = t_diff/(2.0*h);
+
+    fwrite(&(t_dense), sizeof(double), 1, out_file_dense_ptr);
+    for ( i = 0; i < dof; i++)
+    {
+      theta_acc = theta_it;
+      y_it = gsl_matrix_get( a_full, i, 0);
+      for ( j = 1; j < 6; j++)
+      {
+        y_it += theta_acc*gsl_matrix_get(a_full, i, j);
+        theta_acc *= theta_acc;
+      }
+      fwrite(&(y_it), sizeof(double), 1, out_file_dense_ptr);
+    }
+
+    t_dense += del_t;
+  }
+
+}
+
+int Cash_Karp::dense_solve(double t_start, double t_end, double del_t)
+{
+  int i, count;
+  double h_new;
+  hfull = h_init;
+  t_it = t_start;
+  t_dense = t_start;
+  fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+  for ( i = 0; i < dof; i++)
+  {
+    y0[i] = y_init[i];
+    fwrite(&(y0[i]), sizeof(double), 1, out_file_ptr);
+  }
+
+  eval(t_it, y0, k_new);
 
   count = 1;
   while (t_it < t_end)
@@ -169,6 +288,8 @@ int Cash_Karp::solve(double t_start, double t_end)
     {
       h_new = h_select(y0, hfull);
     }
+    eval(t_it, yhat2, k_new);
+    dense_interp(del_t);
 
     fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
     for ( i = 0; i < dof; i++)
@@ -178,7 +299,10 @@ int Cash_Karp::solve(double t_start, double t_end)
     }
     hfull = h_new;
   }
+  fclose(out_file_dense_ptr);
   fclose(out_file_ptr);
   aysml_gen(prefix, count, 3);
+  aysml_gen(prefix_dense, dense_evals, 3);
+
   return 1;
 }

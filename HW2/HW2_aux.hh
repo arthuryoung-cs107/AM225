@@ -15,10 +15,16 @@ public:
     a_tol = lambda_in1;
     r_tol = lambda_in2;
     memset(prefix, 0, 99);
+    memset(prefix_dense, 0, 149);
     memset(specfile, 0, 199);
+    memset(specfile_dense, 0, 249);
+
     snprintf(prefix, 100, "./dat_dir/prob2_Bruss_results_lambda%d", tag );
     snprintf(specfile, 200, "%s.aydat", prefix);
+    snprintf(prefix_dense, 150, "%s_dense_output", prefix);
+    snprintf(specfile_dense, 250, "%s.aydat", prefix_dense);
     out_file_ptr = fopen(specfile, "wb");
+    out_file_dense_ptr = fopen(specfile_dense, "wb");
 
     y_init[0] = 1.5;
     y_init[1] = 3.0;

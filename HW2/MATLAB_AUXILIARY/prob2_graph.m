@@ -63,7 +63,19 @@ set(gca, 'xdir', 'reverse')
 hold on
 ylabel('evals')
 xlabel('precision')
-% box on
+box on
+
+fig3 = figure('Name', 'Two Component results, problem 2', 'Renderer', 'painters', 'Position', fig_pos(3, :));
+ylabel('y')
+xlabel('t')
+box on
+hold on
+
+fig4 = figure('Name', 'Two Component results error, problem 2', 'Renderer', 'painters', 'Position', fig_pos(4, :));
+ylabel('error')
+xlabel('t')
+box on
+hold on
 
 
 euler_data = dlmread('../am225_hw2_files/euler.conv_dat');
@@ -86,6 +98,12 @@ prob2_part_a_15 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-15');
 
 eval_results = aysml_read('../dat_dir/prob2_Bruss_eval_results');
 
+prob2_part_b_33 = aysml_read('../dat_dir/prob2_TwoComp_results_lambda33');
+prob2_part_b_33_dense = aysml_read('../dat_dir/prob2_TwoComp_results_lambda33_dense_output');
+
+prob2_part_b_better = aysml_read('../dat_dir/prob2_TwoComp_results_lambda-13');
+prob2_part_b_better_dense = aysml_read('../dat_dir/prob2_TwoComp_results_lambda-13_dense_output');
+
 precision_vec = zeros(11, 1);
 precision_vec(1) = precision_func(prob2_part_a_3, prob2_part_a_15);
 precision_vec(2) = precision_func(prob2_part_a_4, prob2_part_a_15);
@@ -99,6 +117,9 @@ precision_vec(9) = precision_func(prob2_part_a_11, prob2_part_a_15);
 precision_vec(10) = precision_func(prob2_part_a_12, prob2_part_a_15);
 precision_vec(11) = precision_func(prob2_part_a_13, prob2_part_a_15);
 
+twocomp_t = 0:(8/1200):8;
+twocomp_y1_exact = cos((twocomp_t.^2)/2);
+twocomp_y2_exact = sin((twocomp_t.^2)/2);
 
 figure(fig1.Number)
 plot(prob2_part_a_3(:, 1), prob2_part_a_3(:, 2), '- o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'y1: lamba = 1e-3')
@@ -110,5 +131,20 @@ plot(ralston_data(:, 2), ralston_data(:, 1), '- o', 'Color', green4, 'LineWidth'
 plot(heun3_data(:, 2), heun3_data(:, 1), '- o', 'Color', blue1, 'LineWidth', 1.5, 'DisplayName', '3rd order Heun')
 plot(rk4_data(:, 2), rk4_data(:, 1), '- o', 'Color', orange5, 'LineWidth', 1.5, 'DisplayName', '4th order Runge-Kutta')
 plot(precision_vec, eval_results(1:(length(precision_vec)) , 2), '- o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'Cash-Karp with Richardson extrap')
-
 legend('show', 'Location', 'SouthEast')
+
+figure(fig3.Number)
+plot(prob2_part_b_33(:, 1), prob2_part_b_33(:, 2), ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'y1: lamba = 3e-3')
+plot(prob2_part_b_33(:, 1), prob2_part_b_33(:, 3), ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'y2: lamba = 3e-3')
+plot(prob2_part_b_33_dense(:, 1), prob2_part_b_33_dense(:, 2), ' -', 'Color', red1, 'LineWidth', 1.5, 'DisplayName', 'y1: lamba = 3e-3 (dense output)')
+plot(prob2_part_b_33_dense(:, 1), prob2_part_b_33_dense(:, 3), ' -', 'Color', blue1, 'LineWidth', 1.5, 'DisplayName', 'y2: lamba = 3e-3 (dense output)')
+plot(prob2_part_b_better_dense(:, 1), prob2_part_b_better_dense(:, 2), ' -', 'Color', red4, 'LineWidth', 1.5, 'DisplayName', 'y1: lamba = 1e-13 (dense output)')
+plot(prob2_part_b_better_dense(:, 1), prob2_part_b_better_dense(:, 3), ' -', 'Color', blue4, 'LineWidth', 1.5, 'DisplayName', 'y2: lamba = 1e-13 (dense output)')
+plot(twocomp_t, twocomp_y1_exact, ' -', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'y1 (analytical)')
+plot(twocomp_t, twocomp_y2_exact, ' -', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'y2 (analytical)')
+legend('show', 'Location', 'SouthEast')
+
+figure(fig4.Number)
+plot(prob2_part_b_33_dense(:, 1), prob2_part_b_33_dense(:, 2)-twocomp_y1_exact(1:(length(twocomp_t)-1) )', ' -', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'y1 err: lamba = 3e-3')
+plot(prob2_part_b_33_dense(:, 1), prob2_part_b_33_dense(:, 3)-twocomp_y2_exact(1:(length(twocomp_t)-1) )', ' -', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'y2 err: lamba = 3e-3')
+% legend('show', 'Location', 'SouthEast')

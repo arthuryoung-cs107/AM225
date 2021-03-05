@@ -194,7 +194,6 @@ int Cash_Karp::solve(double t_start, double t_end)
     }
     hfull = h_new;
   }
-  fclose(out_file_ptr);
   aysml_gen(prefix, count, 3);
   return 1;
 }
@@ -299,8 +298,6 @@ int Cash_Karp::dense_solve(double t_start, double t_end, double del_t)
     }
     hfull = h_new;
   }
-  fclose(out_file_dense_ptr);
-  fclose(out_file_ptr);
   aysml_gen(prefix, count, 3);
   aysml_gen(prefix_dense, dense_evals, 3);
 

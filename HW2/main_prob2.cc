@@ -56,7 +56,7 @@ int main()
   {
     Brusselator * B1;
     B1 = new Brusselator(lambda_vec[i], lambda_vec[i], tag_vec[i]);
-    B1->solve(0, 20);
+    B1->solve(0.0, 20.0);
     evals = (double) B1->evals;
     lambda_local = lambda_vec[i];
     fwrite(&(lambda_local), sizeof(double), 1, eval_file);
@@ -65,5 +65,14 @@ int main()
   }
   fclose(eval_file);
   aysml_gen(prefix, 12, 2);
+
+  Two_Comp * T1, * T2;
+  double delta_t_dense = 8.0/(1200.0);
+  T1 = new Two_Comp(3e-3, 3e-3, 33);
+  T1->dense_solve(0.0, 8.0, delta_t_dense);
+  T2 = new Two_Comp(1e-13, 1e-13, -13);
+  T2->dense_solve(0.0, 8.0, delta_t_dense);
+
+
   return 0;
 }

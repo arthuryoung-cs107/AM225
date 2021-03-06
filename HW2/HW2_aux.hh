@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "Cash_Karp.hh"
+#include "Geng.hh"
 
 class Brusselator : public Cash_Karp
 {
@@ -79,5 +80,22 @@ public:
 
 };
 
+class Brusselator_Geng : public Geng
+{
+public:
+  Brusselator_Geng() : Geng(2)
+  {
+    y_init[0] = 1.5;
+    y_init[1] = 3.0;
+  }
+  // ~Brusselator()
+  // {
+  // }
+  virtual void eval(double time_in, double * y_in, double * y_out)
+  {
 
+    evals++;
+  }
+
+};
 #endif

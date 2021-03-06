@@ -1,6 +1,6 @@
 function count = bush_count(tree_count, r, bush)
-
-  part_mat = partition_matrix(r, bush); %% should yield all possible sub-tree configurations
+  bush
+  part_mat = partition_matrix(r, bush) %% should yield all possible sub-tree configurations
   count = 0;
 
   for i = 1:size(part_mat, 1)

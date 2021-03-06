@@ -55,12 +55,15 @@ tree_count = zeros(n_order, 1);
 tree_count(1) = 1;
 tree_count(2) = 1;
 tree_count(3) = 2;
+tree_count(4) = 4;
 
-for n=4:n_order
-  acc = 2;
-  for bush=n-3:-1:2
+for n= 5:n_order
+  acc = 0;
+  for bush=n-1:-1:2
+    n 
     r = n-1-bush;
     acc = acc + bush_count(tree_count, r, bush);
+    acc
   end
   acc = acc + tree_count(n-1);
   tree_count(n) = acc;

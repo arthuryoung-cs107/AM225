@@ -5,7 +5,7 @@
 
 #include "omp.h"
 #include "Cash_Karp.hh"
-#include "HW2_aux.hh"
+#include "schemes.hh"
 
 extern "C"
 {

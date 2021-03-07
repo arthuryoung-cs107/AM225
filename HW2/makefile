@@ -8,11 +8,11 @@ LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas
 
 CDEPS = nrutil.h auxiliary_functions.h
 
-CPPDEPS = Cash_Karp.hh Geng.hh
+CPPDEPS = Cash_Karp.hh Geng.hh HW2_aux.hh
 
 OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o Cash_Karp.o
 
-OBJS6 = main_prob6.o nrutil.o auxiliary_functions.o Geng.o
+OBJS6 = main_prob6.o nrutil.o auxiliary_functions.o HW2_aux.o Geng.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)
@@ -40,4 +40,7 @@ clean_dat:
 	rm -f *.dat
 	rm -f *.aysml
 	rm -f *.aydat
+clean_prob6_datdir:
+	rm -f ./dat_dir/prob6_*
+
 clean_all: clean clean_dat

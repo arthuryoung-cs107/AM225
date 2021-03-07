@@ -16,7 +16,8 @@ extern "C"
 int main()
 {
   int i;
-  int * step_vector = ivector(1, 13);
+  // int * step_vector = ivector(1, 13);
+  int * step_vector = ivector(1, 11);
 
   step_vector[1] = 1e2;
   step_vector[2] = 5e2;
@@ -29,11 +30,12 @@ int main()
   step_vector[9] = 1e6;
   step_vector[10] = 5e6;
   step_vector[11] = 1e7;
-  step_vector[12] = 5e7;
-  step_vector[13] = 1e8;
+  // step_vector[12] = 5e7;
+  // step_vector[13] = 1e8;
 
   # pragma omp parrallel for
-    for ( i = 1; i <= 13; i++)
+    // for ( i = 1; i <= 13; i++)
+    for ( i = 1; i <= 11; i++)
     {
 
       int tag1 = 1;

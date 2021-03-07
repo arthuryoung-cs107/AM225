@@ -76,12 +76,13 @@ prob6_parta_Brus_5e5 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_5e5'
 prob6_parta_Brus_1e6 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_1e6');
 prob6_parta_Brus_5e6 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_5e6');
 prob6_parta_Brus_1e7 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_1e7');
-prob6_parta_Brus_5e7 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_5e7');
-prob6_parta_Brus_1e8 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_1e8');
+% prob6_parta_Brus_5e7 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_5e7');
+% prob6_parta_Brus_1e8 = aysml_read('../dat_dir/prob6_BrussGeng_results_steps_1e8');
 
 prob2_part_a_15 = aysml_read('../dat_dir/prob2_Bruss_results_lambda-15');
 
-precision_vec = zeros(13, 1);
+% precision_vec = zeros(13, 1);
+precision_vec = zeros(11, 1);
 
 precision_vec(1) = precision_func(prob6_parta_Brus_1e2, prob2_part_a_15);
 precision_vec(2) = precision_func(prob6_parta_Brus_5e2, prob2_part_a_15);
@@ -94,8 +95,8 @@ precision_vec(8) = precision_func(prob6_parta_Brus_5e5, prob2_part_a_15);
 precision_vec(9) = precision_func(prob6_parta_Brus_1e6, prob2_part_a_15);
 precision_vec(10) = precision_func(prob6_parta_Brus_5e6, prob2_part_a_15);
 precision_vec(11) = precision_func(prob6_parta_Brus_1e7, prob2_part_a_15);
-precision_vec(12) = precision_func(prob6_parta_Brus_5e7, prob2_part_a_15);
-precision_vec(13) = precision_func(prob6_parta_Brus_1e8, prob2_part_a_15);
+% precision_vec(12) = precision_func(prob6_parta_Brus_5e7, prob2_part_a_15);
+% precision_vec(13) = precision_func(prob6_parta_Brus_1e8, prob2_part_a_15);
 
 delT_vec = zeros(size(precision_vec));
 
@@ -110,8 +111,8 @@ delT_vec(8) = 5e5;
 delT_vec(9) = 1e6;
 delT_vec(10) = 5e6;
 delT_vec(11) = 1e7;
-delT_vec(12) = 5e7;
-delT_vec(13) = 1e8;
+% delT_vec(12) = 5e7;
+% delT_vec(13) = 1e8;
 
 delT_vec = (20.0)./( delT_vec );
 

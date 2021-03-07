@@ -47,4 +47,20 @@ void prob6_part_a()
       delete Brus_Geng;
     }
 
+  free_ivector(step_vector, 1, 11);
+}
+
+void prob6_part_b()
+{
+  double * params_main = dvector(0, 5);
+
+  params_main[0] = 1.0 ;
+  params_main[1] = 0.25 ;
+  params_main[2] = 1.0 ;
+  params_main[3] = 1.25 ;
+  params_main[4] = 1.0 ;
+  params_main[5] = 0.75 ;
+
+  Galaxy_Geng * G1;
+  G1 = new Galaxy_Geng(params_main, 1);
 }

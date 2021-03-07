@@ -113,4 +113,74 @@ class Brusselator_Geng : public Geng
       solve_fixed(t_start, t_end, max_steps_Brus);
     }
 };
+class Galaxy_Geng : public Geng
+{
+  public:
+    double A, Omega, C, a, b, c;
+    Galaxy_Geng(double * params_in, int tag) : Geng(6),
+    A(params_in[0]), Omega(params_in[1]), C(params_in[2]),
+    a(params_in[3]), b(params_in[4]), c(params_in[5])
+    {
+      memset(prefix, 0, 99);
+      memset(specfile, 0, 199);
+      snprintf(prefix, 100, "./dat_dir/prob6_Galaxy_data_sim%d", tag);
+      snprintf(specfile, 200, "%s.aydat", prefix);
+      out_file_ptr = fopen(specfile, "wb");
+      // position, then momentum
+      y_init[0] = 2.5;
+      y_init[1] = 0.0;
+      y_init[2] = 0.0;
+      y_init[3] = 0.0;
+      y_init[5] = 0.2;
+
+      y_init[4] = solve_p2();
+    }
+    ~Galaxy_Geng()
+    {
+      fclose(out_file_ptr);
+    }
+    virtual void eval(double time_in, double * y_in, double * y_out)
+    {
+      eval_count++;
+    }
+    virtual void init()
+    {
+      for (int i = 0; i < dof; i++) y_it[i] = y_init[i];
+    }
+    void solve(double t_end)
+    {
+      int steps_ = ( (int) t_end ) * ( (int) 20 );
+      solve_fixed(0.0, t_end, steps_);
+    }
+    double solve_p2()
+    {
+      double k1, k2, k3;
+      double q1 = y_init[0];
+      double q2 = y_init[1];
+      double q3 = y_init[2];
+      double p1 = y_init[3];
+      double p3 = y_init[5];
+
+      k1 = 0.5;
+      k2 = -Omega*q1;
+      k3 = 0.5*(p1*p1 + p3*p3) + Omega*q2*p1 + grav_potential(q1, q2, q3) - 2.0;
+      return (-k2 + sqrt( k2*k2 - 4*k1*k3 ) )/(2*k1);
+    }
+    double grav_potential(double q1, double q2, double q3)
+    {
+      return A*log(C + (q1*q1/(a*a) ) + (q2*q2/(b*b)) + (q3*q3/(c*c)) );
+    }
+    double Hamiltonian(double * y_in)
+    {
+      double q1 = y_in[0];
+      double q2 = y_in[1];
+      double q3 = y_in[2];
+      double p1 = y_in[3];
+      double p2 = y_in[4];
+      double p3 = y_in[5];
+
+      return 0.5*(p1*p1 + p2*p2 + p3*p3) + Omega*(p1*q2-p2*q1) + grav_potential(q1, q2, q3);
+    }
+
+};
 #endif

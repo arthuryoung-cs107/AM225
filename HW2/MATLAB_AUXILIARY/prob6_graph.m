@@ -102,7 +102,7 @@ delT_vec = zeros(size(precision_vec));
 
 delT_vec(1)= 1e2;
 delT_vec(2)= 5e2;
-delT_vec(3)= 1e3;
+delT_vec(3)= 1e3;*.dat
 delT_vec(4)= 5e3;
 delT_vec(5)= 1e4;
 delT_vec(6)= 5e4;

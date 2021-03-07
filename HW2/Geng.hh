@@ -1,26 +1,35 @@
-#ifndef SOL_HAMMER_H_HH
-#define SOL_HAMMER_H_HH
+#ifndef GENG_HH
+#define GENG_HH
 
-#include "sol_base.hh"
+#include <cstdio>
 
 class Geng
 {
     public:
+        char prefix[100];
+        char specfile[200];
+        FILE * out_file_ptr;
+
         int dof;
         int eval_count;
+        int step_count;
         double t_it;
 
         double * y_init;
+        double * y_it;
         double * y_final;
 
-        Geng(int dof_in);
-        virtual ~Geng();
+        double * y_work1;
 
-        virtual void solve_fixed(double t_start, double t_end, double del_t);
-        virtual void step(double del_t) = 0;
-        
-        virtual void init(double t_init, ) = 0;
+        Geng(int dof_in);
+        ~Geng();
+
+        virtual void init() = 0;
         virtual void eval(double t_in, double * y_in, double * y_out) = 0;
+
+        void solve_fixed(double t_start, double t_end, int max_steps);
+        void step(double del_t);
+        void write_out();
 
     private:
 
@@ -30,9 +39,6 @@ class Geng
         double *k1b;
         double *k2b;
         double *k3b;
-        double *k1c;
-        double *k2c;
-        double *k3c;
 };
 
 #endif

@@ -194,7 +194,7 @@ int Cash_Karp::solve(double t_start, double t_end)
     }
     hfull = h_new;
   }
-  aysml_gen(prefix, count, 3);
+  aysml_gen(prefix, count, dof+1);
   return 1;
 }
 

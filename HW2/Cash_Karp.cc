@@ -161,7 +161,6 @@ int Cash_Karp::solve(double t_start, double t_end)
   double h_new;
   hfull = h_init;
   t_it = t_start;
-  dense_evals = 0;
   fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
   for ( i = 0; i < dof; i++)
   {
@@ -266,6 +265,7 @@ int Cash_Karp::dense_solve(double t_start, double t_end, double del_t)
   hfull = h_init;
   t_it = t_start;
   t_dense = t_start;
+  dense_evals = 0;
   fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
   for ( i = 0; i < dof; i++)
   {
@@ -298,8 +298,8 @@ int Cash_Karp::dense_solve(double t_start, double t_end, double del_t)
     }
     hfull = h_new;
   }
-  aysml_gen(prefix, count, 3);
-  aysml_gen(prefix_dense, dense_evals, 3);
+  aysml_gen(prefix, count, dof+1);
+  aysml_gen(prefix_dense, dense_evals, dof+1);
 
   return 1;
 }

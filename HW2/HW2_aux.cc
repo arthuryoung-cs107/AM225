@@ -2,10 +2,17 @@
 #include "omp.h"
 #include "schemes.hh"
 
-
 extern "C" {
   #include "nrutil.h"
   #include "auxiliary_functions.h"
+}
+
+void prob5_part_a()
+{
+  Kuramoto2D * K1;
+  K1 = new Kuramoto2D(1e-6, 1e-6, 0.5, 0.5, 1);
+  K1->solve(0, 200, 401);
+  delete K1;
 }
 
 void prob6_part_a()

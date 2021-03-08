@@ -5,8 +5,11 @@
 #include <cstdlib>
 #include <string.h>
 
+#include "gsl/gsl_rng.h"
+
 #include "Cash_Karp.hh"
 #include "Geng.hh"
+#include "Cash_Karp_GSL.hh"
 
 class Brusselator : public Cash_Karp
 {
@@ -77,6 +80,120 @@ class Two_Comp : public Cash_Karp
       y_out[1] = time_in*y_in[0];
       evals++;
     }
+
+};
+
+class Kuramoto2D : public Cash_Karp_GSL
+{
+public:
+  gsl_rng * T1;
+  double J, K;
+  Kuramoto2D(double lambda_in1, double lambda_in2, double J_in, double K_in, int tag) : Cash_Karp_GSL(1250, 3)
+  {
+    T1 = gsl_rng_alloc(gsl_rng_taus);
+    J = J_in;
+    K = K_in;
+    int i, j;
+    double r_val, theta_val;
+
+    a_tol = lambda_in1;
+    r_tol = lambda_in2;
+    memset(prefix, 0, 99);
+    memset(prefix_dense, 0, 149);
+    memset(specfile, 0, 199);
+    memset(specfile_dense, 0, 249);
+
+    snprintf(prefix, 100, "./dat_dir/prob5_2DKuramoto_sim%d", tag );
+    snprintf(specfile, 200, "%s.aydat", prefix);
+    snprintf(prefix_dense, 150, "%s_dense_output", prefix);
+    snprintf(specfile_dense, 250, "%s.aydat", prefix_dense);
+
+    for ( i = 0; i < dof; i++)
+    {
+      gsl_matrix_set(y_init, i, 0, 2*M_PI*gsl_rng_uniform(T1) );
+      theta_val = 2*M_PI*gsl_rng_uniform(T1);
+      r_val = gsl_rng_uniform(T1);
+      gsl_matrix_set(y_init, i, 1, r_val*cos(theta_val) );
+      gsl_matrix_set(y_init, i, 2, r_val*sin(r_val) );
+    }
+
+  }
+  ~Kuramoto2D()
+  {
+    gsl_rng_free(T1);
+  }
+  double omega_eval(gsl_matrix * y_in, int i)
+  {
+    double diff1, diff2;
+    double acc = 0;
+    for (int j = 0; j < i; j++)
+    {
+      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
+      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
+      acc += sin(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0) )/(sqrt( diff1*diff1 + diff2*diff2 ));
+    }
+    for (int j = i + 1; j < dof; j++)
+    {
+      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
+      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
+      acc += sin(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0) )/(sqrt( diff1*diff1 + diff2*diff2 ));
+    }
+    acc *= (K/( (double) dof ));
+    return acc;
+  }
+  void x_eval(gsl_matrix * y_out, gsl_matrix * y_in, int i)
+  {
+    int j;
+    double diff1, diff2;
+    double acc1 = 0;
+    double acc2 = 0;
+    for ( j = 0; j < i; j++)
+    {
+      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
+      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
+      acc1 += (diff1/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff1/(diff1*diff1 + diff2*diff2));
+      acc2 += (diff2/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff2/(diff1*diff1 + diff2*diff2));
+    }
+    for ( j = i + 1; j < dof; j++)
+    {
+      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
+      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
+      acc1 += (diff1/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff1/(diff1*diff1 + diff2*diff2));
+      acc2 += (diff2/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff2/(diff1*diff1 + diff2*diff2));
+    }
+    acc1 *= ((double) dof );
+    acc2 *= ((double) dof );
+    gsl_matrix_set(y_out, i, 1, acc1);
+    gsl_matrix_set(y_out, i, 2, acc2);
+  }
+  virtual void eval(double time, gsl_matrix * y_in, gsl_matrix * y_out)
+  {
+    for (int i = 0; i < dof; i++)
+    {
+      gsl_matrix_set(y_out, i, 0, omega_eval(y_in, i));
+      x_eval(y_out, y_in, i);
+    }
+    evals++;
+  }
+  virtual void write_out()
+  {
+    int i, j;
+    double val;
+    fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+    for ( i = 0; i < dof; i++)
+    {
+      for ( j = 0; j < dims; j++)
+      {
+        val = gsl_matrix_get(y0, i, j);
+        fwrite(&(val), sizeof(double), 1, out_file_ptr);
+      }
+    }
+  }
+  void solve(double t_start, double t_end, int max_steps)
+  {
+    double deltaT = (t_end-t_start)/((double) max_steps);
+    int out  = dense_solve(t_start, t_end, max_steps);
+  }
 
 };
 
@@ -250,4 +367,6 @@ class Galaxy_Geng : public Geng
 
 
 };
+
+
 #endif

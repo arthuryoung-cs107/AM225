@@ -50,33 +50,10 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fig1 = figure('Name', 'Swarm results, problem 5', 'Renderer', 'painters', 'Position', fig_pos(1, :));
-ylabel('y')
-xlabel('x')
-box on
-hold on
 
 dof = 1250;
 dims = 3;
 
-prob5_part_a_sim1 = aysml_read('../dat_dir/prob5_2DKuramoto_sim1');
-
-theta_sim1 = zeros(size(prob5_part_a_sim1, 1), dof);
-posX_sim1 = zeros(size(prob5_part_a_sim1, 1), dof);
-posY_sim1 = zeros(size(prob5_part_a_sim1, 1), dof);
-time_sim1 = prob5_part_a_sim1(:, 1);
-
-col_count = 1;
-for i=2:3:(size(prob5_part_a_sim1, 2)-2)
-  theta_sim1(:, col_count) = prob5_part_a_sim1(:, i);
-  posX_sim1(:, col_count) = prob5_part_a_sim1(:, i+1);
-  posY_sim1(:, col_count) = prob5_part_a_sim1(:, i+2);
-  col_count = col_count + 1;
-end
-
-figure(fig1.Number)
-for i = 1:length(time_sim1)
-  scatter(posX_sim1(i, :), posY_sim1(i, :) );
-  pause
-  clf
-end
+run prob5_graph_sim1
+% run prob5_graph_sim2
+% run prob5_graph_sim3

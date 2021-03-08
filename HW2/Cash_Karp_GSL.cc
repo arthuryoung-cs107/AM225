@@ -271,10 +271,7 @@ int Cash_Karp_GSL::dense_solve(double t_start, double t_end, double del_t)
   {
     count++;
 
-    if (count%100 == 0)
-    {
-      printf("count: %d, time: %f out of %f\n", count, t_it, t_end);
-    }
+    printf("count: %d, time: %f out of %f\n", count, t_it, t_end);
 
     if ( (t_end-t_it) < h_new )
     {

@@ -90,6 +90,7 @@ public:
   double J, K;
   Kuramoto2D(double lambda_in1, double lambda_in2, double J_in, double K_in, int tag) : Cash_Karp_GSL(1250, 3)
   {
+    h_init = 1e-5; // helps us
     T1 = gsl_rng_alloc(gsl_rng_taus);
     J = J_in;
     K = K_in;

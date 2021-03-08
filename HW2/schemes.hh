@@ -90,7 +90,6 @@ public:
   double J, K;
   Kuramoto2D(double lambda_in1, double lambda_in2, double J_in, double K_in, int tag) : Cash_Karp_GSL(1250, 3)
   {
-    h_init = 1e-5; // helps us
     T1 = gsl_rng_alloc(gsl_rng_taus);
     J = J_in;
     K = K_in;
@@ -162,18 +161,19 @@ public:
       acc1 += (diff1/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff1/(diff1*diff1 + diff2*diff2));
       acc2 += (diff2/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff2/(diff1*diff1 + diff2*diff2));
     }
-    acc1 *= ((double) dof );
-    acc2 *= ((double) dof );
+    acc1 *= 1/((double) dof );
+    acc2 *= 1/((double) dof );
     gsl_matrix_set(y_out, i, 1, acc1);
     gsl_matrix_set(y_out, i, 2, acc2);
   }
   virtual void eval(double time, gsl_matrix * y_in, gsl_matrix * y_out)
   {
-    for (int i = 0; i < dof; i++)
-    {
-      gsl_matrix_set(y_out, i, 0, omega_eval(y_in, i));
-      x_eval(y_out, y_in, i);
-    }
+    # pragma omp parrallel for
+      for (int i = 0; i < dof; i++)
+      {
+        gsl_matrix_set(y_out, i, 0, omega_eval(y_in, i));
+        x_eval(y_out, y_in, i);
+      }
     evals++;
   }
   virtual void write_out()

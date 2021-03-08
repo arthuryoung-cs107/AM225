@@ -93,6 +93,7 @@ public:
     T1 = gsl_rng_alloc(gsl_rng_taus);
     J = J_in;
     K = K_in;
+    writeout_width = dims*dof + 1;
     int i, j;
     double r_val, theta_val;
 
@@ -114,7 +115,7 @@ public:
       theta_val = 2*M_PI*gsl_rng_uniform(T1);
       r_val = gsl_rng_uniform(T1);
       gsl_matrix_set(y_init, i, 1, r_val*cos(theta_val) );
-      gsl_matrix_set(y_init, i, 2, r_val*sin(r_val) );
+      gsl_matrix_set(y_init, i, 2, r_val*sin(theta_val) );
     }
 
   }

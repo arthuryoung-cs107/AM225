@@ -41,6 +41,7 @@ prob6: prob6_solve
 
 clean:
 	rm -f prob2_solve
+	rm -f prob5_solve
 	rm -f prob6_solve
 	rm -f *.o
 clean_dat:

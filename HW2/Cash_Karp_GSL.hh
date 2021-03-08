@@ -17,6 +17,7 @@ class Cash_Karp_GSL
 
     const int dof, dims;
     int evals, dense_evals;
+    int writeout_width;
     const double facmax, facmin, fac;
     double a_tol, r_tol, h_init, hfull, h, t_it, t_dense;
 

@@ -9,10 +9,17 @@ extern "C" {
 
 void prob5_part_a()
 {
-  Kuramoto2D * K1;
-  K1 = new Kuramoto2D(1e-6, 1e-6, 0.5, 0.5, 1);
-  K1->solve(0, 200, 401);
-  delete K1;
+  double J_vec[3] = {0.5, 0.3, 1.0};
+  double K_vec[3] = {0.5, -0.2, -0.2};
+
+  # pragma omp parrallel for
+    for (int i = 0; i < 3; i++)
+    {
+      Kuramoto2D * K1;
+      K1 = new Kuramoto2D(1e-6, 1e-6, J_vec[i], K_vec[i], i+1);
+      K1->solve(0, 200, 401);
+      delete K1;
+    }
 }
 
 void prob6_part_a()

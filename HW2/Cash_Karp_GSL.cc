@@ -271,8 +271,6 @@ int Cash_Karp_GSL::dense_solve(double t_start, double t_end, double del_t)
   {
     count++;
 
-    printf("count: %d, time: %f out of %f\n", count, t_it, t_end);
-
     if ( (t_end-t_it) < h_new )
     {
       h_new = h_select(y0, t_end-t_it);
@@ -290,8 +288,8 @@ int Cash_Karp_GSL::dense_solve(double t_start, double t_end, double del_t)
   }
   fclose(out_file_dense_ptr);
   fclose(out_file_ptr);
-  aysml_gen(prefix, count, dof*dims);
-  aysml_gen(prefix_dense, dense_evals, dof*dims);
+  aysml_gen(prefix, count, writeout_width);
+  aysml_gen(prefix_dense, dense_evals, writeout_width);
 
   return 1;
 }

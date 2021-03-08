@@ -12,7 +12,6 @@ box on
 hold on
 
 
-
 prob6_galaxy_sim1 = aysml_read('../dat_dir/prob6_Galaxy_data_sim1');
 t_sim1 = prob6_galaxy_sim1(:, 1);
 ham_sim1 = prob6_galaxy_sim1(:, 2);
@@ -22,8 +21,6 @@ deltaT = length(t_sim1)/100;
 
 figure(fig4.Number)
 plot(t_sim1, ham_sim1, '- ', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'Hamiltonian value')
-
-
 
 figure(fig3.Number)
 scatter3( q_sim1( 1, 1), q_sim1(1, 2), q_sim1(1, 3), 500,'Marker', 'x', 'MarkerEdgeColor', [0 0 0], 'LineWidth', 2);

@@ -122,10 +122,13 @@ class Brusselator_Geng : public Geng
 class Galaxy_Geng : public Geng
 {
   public:
+    int out_flag;
     double A, Omega, C, a, b, c;
+    double * y_old, *y_work2;
+    double t_old;
     Galaxy_Geng(double * params_in, int tag) : Geng(6),
     A(params_in[0]), Omega(params_in[1]), C(params_in[2]),
-    a(params_in[3]), b(params_in[4]), c(params_in[5])
+    a(params_in[3]), b(params_in[4]), c(params_in[5]), y_old(new double[6]), y_work2(new double[6])
     {
       memset(prefix, 0, 99);
       memset(specfile, 0, 199);
@@ -144,6 +147,8 @@ class Galaxy_Geng : public Geng
     }
     ~Galaxy_Geng()
     {
+      delete [] y_old;
+      delete [] y_work2;
       fclose(out_file_ptr);
     }
     virtual void eval(double time_in, double * y_in, double * y_out)
@@ -170,13 +175,46 @@ class Galaxy_Geng : public Geng
     }
     virtual void write_out()
     {
-      double Ham_eval = Hamiltonian(y_it);
-      fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
-      fwrite(&(Ham_eval), sizeof(double), 1, out_file_ptr);
-      for (int i = 0; i < dof; i++) fwrite(&(y_it[i]), sizeof(double), 1, out_file_ptr) ;
+      if (out_flag == 1)
+      {
+        double Ham_eval = Hamiltonian(y_it);
+        fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+        fwrite(&(Ham_eval), sizeof(double), 1, out_file_ptr);
+        for (int i = 0; i < dof; i++) fwrite(&(y_it[i]), sizeof(double), 1, out_file_ptr) ;
+      }
+      else
+      {
+        if ( (y_it[1] > 0) && (y_it[4] > 0) )
+        {
+          if ( (y_old[1] < 0 ) )
+          {
+            double y2diff = y_it[1] - y_old[1];
+            double twork = (y_it[1]*(t_old-t_it)/y2diff) + t_it;
+            for (int i = 0; i < dof; i++)
+            {
+              if (i == 1)
+              {
+                y_work2[i] = 0;
+              }
+              else
+              {
+                y_work2[i] = (y_it[1]*(y_old[i] - y_it[i])/y2diff) + y_it[i] ;
+              }
+            }
+
+            double Ham_eval = Hamiltonian(y_work2);
+            fwrite(&(twork), sizeof(double), 1, out_file_ptr);
+            fwrite(&(Ham_eval), sizeof(double), 1, out_file_ptr);
+            for (int i = 0; i < dof; i++) fwrite(&(y_work2[i]), sizeof(double), 1, out_file_ptr) ;
+          }
+        }
+        t_old = t_it;
+        for (int i = 0; i < dof; i++) y_old[i] = y_it[i] ;
+      }
     }
-    void solve(double t_end)
+    void solve(double t_end, int out_flag_in)
     {
+      out_flag = out_flag_in;
       int steps_ = ( (int) t_end ) * ( (int) 20 );
       solve_fixed(0.0, t_end, steps_);
     }

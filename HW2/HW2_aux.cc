@@ -63,5 +63,25 @@ void prob6_part_b()
 
   Galaxy_Geng * G1;
   G1 = new Galaxy_Geng(params_main, 1);
-  G1->solve(2000);
+  G1->solve(2000, 1);
+  delete G1;
+
+}
+
+void prob6_part_c()
+{
+  double * params_main = dvector(0, 5);
+
+  params_main[0] = 1.0 ;
+  params_main[1] = 0.25 ;
+  params_main[2] = 1.0 ;
+  params_main[3] = 1.25 ;
+  params_main[4] = 1.0 ;
+  params_main[5] = 0.75 ;
+
+  Galaxy_Geng * G2;
+  G2 = new Galaxy_Geng(params_main, 2);
+  G2->solve(1e5, 2);
+
+  delete G2;
 }

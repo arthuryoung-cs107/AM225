@@ -15,7 +15,7 @@ extern "C"
 int main()
 {
   // prob6_part_a();
-  prob6_part_b();
-
+  // prob6_part_b();
+prob6_part_c();
   return 0;
 }

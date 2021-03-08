@@ -13,6 +13,7 @@ class Geng
         int dof;
         int eval_count;
         int step_count;
+        int writeout_width;
         double t_it;
 
         double * y_init;
@@ -26,10 +27,10 @@ class Geng
 
         virtual void init() = 0;
         virtual void eval(double t_in, double * y_in, double * y_out) = 0;
+        virtual void write_out() = 0;
 
         void solve_fixed(double t_start, double t_end, int max_steps);
         void step(double del_t);
-        void write_out();
 
     private:
 

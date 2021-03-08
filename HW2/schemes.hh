@@ -93,6 +93,7 @@ class Brusselator_Geng : public Geng
       out_file_ptr = fopen(specfile, "wb");
       y_init[0] = 1.5;
       y_init[1] = 3.0;
+      writeout_width = dof + 1;
     }
     ~Brusselator_Geng()
     {
@@ -107,6 +108,11 @@ class Brusselator_Geng : public Geng
     virtual void init()
     {
       for (int i = 0; i < dof; i++) y_it[i] = y_init[i];
+    }
+    virtual void write_out()
+    {
+      fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+      for (int i = 0; i < dof; i++) fwrite(&(y_it[i]), sizeof(double), 1, out_file_ptr) ;
     }
     void solve(double t_start, double t_end)
     {
@@ -134,6 +140,7 @@ class Galaxy_Geng : public Geng
       y_init[5] = 0.2;
 
       y_init[4] = solve_p2();
+      writeout_width = dof + 2;
     }
     ~Galaxy_Geng()
     {
@@ -141,11 +148,32 @@ class Galaxy_Geng : public Geng
     }
     virtual void eval(double time_in, double * y_in, double * y_out)
     {
+      double q1 = y_in[0];
+      double q2 = y_in[1];
+      double q3 = y_in[2];
+      double p1 = y_in[3];
+      double p2 = y_in[4];
+      double p3 = y_in[5];
+
+      y_out[0] = p1 + Omega*q2;
+      y_out[1] = p2 - Omega*q1;
+      y_out[2] = p3;
+      y_out[3] = -( -Omega*p2 + A*( (2.0*q1)/(a*a) )/(C + (q1*q1)/(a*a) + (q2*q2)/(b*b) + (q3*q3)/(c*c) ) );
+      y_out[4] = -(  Omega*p1 + A*( (2.0*q2)/(b*b) )/(C + (q1*q1)/(a*a) + (q2*q2)/(b*b) + (q3*q3)/(c*c) ) );
+      y_out[5] = -(             A*( (2.0*q3)/(c*c) )/(C + (q1*q1)/(a*a) + (q2*q2)/(b*b) + (q3*q3)/(c*c) ) );
+
       eval_count++;
     }
     virtual void init()
     {
       for (int i = 0; i < dof; i++) y_it[i] = y_init[i];
+    }
+    virtual void write_out()
+    {
+      double Ham_eval = Hamiltonian(y_it);
+      fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+      fwrite(&(Ham_eval), sizeof(double), 1, out_file_ptr);
+      for (int i = 0; i < dof; i++) fwrite(&(y_it[i]), sizeof(double), 1, out_file_ptr) ;
     }
     void solve(double t_end)
     {
@@ -181,6 +209,7 @@ class Galaxy_Geng : public Geng
 
       return 0.5*(p1*p1 + p2*p2 + p3*p3) + Omega*(p1*q2-p2*q1) + grav_potential(q1, q2, q3);
     }
+
 
 };
 #endif

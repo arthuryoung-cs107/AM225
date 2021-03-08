@@ -63,4 +63,5 @@ void prob6_part_b()
 
   Galaxy_Geng * G1;
   G1 = new Galaxy_Geng(params_main, 1);
+  G1->solve(2000);
 }

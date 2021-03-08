@@ -47,7 +47,7 @@ void Geng::solve_fixed(double t_start, double t_end, int max_steps)
     step(del_t);
     write_out();
   }
-  aysml_gen(prefix, max_steps, dof+1);
+  aysml_gen(prefix, max_steps, writeout_width);
 }
 
 void Geng::step(double del_t)
@@ -127,10 +127,4 @@ void Geng::step(double del_t)
    for ( i = 0; i < dof; i++) y_it[i] += del_t*( b1*k1[i] + b2*k2[i] + b3*k3[i] );
    t_it += del_t;
 
-}
-
-void Geng::write_out()
-{
-  fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
-  for (int i = 0; i < dof; i++) fwrite(&(y_it[i]), sizeof(double), 1, out_file_ptr) ;
 }

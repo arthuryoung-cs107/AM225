@@ -54,6 +54,7 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 dof = 1250;
 dims = 3;
 
-run prob5_graph_sim1
+% run prob5_graph_sim1
 % run prob5_graph_sim2
 % run prob5_graph_sim3
+run prob5_graph_sim56

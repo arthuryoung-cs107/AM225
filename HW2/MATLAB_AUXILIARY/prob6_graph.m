@@ -51,5 +51,5 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % run prob6_graph_partA.m
-% run prob6_graph_partB.m
-run prob6_graph_partC.m
+run prob6_graph_partB.m
+% run prob6_graph_partC.m

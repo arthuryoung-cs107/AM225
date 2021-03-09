@@ -271,6 +271,11 @@ int Cash_Karp_GSL::dense_solve(double t_start, double t_end, double del_t)
   {
     count++;
 
+    if (count%10 == 0)
+    {
+      printf("count: %d, t_it = %f, t_final = %f\n", count, t_it, t_end);
+    }
+
     if ( (t_end-t_it) < h_new )
     {
       h_new = h_select(y0, t_end-t_it);

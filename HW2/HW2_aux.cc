@@ -7,6 +7,33 @@ extern "C" {
   #include "auxiliary_functions.h"
 }
 
+void prob5_part_b()
+{
+  double * J_main = dvector(0, 1);
+  double * K_main = dvector(0, 1);
+
+  J_main[0] = 0.5;
+  J_main[1] = 1.0;
+  K_main[0] = 0.5;
+  K_main[1] = -0.2;
+
+  Kuramoto2D * K5, *K6;
+  K5 = new Kuramoto2D(1e-6, 1e-6, J_main[0], K_main[0], 5);
+  K5->solve(0, 200, 401);
+  delete K5;
+
+  K6 = new Kuramoto2D(1e-6, 1e-6, J_main[1], K_main[1], 6);
+  K6->solve(0, 200, 401);
+  delete K6;
+
+  Kuramoto2D_SUPER * K56;
+  K56 = new Kuramoto2D_SUPER(1e-6, 1e-6, J_main, K_main, 5, 6);
+  K56->solve(0, 200, 401);
+  delete K56;
+
+
+}
+
 void prob5_part_a()
 {
   double J_vec[3] = {0.5, 0.3, 1.0};

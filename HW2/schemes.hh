@@ -91,6 +91,7 @@ public:
   Kuramoto2D(double lambda_in1, double lambda_in2, double J_in, double K_in, int tag) : Cash_Karp_GSL(1250, 3)
   {
     T1 = gsl_rng_alloc(gsl_rng_taus);
+    gsl_rng_set(T1, tag);
     J = J_in;
     K = K_in;
     writeout_width = dims*dof + 1;
@@ -123,57 +124,184 @@ public:
   {
     gsl_rng_free(T1);
   }
-  double omega_eval(gsl_matrix * y_in, int i)
-  {
-    double diff1, diff2;
-    double acc = 0;
-    for (int j = 0; j < i; j++)
-    {
-      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
-      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
-      acc += sin(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0) )/(sqrt( diff1*diff1 + diff2*diff2 ));
-    }
-    for (int j = i + 1; j < dof; j++)
-    {
-      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
-      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
-      acc += sin(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0) )/(sqrt( diff1*diff1 + diff2*diff2 ));
-    }
-    acc *= (K/( (double) dof ));
-    return acc;
-  }
-  void x_eval(gsl_matrix * y_out, gsl_matrix * y_in, int i)
+  void der_eval(gsl_matrix * y_out, gsl_matrix * y_in, int i)
   {
     int j;
-    double diff1, diff2;
+    double diff1, diff2, diff0, norm, body;
+    double acc0 = 0;
     double acc1 = 0;
     double acc2 = 0;
+    double xi_0 = gsl_matrix_get(y_in, i, 0);
+    double xi_1 = gsl_matrix_get(y_in, i, 1);
+    double xi_2 = gsl_matrix_get(y_in, i, 2);
     for ( j = 0; j < i; j++)
     {
-      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
-      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
-      acc1 += (diff1/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff1/(diff1*diff1 + diff2*diff2));
-      acc2 += (diff2/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff2/(diff1*diff1 + diff2*diff2));
+      diff0 = gsl_matrix_get(y_in, j, 0) - xi_0;
+      diff1 = gsl_matrix_get(y_in, j, 1) - xi_1;
+      diff2 = gsl_matrix_get(y_in, j, 2) - xi_2;
+      norm = sqrt(diff1*diff1 + diff2*diff2) ;
+      body = (1/norm)*(1.0 + J*cos(diff0)) - (1/(norm*norm));
+      acc0 += sin( diff0 )/(norm);
+      acc1 += diff1*body;
+      acc2 += diff2*body;
     }
     for ( j = i + 1; j < dof; j++)
     {
-      diff1 = gsl_matrix_get(y_in, j, 1) - gsl_matrix_get(y_in, i, 1);
-      diff2 = gsl_matrix_get(y_in, j, 2) - gsl_matrix_get(y_in, i, 2);
-      acc1 += (diff1/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff1/(diff1*diff1 + diff2*diff2));
-      acc2 += (diff2/(sqrt(diff1*diff1 + diff2*diff2)))*(1.0 + J*cos(gsl_matrix_get(y_in, j, 0) - gsl_matrix_get(y_in, i, 0)) ) - (diff2/(diff1*diff1 + diff2*diff2));
+      diff0 = gsl_matrix_get(y_in, j, 0) - xi_0;
+      diff1 = gsl_matrix_get(y_in, j, 1) - xi_1;
+      diff2 = gsl_matrix_get(y_in, j, 2) - xi_2;
+      norm = sqrt(diff1*diff1 + diff2*diff2) ;
+      body = (1/norm)*(1.0 + J*cos(diff0)) - (1/(norm*norm));
+      acc0 += sin( diff0 )/(norm);
+      acc1 += diff1*body;
+      acc2 += diff2*body;
     }
+    acc0 *= (K/( (double) dof ));
     acc1 *= 1/((double) dof );
     acc2 *= 1/((double) dof );
+    gsl_matrix_set(y_out, i, 0, acc0);
     gsl_matrix_set(y_out, i, 1, acc1);
     gsl_matrix_set(y_out, i, 2, acc2);
   }
   virtual void eval(double time, gsl_matrix * y_in, gsl_matrix * y_out)
   {
-    # pragma omp parrallel for
       for (int i = 0; i < dof; i++)
       {
-        gsl_matrix_set(y_out, i, 0, omega_eval(y_in, i));
-        x_eval(y_out, y_in, i);
+        der_eval(y_out, y_in, i);
+      }
+    evals++;
+  }
+  virtual void write_out()
+  {
+    int i, j;
+    double val;
+    fwrite(&(t_it), sizeof(double), 1, out_file_ptr);
+    for ( i = 0; i < dof; i++)
+    {
+      for ( j = 0; j < dims; j++)
+      {
+        val = gsl_matrix_get(y0, i, j);
+        fwrite(&(val), sizeof(double), 1, out_file_ptr);
+      }
+    }
+  }
+  void solve(double t_start, double t_end, int max_steps)
+  {
+    double deltaT = (t_end-t_start)/((double) max_steps);
+    int out  = dense_solve(t_start, t_end, max_steps);
+  }
+
+};
+
+class Kuramoto2D_SUPER : public Cash_Karp_GSL
+{
+public:
+  gsl_rng * T1;
+  gsl_rng * T2;
+  double J, K, J1, J2, K1, K2;
+  Kuramoto2D_SUPER(double lambda_in1, double lambda_in2, double * J_in, double * K_in, int tag1, int tag2) : Cash_Karp_GSL(2*1250, 3)
+  {
+    T1 = gsl_rng_alloc(gsl_rng_taus);
+    T2 = gsl_rng_alloc(gsl_rng_taus);
+    gsl_rng_set(T1, tag1);
+    gsl_rng_set(T1, tag2);
+
+    J1 = J_in[0];
+    J2 = J_in[1];
+    K1 = K_in[0];
+    K2 = K_in[1];
+
+    writeout_width = dims*dof + 1;
+    int i, j;
+    double r_val, theta_val;
+
+    a_tol = lambda_in1;
+    r_tol = lambda_in2;
+    memset(prefix, 0, 99);
+    memset(prefix_dense, 0, 149);
+    memset(specfile, 0, 199);
+    memset(specfile_dense, 0, 249);
+
+    snprintf(prefix, 100, "./dat_dir/prob5_2DKuramotoSuper_sim%d-%d", tag1, tag2 );
+    snprintf(specfile, 200, "%s.aydat", prefix);
+    snprintf(prefix_dense, 150, "%s_dense_output", prefix);
+    snprintf(specfile_dense, 250, "%s.aydat", prefix_dense);
+
+    for ( i = 0; i < dof/2; i++)
+    {
+      gsl_matrix_set(y_init, i, 0, 2*M_PI*gsl_rng_uniform(T1) );
+      theta_val = 2*M_PI*gsl_rng_uniform(T1);
+      r_val = gsl_rng_uniform(T1);
+      gsl_matrix_set(y_init, i, 1, r_val*cos(theta_val) );
+      gsl_matrix_set(y_init, i, 2, r_val*sin(theta_val) );
+    }
+    for ( i = dof/2; i < dof; i++)
+    {
+      gsl_matrix_set(y_init, i, 0, 2*M_PI*gsl_rng_uniform(T2) );
+      theta_val = 2*M_PI*gsl_rng_uniform(T2);
+      r_val = gsl_rng_uniform(T2);
+      gsl_matrix_set(y_init, i, 1, r_val*cos(theta_val) );
+      gsl_matrix_set(y_init, i, 2, r_val*sin(theta_val) );
+    }
+
+  }
+  ~Kuramoto2D_SUPER()
+  {
+    gsl_rng_free(T1);
+    gsl_rng_free(T2);
+  }
+  void der_eval(gsl_matrix * y_out, gsl_matrix * y_in, int i)
+  {
+    int j;
+    double diff1, diff2, diff0, norm, body;
+    double acc0 = 0;
+    double acc1 = 0;
+    double acc2 = 0;
+    double xi_0 = gsl_matrix_get(y_in, i, 0);
+    double xi_1 = gsl_matrix_get(y_in, i, 1);
+    double xi_2 = gsl_matrix_get(y_in, i, 2);
+    for ( j = 0; j < i; j++)
+    {
+      diff0 = gsl_matrix_get(y_in, j, 0) - xi_0;
+      diff1 = gsl_matrix_get(y_in, j, 1) - xi_1;
+      diff2 = gsl_matrix_get(y_in, j, 2) - xi_2;
+      norm = sqrt(diff1*diff1 + diff2*diff2) ;
+      body = (1/norm)*(1.0 + J*cos(diff0)) - (1/(norm*norm));
+      acc0 += sin( diff0 )/(norm);
+      acc1 += diff1*body;
+      acc2 += diff2*body;
+    }
+    for ( j = i + 1; j < dof; j++)
+    {
+      diff0 = gsl_matrix_get(y_in, j, 0) - xi_0;
+      diff1 = gsl_matrix_get(y_in, j, 1) - xi_1;
+      diff2 = gsl_matrix_get(y_in, j, 2) - xi_2;
+      norm = sqrt(diff1*diff1 + diff2*diff2) ;
+      body = (1/norm)*(1.0 + J*cos(diff0)) - (1/(norm*norm));
+      acc0 += sin( diff0 )/(norm);
+      acc1 += diff1*body;
+      acc2 += diff2*body;
+    }
+    acc0 *= (K/( (double) dof ));
+    acc1 *= 1/((double) dof );
+    acc2 *= 1/((double) dof );
+    gsl_matrix_set(y_out, i, 0, acc0);
+    gsl_matrix_set(y_out, i, 1, acc1);
+    gsl_matrix_set(y_out, i, 2, acc2);
+  }
+  virtual void eval(double time, gsl_matrix * y_in, gsl_matrix * y_out)
+  {
+      J = J1;
+      K = K1;
+      for (int i = 0; i < dof/2; i++)
+      {
+        der_eval(y_out, y_in, i);
+      }
+      J = J2;
+      K = K2;
+      for (int i = dof/2; i < dof; i++)
+      {
+        der_eval(y_out, y_in, i);
       }
     evals++;
   }

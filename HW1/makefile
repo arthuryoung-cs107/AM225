@@ -22,6 +22,8 @@ OBJS5 = main_prob5.o nrutil.o auxiliary_functions.o knuth_lcg.o HW1_aux.o
 %.o: %.cc $(CPPDEPS)
 	$(CXX) -c -o $@ $< $(CFLAGS) $(LDIR)
 
+all: prob1_solve prob2_solve prob3_solve prob5_solve
+
 prob1_solve: $(OBJS1)
 	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
 
@@ -41,8 +43,6 @@ prob2: prob2_solve
 prob3: prob3_solve
 
 prob5: prob5_solve
-
-all: prob1_solve prob2_solve prob3_solve prob5_solve
 
 clean:
 	rm -f prob1_solve

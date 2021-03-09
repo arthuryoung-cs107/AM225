@@ -46,6 +46,4 @@ int main()
   free(generators);
 
   return 0;
-
-
 }

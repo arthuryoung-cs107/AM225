@@ -1,8 +1,19 @@
-#ifndef POISSON_FFT
-#define POISSON_FFT
+#ifndef POISSON_FFT_AY
+#define POISSON_FFT_AY
 
-#include "file_output.hh"
+#include <cstdio>
+#include <cmath>
+#include <string.h>
+
 #include <fftw3.h>
+
+// #include "file_output.hh"
+
+extern "C"
+{
+  #include "nrutil.h"
+  #include "auxiliary_functions.h"
+}
 
 class poisson_fft {
     public:
@@ -25,12 +36,8 @@ class poisson_fft {
         void init_mms();
         double l2_error_mms();
         void print(bool solution);
-        void output_solution(const char* filename);
-        /** Outputs the source term in the 2D Gnuplot matrix format.
-         * \param[in] filename the name of the file to write to. */
-        inline void output_source(const char* filename) {
-            gnuplot_output(filename,f,n,n,h,1-h,h,1-h);
-        }
+        void output_solution( char prefix[]);
+
     private:
         /** An array holding the eigenvalues of the one-dimensional Poisson
          * matrix T_N. */
@@ -41,6 +48,9 @@ class poisson_fft {
         /** The FFTW plan for converting the frequency domain back to the
          * solution. */
         fftw_plan plan_bck;
+
+        void write_out(char prefix[], int n, double * M);
+
 };
 
 #endif

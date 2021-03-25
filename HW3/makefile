@@ -4,13 +4,13 @@ OS=OSX
 CFLAGS= -O3 -I. -fopenmp -DGSL -DKNUTH
 
 LDIR= -I/usr/local/include/
-LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas
+LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas -lfftw3
 
 CDEPS = nrutil.h auxiliary_functions.h
 
-CPPDEPS = HW3_aux.hh
+CPPDEPS = poisson_fft_AY.hh
 
-OBJS5 = main_prob6.o nrutil.o auxiliary_functions.o HW3_aux.o
+OBJS5 = main_prob5.o nrutil.o auxiliary_functions.o poisson_fft_AY.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)

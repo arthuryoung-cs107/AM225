@@ -1,7 +1,4 @@
-#include <cstdio>
-#include <cmath>
-
-#include "poisson_fft.hh"
+#include "poisson_fft_AY.hh"
 
 /** Initializes the class for solving the 2D Poisson problem on a square
  * [0,1]^2 using the fast Fourier transform.
@@ -32,10 +29,11 @@ poisson_fft::~poisson_fft() {
 /** Initializes the source term to be a stepped function. */
 void poisson_fft::init() {
     for(int j=0;j<n;j++) {
-        double y=(j+1)*h;
+        double y=( (double) j+1)*h;
         for(int i=0;i<n;i++) {
-            double x=(i+1)*h;
-            f[i+n*j]=fabs(x-0.5)<0.25&&fabs(y-0.5)<0.25?(x>0.5?-1:1):0;
+            double x=( (double) i+1)*h;
+            // f[i+n*j]=fabs(x-0.5)<0.25&&fabs(y-0.5)<0.25?(x>0.5?-1:1):0;
+            f[i+n*j] = exp(x - y);
         }
     }
 }
@@ -73,7 +71,7 @@ void poisson_fft::print(bool solution) {
 /** Outputs the solution in the Gnuplot 2D matrix format, padding the grid with
  * zeros to represent the Dirichlet boundary condition.
  * \param[in] filename the name of the file to write to. */
-void poisson_fft::output_solution(const char* filename) {
+void poisson_fft::output_solution( char prefix[]) {
     const int ne=n+2;
     double *fld=new double[(n+2)*(n+2)],*f2=fld;
 
@@ -90,7 +88,8 @@ void poisson_fft::output_solution(const char* filename) {
 
     // Set last row to zero, call output routine, and free output array
     while(f2<fld+ne*ne) *(f2++)=0.;
-    gnuplot_output(filename,fld,ne,ne,0,1,0,1);
+    // gnuplot_output(filename,fld,ne,ne,0,1,0,1);
+    write_out(prefix, ne, fld);
     delete [] fld;
 }
 
@@ -119,4 +118,26 @@ double poisson_fft::l2_error_mms() {
         }
     }
     return sqrt(h*h*l2);
+}
+
+void poisson_fft::write_out( char prefix[], int n, double * M)
+{
+  int i, j;
+  FILE * out_file_ptr;
+  char specfile[300];
+
+  memset(specfile, 0, 299);
+  snprintf(specfile, 200, "%s.aydat", prefix);
+  out_file_ptr = fopen(specfile, "wb");
+
+  for ( j = 0; j < n; j++)
+  {
+    for ( i = 0; i < n; i++) // walk
+    {
+      fwrite(&(M[i+n*j]), sizeof(double), 1, out_file_ptr);
+    }
+  }
+  aysml_gen(prefix, n, n);
+
+  fclose(out_file_ptr);
 }

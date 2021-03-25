@@ -11,7 +11,43 @@ extern "C"
   #include "nrutil.h"
   #include "auxiliary_functions.h"
 }
+int ** Pierce_mat_gen(char pierce_filename[] , int m, int n )
+{
+  // note: we ignore edge and corner values, since they're outside the domain of the actual problem. Asusme
+  int row_count, col_count, i, j;
+  int ** pierce_mat = imatrix(1, m, 1, n);
+  char extract[1000];
+  zeromint_init(pierce_mat, 1, m, 1, n);
 
+  FILE * pierce_file = fopen(pierce_filename, "r");
+
+  while (fgets(extract, sizeof (extract), pierce_file))
+  {
+    row_count++;
+    col_count = 0;
+    for (i = 0; i < 1000; i++)
+    {
+      if (extract[i] == '0')
+      {
+        col_count++;
+        pierce_mat[row_count][col_count] = 0;
+        // printf("0 ");
+      }
+      else
+      {
+          if (extract[i] == '1')
+          {
+            col_count++;
+            pierce_mat[row_count][col_count] = 1;
+            // printf("1 ");
+          }
+      }
+    }
+    // printf("\n");
+  }
+  fclose(pierce_file);
+  return pierce_mat;
+}
 void prob5_part_a()
 {
   int N = 112;

@@ -26,13 +26,11 @@ poisson_fft::~poisson_fft() {
     fftw_free(f);
 }
 
-/** Initializes the source term to be a stepped function. */
 void poisson_fft::init() {
     for(int j=0;j<n;j++) {
         double y=( (double) j+1)*h;
         for(int i=0;i<n;i++) {
             double x=( (double) i+1)*h;
-            // f[i+n*j]=fabs(x-0.5)<0.25&&fabs(y-0.5)<0.25?(x>0.5?-1:1):0;
             f[i+n*j] = exp(x - y);
         }
     }

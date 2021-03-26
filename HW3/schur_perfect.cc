@@ -1,9 +1,9 @@
 #include <cstdio>
-#include "schur.hh"
+#include "schur_perfect.hh"
 
 /** Construct given the width of each subdomain.
  * \param[in] n_ : The width of each subdomain in units. */
-schur::schur(int n_) : conj_grad(n_-1), n(n_-1), nn(n*n), ng(n), h(1./n_), ih2(n_*n_),
+schur_perfect::schur_perfect(int n_) : conj_grad(n_-1), n(n_-1), nn(n*n), ng(n), h(1./n_), ih2(n_*n_),
     grid1(n), grid2(n), f1(new double[nn]), f2(new double[nn]), fg(new double[ng])
 {}
 

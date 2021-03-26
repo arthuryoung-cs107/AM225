@@ -2,7 +2,7 @@
 #include "poisson_fft_AY.hh"
 #include "conj_grad.hh"
 
-class schur : conj_grad
+class schur_perfect : conj_grad
 {
     public:
         schur(int n_);

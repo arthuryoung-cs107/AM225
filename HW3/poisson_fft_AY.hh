@@ -7,8 +7,6 @@
 
 #include <fftw3.h>
 
-// #include "file_output.hh"
-
 extern "C"
 {
   #include "nrutil.h"

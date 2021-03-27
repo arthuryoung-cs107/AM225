@@ -14,6 +14,7 @@ class square_specs {
         *ascii_num, *n_vec, *nn_vec;
         double *** A_mats;
         double *** A_glue;
+        double *** A_glueT;
 
         square_specs();
         ~square_specs();

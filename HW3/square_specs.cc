@@ -13,7 +13,8 @@ mat_indices(imatrix(0, N-1, 0, N-1)),
 ascii_num(new int[n_sqrs]), n_vec(new int[n_sqrs]), nn_vec(new int[n_sqrs]),
 sqr_indices((int ***)malloc(n_sqrs*(sizeof(int **)))),
 A_mats((double ***)malloc(n_sqrs*(sizeof(double **)))),
-A_glue((double ***)malloc(n_sqrs*(sizeof(double **))))
+A_glue((double ***)malloc(n_sqrs*(sizeof(double **)))),
+A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
 {
   int i, j,  jj;
 
@@ -33,6 +34,7 @@ A_glue((double ***)malloc(n_sqrs*(sizeof(double **))))
     coords[i][1] = col_local[i];
     A_mats[i] = dmatrix(0, nn_vec[i]-1, 0, nn_vec[i]-1);
     A_glue[i] = dmatrix(0, nn_vec[i]-1, 0, n_glue-1); // dependencies on glue terms, will be sparse
+    A_glueT[i] = dmatrix(0, n_glue-1, 0, nn_vec[i]-1); // dependencies on glue terms, will be sparse
     A_gen(A_mats[i], n_vec[i]);
   }
   ascii_num[n_sqrs-1] = (int) *(ascii_name[i]);
@@ -41,7 +43,8 @@ A_glue((double ***)malloc(n_sqrs*(sizeof(double **))))
   coords[n_sqrs-1][0] = 0;
   coords[n_sqrs-1][1] = 0;
   A_mats[n_sqrs-1] = dmatrix(0, n_glue-1, 0, n_glue-1); // gonna be all over the place
-  A_glue[n_sqrs-1] = dmatrix(0, n_glue-1, 0, n_glue-1);
+  A_glue[n_sqrs-1] = A_mats[n_sqrs-1];
+  A_glueT[n_sqrs-1] = dmatrix(0, n_glue-1, 0, n_glue-1);
   vec_assign();
   glue_assign();
 }
@@ -162,20 +165,21 @@ void square_specs::A_gen(double ** mat, int n )
 }
 void square_specs::glue_assign()
 {
-  int i, j, k, row, col, n, i_glue, j_val;
+  int i, j, k, row, col, n, i_glue, j_val, nn, row_check, col_check;
 
   for ( k = 0; k < n_sqrs-1; k++)
   {
     row = coords[k][0];
     col = coords[k][1];
     n = n_vec[k];
+    nn = nn_vec[k];
     if (row > 0) // search for glue dependencies of top row
     {
       j_val = 0;
       for ( i = col; i < col+n; i++) // traversing columns
       {
         i_glue = mat_indices[row-1][i] - (N*N - n_glue);
-        A_glue[k][j_val][i_glue] = -1;
+        A_glue[k][j_val][i_glue] = -1.0;
         j_val++;
       }
     }
@@ -185,28 +189,73 @@ void square_specs::glue_assign()
       for ( j = row; j < row+n; j++) // traversing rows
       {
         i_glue = mat_indices[j][col-1] - (N*N - n_glue);
-        A_glue[k][j_val][i_glue] = -1;
+        A_glue[k][j_val][i_glue] = -1.0;
         j_val+=n;
       }
     }
     if (row+n < N) // search for glue dependencies of bottom row
     {
-      j_val = 0;
+      j_val = nn - n;
       for ( i = col; i < col+n; i++) // traversing columns
       {
         i_glue = mat_indices[row+1][i] - (N*N - n_glue);
-        A_glue[k][j_val][i_glue] = -1;
+        A_glue[k][j_val][i_glue] = -1.0;
         j_val++;
       }
     }
     if (col+n < N) // search for glue dependencies of right column
     {
-      j_val = 0;
+      j_val = n-1;
       for ( j = row; j < row+n; j++) // traversing rows
       {
         i_glue = mat_indices[j][col+1] - (N*N - n_glue);
-        A_glue[k][j_val][i_glue] = -1;
+        A_glue[k][j_val][i_glue] = -1.0;
         j_val+=n;
+      }
+    }
+  }
+
+  // now, search for glue-to-glue dependencies
+  for ( k = 0; k < n_glue; k++)
+  {
+    row = glue_indices[k][0];
+    col = glue_indices[k][1];
+    j_val = mat_indices[row][col] - (N*N - n_glue);
+    A_glue[n_sqrs-1][j_val][j_val] = 4.0;
+
+    for ( i = 0; i < n_glue; i++)
+    {
+      row_check = glue_indices[i][0];
+      col_check = glue_indices[i][1];
+
+      if (col_check == col)
+      {
+        if (row_check == row+1 || row_check == row-1)
+        {
+          i_glue = mat_indices[row_check][col_check] - (N*N - n_glue);
+          A_glue[n_sqrs-1][j_val][i_glue] = -1.0;
+        }
+      }
+      else
+      {
+        if (row_check == row)
+        {
+          if (col_check == col+1 || col_check == col-1)
+          {
+            i_glue = mat_indices[row_check][col_check] - (N*N - n_glue);
+            A_glue[n_sqrs-1][j_val][i_glue] = -1.0;
+          }
+        }
+      }
+    }
+  }
+  for ( k = 0; i < n_sqrs; i++)
+  {
+    for ( j = 0; j < nn_vec[k]; j++)
+    {
+      for ( i = 0; i < n_glue; i++)
+      {
+        A_glueT[k][i][j] = A_glue[k][j][i];
       }
     }
   }

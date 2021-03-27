@@ -29,6 +29,7 @@ void vec2mat(double *g, int nrl, int nrh, double ** G, int mrl, int mrh, int mcl
 double norm_l2(double * input_vector, int nrl, int nrh);
 double norm_frob(double ** X, int nrl, int nrh, int ncl, int nch);
 double up_order(double a);
+void transpose_dmatrix(double ** a, int arl, int arh, int acl, int ach, double ** b);
 
 void AY_GSLmatrix_add(gsl_matrix * W, gsl_matrix * K, gsl_matrix * work, double scalar);
 

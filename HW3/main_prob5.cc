@@ -45,7 +45,7 @@ void prob5_part_b()
   square_specs * S1 = new square_specs();
   auto f = [](double x, double y) { return std::exp(x-y); };
   schur_perfect * P1 = new schur_perfect(S1);
-  // P1->solve(f);
+  P1->solve(f);
 
 }
 int main()

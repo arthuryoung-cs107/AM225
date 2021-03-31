@@ -25,6 +25,8 @@ class square_specs {
         void grid_vec2mat(double ** mat, double * vec);
         void A_gen(double ** mat, int n);
         void glue_assign();
+        void print_adjacents();
+
     private:
 
 };

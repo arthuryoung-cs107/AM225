@@ -7,8 +7,8 @@ class schur_perfect : conj_grad
 {
     public:
         int n_sqrs, n_glue, nn_glue, N;
-        int * n_vec, *nn_vec, **mat_indices;
-        double h;
+        int * n_vec, *nn_vec, **mat_indices, ** vec_indices ; 
+        double h, ih2;
         poisson_fft ** grids;
         double * f_full, * v_sol, ** fk_full, *fk;
         double *** A_glue;

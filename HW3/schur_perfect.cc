@@ -5,9 +5,9 @@
 /** Construct given the width of each subdomain.
  * \param[in] n_ : The width of each subdomain in units. */
 schur_perfect::schur_perfect(square_specs * S) : conj_grad(S->n_glue),
-n_sqrs(S->n_sqrs), n_glue(S->n_glue), nn_glue(S->nn_glue), N(S->N), h(1./((double) N+1)),
+n_sqrs(S->n_sqrs), n_glue(S->n_glue), nn_glue(S->nn_glue), N(S->N), h(1./((double) N+1)), ih2(1/(h*h)),
 n_vec(S->n_vec), nn_vec(S->nn_vec),
-mat_indices(S->mat_indices),
+mat_indices(S->mat_indices), vec_indices(S->vec_indices),
 grids((poisson_fft **) malloc((n_sqrs-1)*(sizeof(poisson_fft*)))),
 f_full(new double[N*N]), v_sol(new double[N*N]),
 fk_full((double **) malloc((n_sqrs)*(sizeof(double*)))),

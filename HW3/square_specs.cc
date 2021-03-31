@@ -50,30 +50,6 @@ A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
   vec_assign();
   glue_assign();
 
-
-  int k, l;
-  for ( l = 0; l < n_glue; l++)
-  {
-    int glue_pt = (N*N - n_glue) + l;
-    printf("glue #%d: (%d,%d). Adjancencies: ", l, vec_indices[glue_pt][1],vec_indices[glue_pt][0]);
-    for ( k = 0; k < n_sqrs; k++)
-    {
-      for ( i = 0; i < nn_vec[k]; i++)
-      {
-          double check = A_glue[k][i][l] ;
-          if (abs(check) > 1e-6 &&  abs(check) < 3.0  ) 
-          {
-            int global_row = sqr_indices[k][i][0];
-            int global_col = sqr_indices[k][i][1];
-            printf("(%f, %c, %d, %d), ", check, grid_mat[global_row][global_col], global_col, global_row);
-          }
-      }
-    }
-    printf("\n");
-    getchar();
-
-  }
-
 }
 
 square_specs::~square_specs()
@@ -217,6 +193,7 @@ void square_specs::glue_assign()
         A_glue[k][j_val][i_glue] = -1.0;
         j_val++;
       }
+
     }
     if (col+n < N) // search for glue dependencies of right column
     {
@@ -235,8 +212,8 @@ void square_specs::glue_assign()
   {
     row = glue_indices[k][0];
     col = glue_indices[k][1];
-    j_val = mat_indices[row][col] - (N*N - n_glue);
-    A_glue[n_sqrs-1][j_val][j_val] = 4.0;
+    // j_val = mat_indices[row][col] - (N*N - n_glue);
+    A_glue[n_sqrs-1][k][k] = 4.0;
 
     for ( i = 0; i < n_glue; i++)
     {
@@ -247,8 +224,7 @@ void square_specs::glue_assign()
       {
         if (row_check == row+1 || row_check == row-1)
         {
-          i_glue = mat_indices[row_check][col_check] - (N*N - n_glue);
-          A_glue[n_sqrs-1][j_val][i_glue] = -1.0;
+          A_glue[n_sqrs-1][k][i] = -1.0;
         }
       }
       else
@@ -257,8 +233,7 @@ void square_specs::glue_assign()
         {
           if (col_check == col+1 || col_check == col-1)
           {
-            i_glue = mat_indices[row_check][col_check] - (N*N - n_glue);
-            A_glue[n_sqrs-1][j_val][i_glue] = -1.0;
+            A_glue[n_sqrs-1][k][i] = -1.0;
           }
         }
       }
@@ -273,5 +248,35 @@ void square_specs::glue_assign()
         A_glueT[k][i][j] = A_glue[k][j][i];
       }
     }
+  }
+}
+
+void square_specs::print_adjacents()
+{
+  int i, j, k, l;
+  for ( l = 0; l < n_glue; l++)
+  {
+    int glue_pt = (N*N - n_glue) + l;
+    // printf("glue #%d: (%d,%d). Adjancencies: ", l, vec_indices[glue_pt][1],vec_indices[glue_pt][0]);
+    printf("#%d - (%d,%d): ", l+1, vec_indices[glue_pt][0],vec_indices[glue_pt][1]);
+
+    for ( k = 0; k < n_sqrs; k++)
+    {
+      for ( i = 0; i < nn_vec[k]; i++)
+      {
+          double check = A_glue[k][i][l] ;
+          // if (abs(check) > 1e-6 &&  abs(check) < 3.0  )
+          if (abs(check) > 1e-6   )
+          {
+            int global_row = sqr_indices[k][i][0];
+            int global_col = sqr_indices[k][i][1];
+            printf("(%c, %d, %d, %d), ", grid_mat[global_row][global_col], (int) check, global_row, global_col);
+            // if (k == n_sqrs-1) { printf("%d ", 0); }
+            // else { printf("%d ", k+1); }
+          }
+      }
+    }
+    printf("\n");
+    getchar();
   }
 }

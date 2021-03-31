@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cmath>
 #include <string.h>
+#include <functional>
 
 #include <fftw3.h>
 
@@ -27,14 +28,14 @@ class poisson_fft {
         double* const v;
         /** The frequency domain. */
         double* const w;
-        poisson_fft(int n_);
+        poisson_fft(int n_, double h_);
         ~poisson_fft();
-        void init();
+        void init(const std::function<double(double,double)>& f_in);
         void solve();
         void init_mms();
         double l2_error_mms();
         void print(bool solution);
-        void output_solution( char prefix[]);
+        void output_solution( char prefix[], double * v_in);
 
     private:
         /** An array holding the eigenvalues of the one-dimensional Poisson

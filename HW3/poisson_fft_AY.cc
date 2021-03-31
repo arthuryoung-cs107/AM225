@@ -3,8 +3,8 @@
 /** Initializes the class for solving the 2D Poisson problem on a square
  * [0,1]^2 using the fast Fourier transform.
  * \param[in] n the number of non-zero gridpoints in one direction. */
-poisson_fft::poisson_fft(int n_)
-    : n(n_), nn(n*n), h(1./(n+1)), f(fftw_alloc_real(nn)),
+poisson_fft::poisson_fft(int n_, double h_)
+    : n(n_), nn(n*n), h(h_), f(fftw_alloc_real(nn)),
     v(fftw_alloc_real(nn)), w(fftw_alloc_real(nn)), lam(new double[n]),
     plan_fwd(fftw_plan_r2r_2d(n,n,f,w,FFTW_RODFT00,FFTW_RODFT00,FFTW_MEASURE)),
     plan_bck(fftw_plan_r2r_2d(n,n,w,v,FFTW_RODFT00,FFTW_RODFT00,FFTW_MEASURE)) {
@@ -12,7 +12,6 @@ poisson_fft::poisson_fft(int n_)
     // Initialize the table of eigenvalues
     const double fac=M_PI/(n+1);
     for(int j=0;j<n;j++) lam[j]=2*(1-cos(fac*(j+1)));
-    //for(int j=0;j<n;j++) lam[j]=fac*fac*(j+1)*(j+1);
 }
 
 /** The class destructor frees the dynamically allocated memory, including the
@@ -26,12 +25,13 @@ poisson_fft::~poisson_fft() {
     fftw_free(f);
 }
 
-void poisson_fft::init() {
-    for(int j=0;j<n;j++) {
-        double y=( (double) j+1)*h;
+void poisson_fft::init(const std::function<double(double,double)>& f_in) {
+    for(int j=0;j<n;j++)
+    {
+        double y_loc=( (double) j+1)*h;
         for(int i=0;i<n;i++) {
-            double x=( (double) i+1)*h;
-            f[i+n*j] = exp(x - y);
+            double x_loc=( (double) i+1)*h;
+            f[i+n*j] = f_in(x_loc, y_loc);
         }
     }
 }
@@ -69,7 +69,7 @@ void poisson_fft::print(bool solution) {
 /** Outputs the solution in the Gnuplot 2D matrix format, padding the grid with
  * zeros to represent the Dirichlet boundary condition.
  * \param[in] filename the name of the file to write to. */
-void poisson_fft::output_solution( char prefix[]) {
+void poisson_fft::output_solution( char prefix[], double * v_in) {
     const int ne=n+2;
     double *fld=new double[(n+2)*(n+2)],*f2=fld;
 
@@ -80,7 +80,7 @@ void poisson_fft::output_solution( char prefix[]) {
     // with zeros
     for(int j=0;j<n;j++) {
         *(f2++)=0;
-        for(int i=0;i<n;i++) *(f2++)=v[i+j*n];
+        for(int i=0;i<n;i++) *(f2++)=v_in[i+j*n];
         *(f2++)=0;
     }
 

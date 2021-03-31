@@ -34,7 +34,8 @@ A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
     coords[i][1] = col_local[i];
     A_mats[i] = dmatrix(0, nn_vec[i]-1, 0, nn_vec[i]-1);
     A_glue[i] = dmatrix(0, nn_vec[i]-1, 0, n_glue-1); // dependencies on glue terms, will be sparse
-    A_glueT[i] = dmatrix(0, n_glue-1, 0, nn_vec[i]-1); // dependencies on glue terms, will be sparse
+    A_glueT[i] = dmatrix(0, n_glue-1, 0, nn_vec[i]-1);
+    zerom_init(A_glue[i],0, nn_vec[i]-1, 0, n_glue-1);
     A_gen(A_mats[i], n_vec[i]);
   }
   ascii_num[n_sqrs-1] = (int) *(ascii_name[i]);
@@ -45,8 +46,34 @@ A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
   A_mats[n_sqrs-1] = dmatrix(0, n_glue-1, 0, n_glue-1); // gonna be all over the place
   A_glue[n_sqrs-1] = A_mats[n_sqrs-1];
   A_glueT[n_sqrs-1] = dmatrix(0, n_glue-1, 0, n_glue-1);
+  zerom_init(A_glue[n_sqrs-1], 0, n_glue-1, 0, n_glue-1);
   vec_assign();
   glue_assign();
+
+
+  int k, l;
+  for ( l = 0; l < n_glue; l++)
+  {
+    int glue_pt = (N*N - n_glue) + l;
+    printf("glue #%d: (%d,%d). Adjancencies: ", l, vec_indices[glue_pt][1],vec_indices[glue_pt][0]);
+    for ( k = 0; k < n_sqrs; k++)
+    {
+      for ( i = 0; i < nn_vec[k]; i++)
+      {
+          double check = A_glue[k][i][l] ;
+          if (abs(check) > 1e-6 &&  abs(check) < 3.0  ) 
+          {
+            int global_row = sqr_indices[k][i][0];
+            int global_col = sqr_indices[k][i][1];
+            printf("(%f, %c, %d, %d), ", check, grid_mat[global_row][global_col], global_col, global_row);
+          }
+      }
+    }
+    printf("\n");
+    getchar();
+
+  }
+
 }
 
 square_specs::~square_specs()
@@ -116,18 +143,6 @@ void square_specs::vec_assign()
       }
     }
   }
-
-  // int check_old = 0;
-  // for ( i = 0; i < N*N; i++)
-  // {
-  //   check = grid_mat[vec_indices[i][0]][vec_indices[i][1]];
-  //   if (check != check_old)
-  //   {
-  //     printf("%d: %c\n", i, check);
-  //     check_old = check;
-  //   }
-  // }
-
   glue_indices = sqr_indices[n_sqrs-1];
 }
 void square_specs::grid_mat2vec(double ** mat, double * vec)
@@ -198,7 +213,7 @@ void square_specs::glue_assign()
       j_val = nn - n;
       for ( i = col; i < col+n; i++) // traversing columns
       {
-        i_glue = mat_indices[row+1][i] - (N*N - n_glue);
+        i_glue = mat_indices[row+n][i] - (N*N - n_glue);
         A_glue[k][j_val][i_glue] = -1.0;
         j_val++;
       }
@@ -208,7 +223,7 @@ void square_specs::glue_assign()
       j_val = n-1;
       for ( j = row; j < row+n; j++) // traversing rows
       {
-        i_glue = mat_indices[j][col+1] - (N*N - n_glue);
+        i_glue = mat_indices[j][col+n] - (N*N - n_glue);
         A_glue[k][j_val][i_glue] = -1.0;
         j_val+=n;
       }

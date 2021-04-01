@@ -9,7 +9,7 @@ n_sqrs(S->n_sqrs), n_glue(S->n_glue), nn_glue(S->nn_glue), N(S->N), h(1./((doubl
 n_vec(S->n_vec), nn_vec(S->nn_vec),
 mat_indices(S->mat_indices), vec_indices(S->vec_indices),
 grids((poisson_fft **) malloc((n_sqrs-1)*(sizeof(poisson_fft*)))),
-f_full(new double[N*N]), v_sol(new double[N*N]), Minv_mat(new double[n_glue*n_glue]),
+f_full(new double[N*N]), v_sol(new double[N*N]), Minv_mat(new double[n_glue*n_glue]), A_check(new double[n_glue*n_glue]),
 fk_full((double **) malloc((n_sqrs)*(sizeof(double*)))),
 fk(new double[N*N]), A_glue(S->A_glue)
 {
@@ -69,6 +69,11 @@ void schur_perfect::solve_S(const std::function<double(double,double)>& f)
   }
 
   init_preconditioning();
+  char name[100];
+  memset(name, 0, 99);
+  snprintf(name, 100, "./dat_dir/A_check");
+  fprintf_matrix(&A_check, n_glue, n_glue, name);
+  getchar();
   conj_grad::solve_pre(1); // vglue solved, stored in x
 
 
@@ -154,6 +159,7 @@ void schur_perfect::init_preconditioning()
     work1[i] = 1.0;
     mul_A(work1, work2);
     Minv_mat[i*n_glue + i] = 1.0/(work2[i]);
+    for ( j = 0; j < n_glue; j++) A_check[i*n_glue + j] = 1.0/(work2[j]);
   }
   delete []work1;
   delete []work2;
@@ -161,12 +167,12 @@ void schur_perfect::init_preconditioning()
 
 void schur_perfect::M_inv(double *in,double *out)
 {
-  // double alpha = 1.0;
-  // double beta = 0.0;
-  // char trans = 'n';
-  // int inc = 1;
-  // int ng = n_glue;
-  // dgemv_(&trans, &ng, &ng, &alpha, Minv_mat, &ng, in, &inc, &beta, out, &inc);
-  copy(in,out);
+  double alpha = 1.0;
+  double beta = 0.0;
+  char trans = 'n';
+  int inc = 1;
+  int ng = n_glue;
+  dgemv_(&trans, &ng, &ng, &alpha, Minv_mat, &ng, in, &inc, &beta, out, &inc);
+  // copy(in,out);
 
 }

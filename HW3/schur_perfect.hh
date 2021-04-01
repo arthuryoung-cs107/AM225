@@ -10,7 +10,7 @@ class schur_perfect : conj_grad
         int * n_vec, *nn_vec, **mat_indices, ** vec_indices ;
         double h, ih2;
         poisson_fft ** grids;
-        double * f_full, * v_sol, ** fk_full, *fk, *Minv_mat;
+        double * f_full, * v_sol, ** fk_full, *fk, *Minv_mat, *A_check;
         double *** A_glue;
 
         schur_perfect(square_specs * S);

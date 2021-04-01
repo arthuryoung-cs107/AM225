@@ -28,7 +28,7 @@ void fprintf_matrix(double ** matrix, int M, int N, char name[])
   {
     for ( j = 0; j < N; j++)
     {
-      fwrite(&(matrix[i][j]), sizeof(double), 1, data_file);
+      fwrite(&((*matrix)[i*N + j]), sizeof(double), 1, data_file);
     }
   }
   fclose(data_file);

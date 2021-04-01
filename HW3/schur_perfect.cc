@@ -9,7 +9,7 @@ n_sqrs(S->n_sqrs), n_glue(S->n_glue), nn_glue(S->nn_glue), N(S->N), h(1./((doubl
 n_vec(S->n_vec), nn_vec(S->nn_vec),
 mat_indices(S->mat_indices), vec_indices(S->vec_indices),
 grids((poisson_fft **) malloc((n_sqrs-1)*(sizeof(poisson_fft*)))),
-f_full(new double[N*N]), v_sol(new double[N*N]),
+f_full(new double[N*N]), v_sol(new double[N*N]), Minv_mat(new double[n_glue*n_glue]),
 fk_full((double **) malloc((n_sqrs)*(sizeof(double*)))),
 fk(new double[N*N]), A_glue(S->A_glue)
 {
@@ -34,7 +34,7 @@ schur_perfect::~schur_perfect()
 
 /** Solve Poisson using the Schur complement method.
  * \param[in] f : A function handle to the source term. */
-void schur_perfect::solve(const std::function<double(double,double)>& f)
+void schur_perfect::solve_S(const std::function<double(double,double)>& f)
 {
   int i, j, k, n, ng, inc;
   double x_loc, y_loc, alpha, beta;
@@ -68,8 +68,8 @@ void schur_perfect::solve(const std::function<double(double,double)>& f)
     dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, grids[k]->v, &inc, &beta, b, &inc);
   }
 
-
-  conj_grad::solve(1); // vglue solved, stored in x
+  init_preconditioning();
+  conj_grad::solve_pre(1); // vglue solved, stored in x
 
 
   alpha = -1.0;
@@ -138,5 +138,35 @@ void schur_perfect::mul_A(double* in, double* out)
 /** Print the solution, padding with zeros for the Dirichlet boundary conditions. */
 void schur_perfect::print_solution()
 {
+
+}
+
+void schur_perfect::init_preconditioning()
+{
+  int i, j;
+  double * work1 = new double[n_glue];
+  double * work2 = new double[n_glue];
+
+  for ( i = 0; i < n_glue*n_glue; i++) Minv_mat[i] = 0 ;
+  for ( i = 0; i < n_glue; i++)
+  {
+    for ( j = 0; j < n_glue; j++) work1[j] = 0.0;
+    work1[i] = 1.0;
+    mul_A(work1, work2);
+    Minv_mat[i*n_glue + i] = 1.0/(work2[i]);
+  }
+  delete []work1;
+  delete []work2;
+}
+
+void schur_perfect::M_inv(double *in,double *out)
+{
+  // double alpha = 1.0;
+  // double beta = 0.0;
+  // char trans = 'n';
+  // int inc = 1;
+  // int ng = n_glue;
+  // dgemv_(&trans, &ng, &ng, &alpha, Minv_mat, &ng, in, &inc, &beta, out, &inc);
+  copy(in,out);
 
 }

@@ -85,39 +85,9 @@ void poisson_fft::output_solution( char prefix[], double * v_in) {
     }
 
     // Set last row to zero, call output routine, and free output array
-    while(f2<fld+ne*ne) *(f2++)=0.;
-    // gnuplot_output(filename,fld,ne,ne,0,1,0,1);
-    write_out(prefix, ne, fld);
+    while(f2<fld+ne*ne) *(f2++)=0.;    write_out(prefix, ne, fld);
     delete [] fld;
 }
-
-/** Initializes the source term corresponding to the manufactured solution with
- * v(x,y)=(1-x*x)*(1-y*y)*exp(x). */
-void poisson_fft::init_mms() {
-    for(int j=0;j<n;j++) {
-        double y=(j+1)*h;
-        for(int i=0;i<n;i++) {
-            double x=(i+1)*h;
-            f[i+n*j]=-exp(x)*x*(-2-3*y+3*y*y+x*(2-y+y*y));
-        }
-    }
-}
-
-/** Calculates the L2 norm of the difference between the computed solution and
- * the analytical manufactured solution. */
-double poisson_fft::l2_error_mms() {
-    double l2=0,del;
-    for(int j=0;j<n;j++) {
-        double y=(j+1)*h;
-        for(int i=0;i<n;i++) {
-            double x=(i+1)*h;
-            del=v[i+n*j]-exp(x)*x*(1-x)*y*(1-y);
-            l2+=del*del;
-        }
-    }
-    return sqrt(h*h*l2);
-}
-
 void poisson_fft::write_out( char prefix[], int n, double * M)
 {
   int i, j;

@@ -35,7 +35,8 @@ A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
     A_mats[i] = dmatrix(0, nn_vec[i]-1, 0, nn_vec[i]-1);
     A_glue[i] = dmatrix(0, nn_vec[i]-1, 0, n_glue-1); // dependencies on glue terms, will be sparse
     A_glueT[i] = dmatrix(0, n_glue-1, 0, nn_vec[i]-1);
-    zerom_init(A_glue[i],0, nn_vec[i]-1, 0, n_glue-1);
+    zerom_init(A_glue[i], 0, nn_vec[i]-1, 0, n_glue-1);
+    zerom_init(A_glueT[i], 0, n_glue-1, 0, nn_vec[i]-1);
     A_gen(A_mats[i], n_vec[i]);
   }
   ascii_num[n_sqrs-1] = (int) *(ascii_name[i]);
@@ -47,6 +48,7 @@ A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
   A_glue[n_sqrs-1] = A_mats[n_sqrs-1];
   A_glueT[n_sqrs-1] = dmatrix(0, n_glue-1, 0, n_glue-1);
   zerom_init(A_glue[n_sqrs-1], 0, n_glue-1, 0, n_glue-1);
+  zerom_init(A_glueT[n_sqrs-1], 0, n_glue-1, 0, n_glue-1);
   vec_assign();
   glue_assign();
 
@@ -54,14 +56,25 @@ A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
 
 square_specs::~square_specs()
 {
-  free_imatrix(coords, 0, n_sqrs, 0, 1);
+  int i, j;
+  for ( i = 0; i < n_sqrs; i++)
+  {
+    free_dmatrix(A_mats[i], 0, nn_vec[i]-1, 0, nn_vec[i]-1);
+    free_dmatrix(A_glue[i], 0, nn_vec[i]-1, 0, n_glue-1);
+    free_dmatrix(A_glueT[i], 0, n_glue-1, 0, nn_vec[i]-1);
+  }
+  free(sqr_indices);
+  free(A_mats);
+  free(A_glue);
+  free(A_glueT);
+  free_imatrix(coords, 0, n_sqrs-1, 0, 1);
   free_imatrix(grid_mat, 0, N-1, 0, N-1);
   free_imatrix(grid_vis, 0, N-1, 0, N-1);
   free_imatrix(vec_indices, 0, N*N-1, 0, 1);
+  free_imatrix(mat_indices, 0, N-1, 0, N-1);
   delete [] ascii_num;
   delete [] n_vec;
   delete [] nn_vec;
-
 }
 void square_specs::grid_read()
 {
@@ -239,7 +252,7 @@ void square_specs::glue_assign()
       }
     }
   }
-  for ( k = 0; i < n_sqrs; i++)
+  for ( k = 0; k < n_sqrs; k++)
   {
     for ( j = 0; j < nn_vec[k]; j++)
     {

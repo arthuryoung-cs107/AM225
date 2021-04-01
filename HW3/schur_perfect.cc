@@ -6,12 +6,13 @@
  * \param[in] n_ : The width of each subdomain in units. */
 schur_perfect::schur_perfect(square_specs * S) : conj_grad(S->n_glue),
 n_sqrs(S->n_sqrs), n_glue(S->n_glue), nn_glue(S->nn_glue), N(S->N), h(1./((double) N+1)), ih2(1/(h*h)),
-n_vec(S->n_vec), nn_vec(S->nn_vec),
+n_vec(S->n_vec), nn_vec(S->nn_vec), coords(S->coords),
 mat_indices(S->mat_indices), vec_indices(S->vec_indices),
 grids((poisson_fft **) malloc((n_sqrs-1)*(sizeof(poisson_fft*)))),
-f_full(new double[N*N]), v_sol(new double[N*N]), Minv_mat(new double[n_glue*n_glue]), A_check(new double[n_glue*n_glue]),
-fk_full((double **) malloc((n_sqrs)*(sizeof(double*)))),
-fk(new double[N*N]), A_glue(S->A_glue)
+f_full(new double[N*N]), v_sol(new double[N*N]), v_sol2(new double[N*N]),
+fk(new double[N*N]), A_glue(S->A_glue), A_glueT(S->A_glueT),
+Minv_mat(new double[n_glue*n_glue]), A_check(new double[n_glue*n_glue]),
+fk_full((double **) malloc((n_sqrs)*(sizeof(double*))))
 {
   int i, j;
   for ( i = 0; i < n_sqrs-1; i++)
@@ -29,20 +30,17 @@ fk(new double[N*N]), A_glue(S->A_glue)
 
 schur_perfect::~schur_perfect()
 {
-
+  int i, j;
+  for ( i = 0; i < n_sqrs-1; i++)
+  {
+    delete [] grids[i];
+  }
 }
 
-/** Solve Poisson using the Schur complement method.
- * \param[in] f : A function handle to the source term. */
-void schur_perfect::solve_S(const std::function<double(double,double)>& f)
+void schur_perfect::init(const std::function<double(double,double)>& f)
 {
-  int i, j, k, n, ng, inc;
-  double x_loc, y_loc, alpha, beta;
-  char trans;
-
-  inc = 1;
-  ng = n_glue;
-
+  int i, j;
+  double x_loc, y_loc;
   for(int j=0;j<N;j++)
   {
       y_loc=( (double) j+1)*h;
@@ -52,6 +50,19 @@ void schur_perfect::solve_S(const std::function<double(double,double)>& f)
           fk[mat_indices[j][i]] = f(x_loc, y_loc);
       }
   }
+}
+
+/** Solve Poisson using the Schur complement method.
+ * \param[in] f : A function handle to the source term. */
+// void schur_perfect::solve_S(const std::function<double(double,double)>& f)
+void schur_perfect::solve_S()
+{
+  int i, j, k, nn, ng, inc;
+  double x_loc, y_loc, alpha, beta;
+  char trans;
+
+  inc = 1;
+  ng = n_glue;
 
   for ( i = 0; i < n_glue; i++) b[i] = fk_full[n_sqrs-1][i];
 
@@ -61,43 +72,45 @@ void schur_perfect::solve_S(const std::function<double(double,double)>& f)
 
   for ( k = 0; k < n_sqrs-1; k++)
   {
-    n = n_vec[k];
+    nn = nn_vec[k];
     for ( j = 0; j < nn_vec[k]; j++) grids[k]->f[j] = fk_full[k][j];
 
     grids[k]->solve();
-    dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, grids[k]->v, &inc, &beta, b, &inc);
+    dgemv_(&trans, &nn, &ng, &alpha, A_glueT[k][0], &nn, grids[k]->v, &inc, &beta, b, &inc);
   }
 
   init_preconditioning();
-  char name[100];
-  memset(name, 0, 99);
-  snprintf(name, 100, "./dat_dir/A_check");
-  fprintf_matrix(&A_check, n_glue, n_glue, name);
-  getchar();
-  conj_grad::solve_pre(1); // vglue solved, stored in x
+  conj_grad::solve_pre(1);
 
-
-  alpha = -1.0;
+  alpha = -1.0*ih2;
   beta = 1.0;
   trans = 'n';
   i = 0;
   for ( k = 0; k < n_sqrs-1; k++)
   {
-    n = n_vec[k];
-    for ( j = 0; j < nn_vec[k]; j++) grids[k]->f[j] = fk_full[k][j];
-    dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, x, &inc, &beta, grids[k]->f, &inc);
+    nn = nn_vec[k];
+    for ( j = 0; j < nn; j++) grids[k]->f[j] = fk_full[k][j];
+    dgemv_(&trans, &nn, &ng, &alpha, A_glueT[k][0], &nn, x, &inc, &beta, grids[k]->f, &inc);
     grids[k]->solve();
 
-    for ( j = 0; j < nn_vec[k]; j++)
+    for ( j = 0; j < nn; j++)
     {
-      v_sol[N*mat_indices[i+j][0] + mat_indices[i+j][1]] = grids[k]->v[j];
+      v_sol2[j+i] = grids[k]->v[j];
     }
-    i += nn_vec[k];
+    i += nn;
   }
-  for ( j = 0; j < nn_vec[k]; j++)
+  for ( j = 0; j < n_glue; j++)
   {
-    v_sol[N*mat_indices[i+j][0] + mat_indices[i+j][1]] = x[j];
+    v_sol2[j+i] = x[j];
   }
+  for ( i = 0; i < N; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      v_sol[i*N + j] = v_sol2[mat_indices[i][j]];
+    }
+  }
+
 }
 
 /** Perform matrix-vector multiplication with the Schur complement matrix S.
@@ -105,7 +118,7 @@ void schur_perfect::solve_S(const std::function<double(double,double)>& f)
  * \param[in] out : The output vector, after multiplying by S. */
 void schur_perfect::mul_A(double* in, double* out)
 {
-  int k, n, i;
+  int k, nn, i;
   double alpha, beta;
   char trans = 'n';
   int inc = 1;
@@ -115,35 +128,70 @@ void schur_perfect::mul_A(double* in, double* out)
 
   for ( k = 0; k < n_sqrs-1; k++)
   {
-    n = n_vec[k];
+    nn = nn_vec[k];
 
     alpha = 1.0*ih2;
     beta = 0.0;
     trans = 'n';
 
-    dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, in, &inc, &beta, grids[k]->f, &inc);
+    dgemv_(&trans, &nn, &ng, &alpha, A_glueT[k][0], &nn, in, &inc, &beta, grids[k]->f, &inc);
     grids[k]->solve();
 
     alpha = -1.0;
     beta = 1.0;
     trans = 't';
-    dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, grids[k]->v, &inc, &beta, out, &inc);
+    dgemv_(&trans, &nn, &ng, &alpha, A_glueT[k][0], &nn, grids[k]->v, &inc, &beta, out, &inc);
   }
-
   alpha = 1.0;
   beta = 1.0;
   trans = 'n';
   // matrix vector multiplication with Aglue,glue
-  dgemv_(&trans, &ng, &ng, &alpha, A_glue[n_sqrs-1][0], &ng, in, &inc, &beta, out, &inc);
+  dgemv_(&trans, &ng, &ng, &alpha, A_glueT[n_sqrs-1][0], &ng, in, &inc, &beta, out, &inc);
 
   for ( i = 0; i < n_glue; i++) out[i] *= ih2;
-
 }
 
-/** Print the solution, padding with zeros for the Dirichlet boundary conditions. */
-void schur_perfect::print_solution()
-{
+void schur_perfect::output_solution( char prefix[], double * v_in) {
+    int n = N;
+    const int ne=n+2;
+    double *fld=new double[(n+2)*(n+2)],*f2=fld;
 
+    // Set first row to zero
+    while(f2<fld+ne) *(f2++)=0.;
+
+    // Copy field contents into output array, padding the start and end entries
+    // with zeros
+    for(int j=0;j<n;j++) {
+        *(f2++)=0;
+        for(int i=0;i<n;i++) *(f2++)=v_in[i+j*n];
+        *(f2++)=0;
+    }
+
+    // Set last row to zero, call output routine, and free output array
+    while(f2<fld+ne*ne) *(f2++)=0.;
+    write_out(prefix, ne, fld);
+    delete [] fld;
+}
+void schur_perfect::write_out( char prefix[], int n, double * M)
+{
+  int i, j;
+  FILE * out_file_ptr;
+  char specfile[300];
+
+  memset(specfile, 0, 299);
+  snprintf(specfile, 200, "%s.aydat", prefix);
+  out_file_ptr = fopen(specfile, "wb");
+
+  for ( j = 0; j < n; j++)
+  {
+    for ( i = 0; i < n; i++) // walk
+    {
+      fwrite(&(M[i+n*j]), sizeof(double), 1, out_file_ptr);
+    }
+  }
+  aysml_gen(prefix, n, n);
+
+  fclose(out_file_ptr);
 }
 
 void schur_perfect::init_preconditioning()

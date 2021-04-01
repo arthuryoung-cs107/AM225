@@ -16,7 +16,7 @@ A_mats((double ***)malloc(n_sqrs*(sizeof(double **)))),
 A_glue((double ***)malloc(n_sqrs*(sizeof(double **)))),
 A_glueT((double ***)malloc(n_sqrs*(sizeof(double **))))
 {
-  int i, j,  jj;
+  int i, j, k, jj;
 
   char ascii_name[22][2] = {"A", "B", "C", "D", "E", "F", "G", "H", "I",
   "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "."};

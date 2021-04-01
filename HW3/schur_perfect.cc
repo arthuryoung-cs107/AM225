@@ -55,7 +55,7 @@ void schur_perfect::solve(const std::function<double(double,double)>& f)
 
   for ( i = 0; i < n_glue; i++) b[i] = fk_full[n_sqrs-1][i];
 
-  alpha = -1.0;
+  alpha = -1.0*ih2;
   beta = 1.0;
   trans = 't';
 
@@ -68,12 +68,8 @@ void schur_perfect::solve(const std::function<double(double,double)>& f)
     dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, grids[k]->v, &inc, &beta, b, &inc);
   }
 
-  printf("check1\n");
 
   conj_grad::solve(1); // vglue solved, stored in x
-
-  printf("check end of conj grad\n");
-  getchar();
 
 
   alpha = -1.0;
@@ -104,24 +100,21 @@ void schur_perfect::solve(const std::function<double(double,double)>& f)
  * \param[in] out : The output vector, after multiplying by S. */
 void schur_perfect::mul_A(double* in, double* out)
 {
-  int k, n;
-  double * A_work = A_glue[n_sqrs-1][0];
-  double alpha = 1.0;
-  double beta = 0.0;
+  int k, n, i;
+  double alpha, beta;
   char trans = 'n';
   int inc = 1;
   int ng = n_glue;
 
-  // matrix vector multiplication with Aglue,glue
-  dgemv_(&trans, &ng, &ng, &alpha, A_work, &ng, in, &inc, &beta, out, &inc);
+  for ( i = 0; i < n_glue; i++) out[i] = 0.0;
 
   for ( k = 0; k < n_sqrs-1; k++)
   {
-    alpha = 1.0;
+    n = n_vec[k];
+
+    alpha = 1.0*ih2;
     beta = 0.0;
     trans = 'n';
-
-    n = n_vec[k];
 
     dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, in, &inc, &beta, grids[k]->f, &inc);
     grids[k]->solve();
@@ -131,6 +124,14 @@ void schur_perfect::mul_A(double* in, double* out)
     trans = 't';
     dgemv_(&trans, &n, &ng, &alpha, A_glue[k][0], &n, grids[k]->v, &inc, &beta, out, &inc);
   }
+
+  alpha = 1.0;
+  beta = 1.0;
+  trans = 'n';
+  // matrix vector multiplication with Aglue,glue
+  dgemv_(&trans, &ng, &ng, &alpha, A_glue[n_sqrs-1][0], &ng, in, &inc, &beta, out, &inc);
+
+  for ( i = 0; i < n_glue; i++) out[i] *= ih2;
 
 }
 

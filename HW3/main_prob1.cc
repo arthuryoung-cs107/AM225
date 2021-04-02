@@ -17,7 +17,7 @@ extern "C"
 void prob1_part_a()
 {
   int i, j, n, trials;
-  trials = 4;
+  trials = 8;
   for ( n = 16; n <= 4096; n *= 2)
   {
     double net_time = 0;
@@ -81,8 +81,8 @@ void prob1_part_b()
 }
 int main()
 {
-  // prob1_part_a();
-  prob1_part_b();
+  prob1_part_a();
+  // prob1_part_b();
 
   return 0;
 }

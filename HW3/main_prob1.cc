@@ -18,21 +18,32 @@ void prob1_part_a()
 {
   int i, j, n;
 
-  for ( n = 16; n < 1024; n *= 2)
+  for ( n = 16; n <= 4096; n *= 2)
   {
-    AYmat * Mat1 = new AYmat(n, n);
-    AYmat * Mat2 = new AYmat(n, n);
-    AYmat * Mat3 = new AYmat(n, n);
+    double net_time = 0;
+    #pragma omp parallel for reduction(+:net_time)
 
-    Mat1->init_randuni();
-    Mat2->init_randuni();
-    Mat3->init_randuni();
+      for ( i = 0; i < 8; i++)
+      {
+        AYmat * Mat1 = new AYmat(n, n);
+        AYmat * Mat2 = new AYmat(n, n);
+        AYmat * Mat3 = new AYmat(n, n);
 
-    AYmat_mul(Mat1, Mat2, Mat3);
+        Mat1->init_randuni();
+        Mat2->init_randuni();
+        Mat3->init_randuni();
+        double t0 = omp_get_wtime();
+        AYmat_mul(Mat1, Mat2, Mat3);
+        double t1 = omp_get_wtime();
+        net_time += (t1 - t0);
 
-    delete Mat1;
-    delete Mat2;
-    delete Mat3;
+        delete Mat1;
+        delete Mat2;
+        delete Mat3;
+      }
+      double t_avg = net_time/(8.0);
+    printf("%d %e\n", n, t1-t0 );
+
   }
 
 }

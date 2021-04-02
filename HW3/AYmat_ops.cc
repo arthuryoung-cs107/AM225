@@ -168,5 +168,5 @@ void AYmat_mul_BLAS(AYmat * A1, AYmat * A2, AYmat * A3)
   A2->gen_transpose();
   A3->gen_transpose();
 
-  dgemm_(&trans,&trans,&n,&n,&n,&alpha,A1->A[0],&n,A2->A[0],&n,&beta,A3->A[0],&n);
+  dgemm_(&trans,&trans,&n,&n,&n,&alpha,A1->AT[0],&n,A2->AT[0],&n,&beta,A3->AT[0],&n);
 }

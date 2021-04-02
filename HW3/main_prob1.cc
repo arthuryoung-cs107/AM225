@@ -48,7 +48,7 @@ void prob1_part_a()
 void prob1_part_b()
 {
   int i, j, n, trials;
-  trials = 4;
+  trials = 8;
 
   for ( n = 16; n < 4096; n *= 2)
   {
@@ -65,7 +65,10 @@ void prob1_part_b()
         Mat2->init_randuni();
         Mat3->init_randuni();
 
+        double t0 = omp_get_wtime();
         AYmat_mul_Strass(Mat1, Mat2, Mat3);
+        double t1 = omp_get_wtime();
+        net_time += (t1 - t0);
 
         delete Mat1;
         delete Mat2;

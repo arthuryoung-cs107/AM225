@@ -29,6 +29,33 @@ void AYmat_mul(AYmat * A1, AYmat * A2, AYmat * A3)
       }
     }
   }
+}
+
+void AYmat_mul_Strass(AYmat * A1, AYmat * A2, AYmat * A3)
+{
+  if (A1->N != A2->M)
+  {
+    printf("Matrix mult failed: A1 N and A2 M not equal.\n");
+  }
+  else
+  {
+    if (A3->M != A1->M)
+    {
+      printf("Matrix mult failed: A1 M and A3 M not equal.\n");
+    }
+    else
+    {
+      if (A3->N != A2->N)
+      {
+        printf("Matrix mult failed: A2 N and A3 N not equal.\n");
+      }
+      else
+      {
+
+        
 
 
+      }
+    }
+  }
 }

@@ -79,8 +79,44 @@ void schur_perfect::solve_S()
     dgemv_(&trans, &nn, &ng, &alpha, A_glueT[k][0], &nn, grids[k]->v, &inc, &beta, b, &inc);
   }
 
+
   init_preconditioning();
   conj_grad::solve_pre(1);
+
+  ////////////////////////////////
+  // debugging zone
+  ////////////////////////////////
+
+  // alpha = 1.0;
+  // beta = 0.0;
+  // trans = 'n';
+  //
+  // char name[200];
+  // memset(name, 0, 199);
+  // snprintf(name, 100, "./dat_dir/prob5_Poisson_Schur_conjcheck");
+  // for ( i = 0; i < N*N; i++) v_sol2[i] = v_sol[i] = 0;
+  //
+  // for ( j = 0; j < n_glue; j++)
+  // {
+  //   v_sol2[j+(N*N - n_glue)] = x[j];
+  // }
+  // for ( i = 0; i < N; i++)
+  // {
+  //   for ( j = 0; j < N; j++)
+  //   {
+  //     v_sol[i*N + j] = v_sol2[mat_indices[i][j]];
+  //   }
+  // }
+  // printf("done\n");
+  // output_solution(name, v_sol);
+  // getchar();
+
+  ////////////////////////////////
+  // debugging zone
+  ////////////////////////////////
+
+
+
 
   alpha = -1.0*ih2;
   beta = 1.0;

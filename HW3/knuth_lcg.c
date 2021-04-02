@@ -8,7 +8,7 @@
 double knuth_random_uni(double low, double high, uint64_t * carry) // knuth rng
 {
   double rand_uni = ((double) lcg_uni(carry))/(lcg_sze());
-  rand_uni = rand_uni*(high - low) + ((high - low)/2 - 0.5);
+  rand_uni = (rand_uni - 0.5)*(high - low) + ((high + low)/(2.0));
   return rand_uni;
 }
 

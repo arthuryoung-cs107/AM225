@@ -22,7 +22,6 @@ void prob1_part_a()
   {
     double net_time = 0;
     #pragma omp parallel for reduction(+:net_time)
-
       for ( i = 0; i < trials; i++)
       {
         AYmat * Mat1 = new AYmat(n, n);
@@ -43,9 +42,7 @@ void prob1_part_a()
       }
       double t_avg = net_time/((double) trials );
     printf("%d %e\n", n, t_avg );
-
   }
-
 }
 
 void prob1_part_b()
@@ -53,40 +50,31 @@ void prob1_part_b()
   int i, j, n, trials;
   trials = 4;
 
-    AYmat * Mat1 = new AYmat(16, 16);
-    AYmat * Mat2 = new AYmat(16, 16);
-    AYmat * Mat3 = new AYmat(16, 16);
+  for ( n = 16; n < 4096; n *= 2)
+  {
+    double net_time = 0;
+    #pragma omp parallel for reduction(+:net_time)
+      for ( i = 0; i < trials; i++)
+      {
 
-    Mat1->init_randuni();
-    Mat2->init_randuni();
+        AYmat * Mat1 = new AYmat(n, n);
+        AYmat * Mat2 = new AYmat(n, n);
+        AYmat * Mat3 = new AYmat(n, n);
 
-    Mat1->print_mat();
-    printf("\n");
-    Mat2->print_mat();
-    printf("\n");
+        Mat1->init_randuni();
+        Mat2->init_randuni();
+        Mat3->init_randuni();
 
-    AYmat_mul_Strass(Mat1, Mat2, Mat3);
+        AYmat_mul_Strass(Mat1, Mat2, Mat3);
 
-    Mat3->print_mat();
-    
-  // for ( n = 16; n < 4096; n *= 2)
-  // {
-  //   AYmat * Mat1 = new AYmat(n, n);
-  //   AYmat * Mat2 = new AYmat(n, n);
-  //   AYmat * Mat3 = new AYmat(n, n);
-  //
-  //   Mat1->init_randuni();
-  //   Mat2->init_randuni();
-  //   Mat3->init_randuni();
-  //
-  //   Mat1
-  //
-  //   AYmat_mul_Strass(Mat1, Mat2, Mat3);
-  //
-  //   delete Mat1;
-  //   delete Mat2;
-  //   delete Mat3;
-  // }
+        delete Mat1;
+        delete Mat2;
+        delete Mat3;
+      }
+      double t_avg = net_time/((double) trials );
+    printf("%d %e\n", n, t_avg );
+
+  }
 }
 int main()
 {

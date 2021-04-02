@@ -86,39 +86,39 @@ void Strass_recurse(double ** A, double ** B, double ** C, int N)
       B11[i] = B10[i] + n;
     }
 
-    double ** Q1= (0, n-1, 0, n-1); // Q1 gen
+    double ** Q1= dmatrix(0, n-1, 0, n-1); // Q1 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = A10[i][j] + A11[i][j];} }
     Strass_recurse(work1, B00, Q1, n);
 
-    double ** Q2= (0, n-1, 0, n-1);
+    double ** Q2= dmatrix(0, n-1, 0, n-1);
     // Q2 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = B01[i][j] - B11[i][j];} }
     Strass_recurse(A00, work1, Q2, n);
 
-    double ** Q3= (0, n-1, 0, n-1);
+    double ** Q3= dmatrix(0, n-1, 0, n-1);
     // Q3 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = B10[i][j] - B00[i][j];} }
     Strass_recurse(A11, work1, Q3, n);
 
-    double ** Q4= (0, n-1, 0, n-1);
+    double ** Q4= dmatrix(0, n-1, 0, n-1);
     // Q4 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = A00[i][j] + A01[i][j];} }
     Strass_recurse(work1, B11, Q4, n);
 
     double ** work2 = dmatrix(0, n-1, 0, n-1);
 
-    double ** Q0= (0, n-1, 0, n-1); // Q0 gen
+    double ** Q0= dmatrix(0, n-1, 0, n-1); // Q0 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = A00[i][j] + A11[i][j];} }
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work2[i][j] = B00[i][j] + B11[i][j];} }
     Strass_recurse(work1, work2, Q0, n);
 
-    double ** Q5= (0, n-1, 0, n-1);
+    double ** Q5= dmatrix(0, n-1, 0, n-1);
     // Q5 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = A10[i][j] - A00[i][j];} }
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work2[i][j] = B00[i][j] + B01[i][j];} }
     Strass_recurse(work1, work2, Q5, n);
 
-    double ** Q6= (0, n-1, 0, n-1);
+    double ** Q6= dmatrix(0, n-1, 0, n-1);
     // Q6 gen
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work1[i][j] = A01[i][j] - A11[i][j];} }
     for ( i = 0; i < n; i++){ for ( j = 0; j < n; j++){work2[i][j] = B10[i][j] + B11[i][j];} }

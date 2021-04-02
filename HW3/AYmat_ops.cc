@@ -1,5 +1,7 @@
 #include "AYmat_ops.hh"
 
+#include "blas.h"
+
 extern "C"
 {
   #include "nrutil.h"
@@ -159,6 +161,12 @@ void Strass_recurse(double ** A, double ** B, double ** C, int N)
 
 void AYmat_mul_BLAS(AYmat * A1, AYmat * A2, AYmat * A3)
 {
+  char trans='n';
+  double alpha=0.1,beta=0.0;
+  int n = A1->N;
   A1->gen_transpose();
   A2->gen_transpose();
+  A3->gen_transpose();
+
+  dgemm_(&trans,&trans,&n,&n,&n,&alpha,A1->A[0],&n,A2->A[0],&n,&beta,A3->A[0],&n);
 }

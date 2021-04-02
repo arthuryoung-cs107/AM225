@@ -9,12 +9,13 @@ extern "C"
   #include "knuth_lcg.h"
 }
 
-AYmat::AYmat(int M_, int N_): M(M_), N(N_), A(dmatrix(0, M-1, 0, N-1))
+AYmat::AYmat(int M_, int N_): M(M_), N(N_), A(dmatrix(0, M-1, 0, N-1)), AT(dmatrix(0, N-1, 0, M-1))
 {}
 
 AYmat::~AYmat()
 {
   free_dmatrix(A, 0, M-1, 0, N-1);
+  free_dmatrix(AT, 0, N-1, 0, M-1);
 }
 
 void AYmat::print_mat()
@@ -55,13 +56,12 @@ void AYmat::init_randuni()
 void AYmat::gen_transpose()
 {
   int i, j;
-  AT = dmatrix(0, N-1, 0, M-1);
 
   for ( i = 0; i < M; i++)
   {
     for ( j = 0; j < N; j++)
     {
-      AT[j][i] = 
+      AT[j][i] = A[i][j];
     }
   }
 

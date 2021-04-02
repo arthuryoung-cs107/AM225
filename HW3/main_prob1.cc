@@ -16,14 +16,14 @@ extern "C"
 }
 void prob1_part_a()
 {
-  int i, j, n;
-
+  int i, j, n, trials;
+  trials = 4;
   for ( n = 16; n <= 4096; n *= 2)
   {
     double net_time = 0;
     #pragma omp parallel for reduction(+:net_time)
 
-      for ( i = 0; i < 8; i++)
+      for ( i = 0; i < trials; i++)
       {
         AYmat * Mat1 = new AYmat(n, n);
         AYmat * Mat2 = new AYmat(n, n);
@@ -41,8 +41,8 @@ void prob1_part_a()
         delete Mat2;
         delete Mat3;
       }
-      double t_avg = net_time/(8.0);
-    printf("%d %e\n", n, t1-t0 );
+      double t_avg = net_time/((double) trials );
+    printf("%d %e\n", n, t_avg );
 
   }
 

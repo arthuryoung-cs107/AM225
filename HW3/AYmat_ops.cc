@@ -156,3 +156,9 @@ void Strass_recurse(double ** A, double ** B, double ** C, int N)
     dmatrix_mult(A, 0, N-1, 0, N-1, B, 0, N-1, 0, N-1, C);
   }
 }
+
+void AYmat_mul_BLAS(AYmat * A1, AYmat * A2, AYmat * A3)
+{
+  A1->gen_transpose();
+  A2->gen_transpose();
+}

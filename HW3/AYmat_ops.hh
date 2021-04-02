@@ -8,5 +8,6 @@
 void AYmat_mul(AYmat * A1, AYmat * A2, AYmat * A3);
 void AYmat_mul_Strass(AYmat * A1, AYmat * A2, AYmat * A3);
 void Strass_recurse(double ** A1, double ** A2, double ** A3, int N);
+void AYmat_mul_BLAS(AYmat * A1, AYmat * A2, AYmat * A3);
 
 #endif

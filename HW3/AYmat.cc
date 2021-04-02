@@ -51,3 +51,18 @@ void AYmat::init_randuni()
     A[0][i] = check;
   }
 }
+
+void AYmat::gen_transpose()
+{
+  int i, j;
+  AT = dmatrix(0, N-1, 0, M-1);
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      AT[j][i] = 
+    }
+  }
+
+}

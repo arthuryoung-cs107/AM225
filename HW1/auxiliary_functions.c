@@ -196,7 +196,7 @@ void zerovint_init(int *a, int arl, int arh)
     a[i] = 0;
   }
 }
-void dmatrix_mult(double ** a, int arl, int arh, int acl, int ach, double ** b, int brl, int brh, int bcl, int bch, double ** c) // a seg fault happens in here when dmv mult is called
+void dmatrix_mult(double ** a, int arl, int arh, int acl, int ach, double ** b, int brl, int brh, int bcl, int bch, double ** c) 
 {
   int i, j, k;
   double sum;

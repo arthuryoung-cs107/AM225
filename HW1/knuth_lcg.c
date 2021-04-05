@@ -5,6 +5,13 @@
 #include <math.h>
 #include "knuth_lcg.h"
 
+double knuth_random_uni(double low, double high, uint64_t * carry) // knuth rng
+{
+  double rand_uni = ((double) lcg_uni(carry))/(lcg_sze());
+  rand_uni = rand_uni*(high - low) + ((high - low)/2 - 0.5);
+  return rand_uni;
+}
+
 uint64_t lcg_uni(uint64_t *lcg_carry) // call this evertime you want a random integer, or rand()
 {
   // **********************************************

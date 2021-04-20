@@ -22,7 +22,7 @@ class Ritz_Galerk : public conj_grad {
            n(n_), f(new double[3*n+1]), h(1./3/n) {}
         virtual ~Ritz_Galerk() {delete [] f;}
         void init_const();
-        void init_slope();
+        void init_slope();0
         void init_mms();
         double l2_norm_mms();
         void print_matrix();

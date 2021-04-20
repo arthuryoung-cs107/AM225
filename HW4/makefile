@@ -8,9 +8,9 @@ LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas -lfftw3 -lblas
 
 CDEPS = nrutil.h auxiliary_functions.h knuth_lcg.h
 
-CPPDEPS = poisson_fft_AY.hh blas.h
+CPPDEPS = poisson_fft_AY.hh blas.h Ritz_Galerk.hh conj_grad.hh quadrat.hh
 
-OBJS2 = main_prob2.o poisson_fft_AY.o nrutil.o auxiliary_functions.o knuth_lcg.o
+OBJS2 = main_prob2.o poisson_fft_AY.o nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk.o conj_grad.o quadrat.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)

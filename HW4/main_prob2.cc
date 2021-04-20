@@ -7,6 +7,7 @@
 #include "blas.h"
 #include "omp.h"
 #include "poisson_fft_AY.hh"
+#include "Ritz_Galerk.hh"
 
 extern "C"
 {
@@ -34,7 +35,7 @@ void prob2_part_a()
   pf.solve();
   pf.output_solution(prefix, pf.v);
 
-  Ritz_Galerk * FE1 = new Ritz_Galerk();
+  Ritz_Galerk * FE1 = new Ritz_Galerk(N);
   // sphere_Ritz_Galerk * FE1 = new sphere_Ritz_Galerk(N);
 
 }

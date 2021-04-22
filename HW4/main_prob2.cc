@@ -1,13 +1,7 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <stdint.h>
-#include <string.h>
-
 #include "blas.h"
 #include "omp.h"
 #include "poisson_fft_AY.hh"
-#include "Ritz_Galerk.hh"
+#include "Ritz_Galerk_sphere.hh"
 
 extern "C"
 {
@@ -35,8 +29,8 @@ void prob2_part_a()
   pf.solve();
   pf.output_solution(prefix, pf.v);
 
-  Ritz_Galerk * FE1 = new Ritz_Galerk(N);
-  // sphere_Ritz_Galerk * FE1 = new sphere_Ritz_Galerk(N);
+  printf("entering Ritz Galerk init\n");
+  Ritz_Galerk_sphere * FE1 = new Ritz_Galerk_sphere(N);
 
 }
 
@@ -44,6 +38,31 @@ int main()
 {
 
   prob2_part_a();
+
+  // int m = 3; int n = 2;
+  //
+  // AYmat * A = new AYmat(m, n);
+  // AYmat * B = new AYmat(n, 1);
+  // AYmat * C = new AYmat(m, 1);
+  //
+  // A->init_123();
+  // B->set(0, 0, 3.); B->set(1, 0, 4.);
+  //
+  // printf("A:\n");
+  // A->print_mat();
+  //
+  // printf("B:\n");
+  // B->print_mat();
+  //
+  // C->mult_set(A, B, 1., 0.);
+  //
+  // printf("C:\n");
+  // C->print_mat();
+  //
+  // A->mult_put(B, C, 1., 0.);
+  //
+  // printf("C:\n");
+  // C->print_mat();
 
   return 0;
 }

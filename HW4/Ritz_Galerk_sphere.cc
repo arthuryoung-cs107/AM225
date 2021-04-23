@@ -9,13 +9,12 @@ extern "C"
 }
 
 Ritz_Galerk_sphere::Ritz_Galerk_sphere(int n_) : conj_grad(((n_-1)*(n_-1))),
-dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(10),
-f(new double[dof]), xy(new double[2]), vw(new double[2]),
+dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(10), xy(new double[2]), vw(new double[2]),
 vw_coords(dmatrix(0, dof-1, 0, 1)), xy_coords(dmatrix(0, dof-1, 0, 1)),
 h(2.0/((double) n_)),
 Jac(new AYmat(2, 2)), a_vals(new AYmat(dof, 9)), Jac_inv(new AYmat(2, 2)),
 dphi_i(new AYmat(2, 1)), dphi_j(new AYmat(2, 1)), work1(new AYmat(2, 1)), work2(new AYmat(2, 1)),
-a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
+a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8)), q(new quadrat(n_q))
 {
   int i, j;
   a_vals->init_0();
@@ -37,21 +36,23 @@ a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
 
 Ritz_Galerk_sphere::~Ritz_Galerk_sphere()
 {
-  delete [] f;
   delete [] xy;
   delete [] vw;
-  delete [] Jac;
-  delete [] a_vals;
-  delete [] Jac_inv;
-  delete [] dphi_i;
-  delete [] dphi_j;
-  delete [] work1;
-  delete [] work2;
+
   delete [] a_count;
 
-  free_imatrix(a_indices, 0, dof-1, 0, 8);
-  free_dmatrix(xy_coords, 0, dof-1, 0, 1);
-  free_dmatrix(vw_coords, 0, dof-1, 0, 1);
+  delete Jac;
+  delete a_vals;
+  delete Jac_inv;
+  delete dphi_i;
+  delete dphi_j;
+  delete work1;
+  delete work2;
+  delete q;
+  //
+  // free_imatrix(a_indices, 0, dof-1, 0, 8);
+  // free_dmatrix(xy_coords, 0, dof-1, 0, 1);
+  // free_dmatrix(vw_coords, 0, dof-1, 0, 1);
 }
 
 /** Performs multiplication on a vector by the stiffness matrix. */
@@ -113,7 +114,6 @@ void Ritz_Galerk_sphere::assemble_b(const std::function<double(double,double)>& 
 {
   int i, j, k;
   double acc, acc_r, x_c, y_c;
-  quadrat q(n_q);
 
   for ( i = 0; i < dof; i++)
   {
@@ -123,15 +123,15 @@ void Ritz_Galerk_sphere::assemble_b(const std::function<double(double,double)>& 
     for ( j = 0; j < n_q; j++)
     {
       acc_r = 0;
-      xy[1] = y_c + q.x[j]*h;
+      xy[1] = y_c + q->x[j]*h;
       for ( k = 0; k < n_q; k++)
       {
-        xy[0] = x_c + q.x[k]*h;
+        xy[0] = x_c + q->x[k]*h;
         map(xy, vw);
         Jac_eval(xy, Jac);
-        acc_r += q.w[k]*f_source(vw[0], vw[1])*phi_eval(q.x[k], q.x[j])*Jac_det(Jac);
+        acc_r += q->w[k]*f_source(vw[0], vw[1])*phi_eval(q->x[k], q->x[j])*Jac_det(Jac);
       }
-      acc+=q.w[j]*acc_r;
+      acc+=q->w[j]*acc_r;
     }
     b[i] = acc*h*h;
   }
@@ -141,7 +141,6 @@ void Ritz_Galerk_sphere::assemble_a()
 {
   double prod;
   int i, j, row, col;
-  quadrat * q = new quadrat(n_q);
 
 
   for ( i = 0; i < dof; i++) // identify all non-zero interactions.
@@ -149,21 +148,21 @@ void Ritz_Galerk_sphere::assemble_a()
     row = i/n;
     col = i%n;
 
-    a_vals->set(i, a_count[i], a_prod(q, i, i) );
+    a_vals->set(i, a_count[i], a_prod(i, i) );
     a_indices[i][a_count[i]] = i;
     a_count[i]++;
 
     if (row > 0) // if NOT on the TOP row, then there must be a node ABOVE
     {
       j = i - n; // index of above node
-      a_vals->set(i, a_count[i], a_prod(q, i, j) );
+      a_vals->set(i, a_count[i], a_prod(i, j) );
       a_indices[i][a_count[i]] = j; // record an interaction
       a_count[i]++;
 
       if (col == n-1) // right edge?
       {
         j = i - n - 1; // index of NW node
-        a_vals->set(i, a_count[i], a_prod(q, i, j) );
+        a_vals->set(i, a_count[i], a_prod(i, j) );
         a_indices[i][a_count[i]] = j; // record an interaction
         a_count[i]++;
       }
@@ -172,19 +171,19 @@ void Ritz_Galerk_sphere::assemble_a()
         if (col == 0) // left edge?
         {
           j = i - n + 1; // index of NE node
-          a_vals->set(i, a_count[i], a_prod(q, i, j) );
+          a_vals->set(i, a_count[i], a_prod(i, j) );
           a_indices[i][a_count[i]] = j; // record an interaction
           a_count[i]++;
         }
         else // interior point.
         {
           j = i - n - 1; // index of NW node
-          a_vals->set(i, a_count[i], a_prod(q, i, j) );
+          a_vals->set(i, a_count[i], a_prod(i, j) );
           a_indices[i][a_count[i]] = j; // record an interaction
           a_count[i]++;
 
           j = i - n + 1; // index of NE node
-          a_vals->set(i, a_count[i], a_prod(q, i, j) );
+          a_vals->set(i, a_count[i], a_prod(i, j) );
           a_indices[i][a_count[i]] = j; // record an interaction
           a_count[i]++;
         }
@@ -193,14 +192,14 @@ void Ritz_Galerk_sphere::assemble_a()
     if (row < n-1) // if NOT on the BOTTOM row, then there must be a node BELOW
     {
       j = i + n; // index of below node
-      a_vals->set(i, a_count[i], a_prod(q, i, j) );
+      a_vals->set(i, a_count[i], a_prod(i, j) );
       a_indices[i][a_count[i]] = j; // record an interaction
       a_count[i]++;
 
       if (col == n-1) // right edge?
       {
         j = i + n - 1; // index of SW node
-        a_vals->set(i, a_count[i], a_prod(q, i, j) );
+        a_vals->set(i, a_count[i], a_prod(i, j) );
         a_indices[i][a_count[i]] = j; // record an interaction
         a_count[i]++;
       }
@@ -209,19 +208,19 @@ void Ritz_Galerk_sphere::assemble_a()
         if (col == 0) // left edge?
         {
           j = i + n + 1; // index of SE node
-          a_vals->set(i, a_count[i], a_prod(q, i, j) );
+          a_vals->set(i, a_count[i], a_prod(i, j) );
           a_indices[i][a_count[i]] = j; // record an interaction
           a_count[i]++;
         }
         else // interior point.
         {
           j = i + n - 1; // index of SW node
-          a_vals->set(i, a_count[i], a_prod(q, i, j) );
+          a_vals->set(i, a_count[i], a_prod(i, j) );
           a_indices[i][a_count[i]] = j; // record an interaction
           a_count[i]++;
 
           j = i + n + 1; // index of SE node
-          a_vals->set(i, a_count[i], a_prod(q, i, j) );
+          a_vals->set(i, a_count[i], a_prod(i, j) );
           a_indices[i][a_count[i]] = j; // record an interaction
           a_count[i]++;
         }
@@ -230,14 +229,14 @@ void Ritz_Galerk_sphere::assemble_a()
     if (col > 0) // if NOT on left column, then there must be a node WEST
     {
       j = i - 1; // index of west node
-      a_vals->set(i, a_count[i], a_prod(q, i, j) );
+      a_vals->set(i, a_count[i], a_prod(i, j) );
       a_indices[i][a_count[i]] = j; // record an interaction
       a_count[i]++;
     }
     if (col < n-1) // if NOT on right column, then there must be a node EAST
     {
       j = i + 1; // index of east node
-      a_vals->set(i, a_count[i], a_prod(q, i, j) );
+      a_vals->set(i, a_count[i], a_prod(i, j) );
       a_indices[i][a_count[i]] = j; // record an interaction
       a_count[i]++;
     }
@@ -245,7 +244,7 @@ void Ritz_Galerk_sphere::assemble_a()
 
 }
 
-double Ritz_Galerk_sphere::a_prod(quadrat * q_in, int i_in, int j_in)
+double Ritz_Galerk_sphere::a_prod(int i_in, int j_in)
 {
   int i, j, k;
   double acc_full, acc, acc_r, x_c, y_c, x_j, y_j, del_x, del_y;
@@ -263,22 +262,22 @@ double Ritz_Galerk_sphere::a_prod(quadrat * q_in, int i_in, int j_in)
   for ( j = 0; j < n_q; j++)
   {
     acc_r = 0;
-    xy[1] = y_c + (q_in->x[j]*h);
+    xy[1] = y_c + (q->x[j]*h);
     for ( k = 0; k < n_q; k++)
     {
-      xy[0] = x_c + (q_in->x[k]*h);
+      xy[0] = x_c + (q->x[k]*h);
       if ( (abs(xy[0] - x_j) < h) && (abs(xy[1] - y_j) < h) ) // overlap with phi_j
       {
         Jac_eval(xy, Jac);
         Jac_invert(Jac, Jac_inv);
-        grad_phi_eval(q_in->x[k], q_in->x[j], dphi_i);
-        grad_phi_eval(del_x+q_in->x[k], del_y+q_in->x[j], dphi_j);
+        grad_phi_eval(q->x[k], q->x[j], dphi_i);
+        grad_phi_eval(del_x+q->x[k], del_y+q->x[j], dphi_j);
         work1->mult_set(Jac_inv, dphi_i, 1.0, 0.0);
         work2->mult_set(Jac_inv, dphi_j, 1.0, 0.0);
-        acc_r += q_in->w[k]*(work1->inner(work2))*Jac_det(Jac);
+        acc_r += q->w[k]*(work1->inner(work2))*Jac_det(Jac);
       }
     }
-    acc+=q_in->w[j]*acc_r;
+    acc+=q->w[j]*acc_r;
   }
   acc_full = acc*h*h;
   return  acc_full;
@@ -323,14 +322,14 @@ void Ritz_Galerk_sphere::grad_phi_eval(double x_loc, double y_loc, AYmat * grad_
   }
 }
 
-void Ritz_Galerk_sphere::write_out(char prefix1[], char prefix2[], int N)
+void Ritz_Galerk_sphere::write_out(char prefix_x[], char prefix_y[], char prefix_v[], char prefix_w[], char prefix_u[], int N)
 {
     int i, j, k ;
     double acc;
 
     double * test_coords = new double[N];
     double ** xyvw = dmatrix(0, N*N-1, 0, 3);
-    double ** sol_out = dmatrix(0, N-1, 0, N-1);
+    double *** sol_out = d3tensor(0, 4, 0, N-1, 0, N-1);
 
     double del = 2.0/( (double) N - 1 );
 
@@ -340,12 +339,13 @@ void Ritz_Galerk_sphere::write_out(char prefix1[], char prefix2[], int N)
     {
       for ( j = 0; j < N; j++)
       {
-        xyvw[i*N+j][0] = test_coords[i];
-        xyvw[i*N+j][1] = test_coords[j];
+        xyvw[i*N+j][0] = test_coords[i]; xyvw[i*N+j][1] = test_coords[j];
         map(xyvw[i*N+j], xyvw[i*N+j]+2);
+        for ( k = 0; k < 4; k++) sol_out[k][i][j] = xyvw[i*N+j][k];
+
         if (i == 0 || i == N-1 || j == 0 || j == N-1) // if edge/corner node
         {
-          sol_out[i][j] = 0.0;
+          sol_out[4][i][j] = 0.0;
         }
         else
         {
@@ -357,10 +357,17 @@ void Ritz_Galerk_sphere::write_out(char prefix1[], char prefix2[], int N)
               acc += x[k]*phi_eval( (xyvw[i*N+j][0] - xy_coords[k][0])/h , (xyvw[i*N+j][1] - xy_coords[k][1])/h );
             }
           }
-          sol_out[i][j] = acc;
+          sol_out[4][i][j] = acc;
         }
       }
     }
-    fprintf_matrix(xyvw, N*N, 4, prefix1);
-    fprintf_matrix(sol_out, N, N, prefix2);
+    fprintf_matrix(sol_out[0], N, N, prefix_x);
+    fprintf_matrix(sol_out[1], N, N, prefix_y);
+    fprintf_matrix(sol_out[2], N, N, prefix_v);
+    fprintf_matrix(sol_out[3], N, N, prefix_w);
+    fprintf_matrix(sol_out[4], N, N, prefix_u);
+
+    delete [] test_coords;
+    free_dmatrix(xyvw, 0, N*N-1, 0, 3);
+    free_d3tensor(sol_out, 0, 4, 0, N-1, 0, N-1);
 }

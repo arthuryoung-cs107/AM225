@@ -38,7 +38,9 @@ u_sol_xy_fun = @(x, y) (1 - v_map(x, y)^2 - w_map(x, y)^2)*exp(- v_map(x, y) );
 
 l2_error = [];
 
-for N=10:10:250
+N_max = 200;
+
+for N=10:5:N_max
   prob2_x = aysml_read(['../dat_dir/prob2_Ritz_Galerk_x_N', num2str(N)]);
   prob2_y = aysml_read(['../dat_dir/prob2_Ritz_Galerk_y_N', num2str(N)]);
   prob2_v = aysml_read(['../dat_dir/prob2_Ritz_Galerk_v_N', num2str(N)]);
@@ -78,4 +80,4 @@ for N=10:10:250
 end
 
 figure(fig5.Number)
-plot(10:10:250, l2_error, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '||u_sol-u_RG||/(N^2)')
+plot(10:5:N_max, l2_error, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '||u_sol-u_RG||/(N^2)')

@@ -22,7 +22,7 @@ void prob2_part_a()
 
   auto f_main = [](double v, double w) { return ((std::exp(-v))*( 3.0 + (v - 4.0)*v + w*w)); };
 
-  for ( N = 10; N < 200; N+=10)
+  for ( N = 10; N <= 200; N+=5)
   {
       memset(prefix_x, 0, 199);
       snprintf(prefix_x, 100, "./dat_dir/prob2_Ritz_Galerk_x_N%d", N);

@@ -19,6 +19,7 @@ class AYmat {
 
       void mult_set(AYmat * A, AYmat * B, double alpha, double beta);
       void mult_put(AYmat * B, AYmat * C, double alpha, double beta);
+      double inner(AYmat * B);
 
     private:
       double ** AT;

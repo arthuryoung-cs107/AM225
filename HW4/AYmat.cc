@@ -103,3 +103,17 @@ void AYmat::mult_put(AYmat * B_in, AYmat * C_in, double alpha, double beta )
     dgemm_(&trans,&trans,&(M),&(C_in->N),&(B_in->M),&alpha,(A_ptr),&(M), (B_in->A_ptr),&(B_in->M),&beta,(C_in->A_ptr),&(C_in->M));
   }
 }
+
+double AYmat::inner(AYmat * B_in)
+{
+  int i, j;
+  double sum = 0;
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      sum += (AT[j][i] * B_in->AT[j][i]);
+    }
+  }
+  return sum;
+}

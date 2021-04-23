@@ -11,12 +11,11 @@ extern "C"
 
 void prob2_part_a()
 {
-  int N_full = 112;
-  int N = N_full - 1;
+  int N = 300;
   char prefix[200];
   char prefix2[200];
 
-  auto f_main = [](double x, double y) { return std::exp(x-y); };
+  auto f_main = [](double v, double w) { return ((std::exp(-v))*( 3.0 + (v - 4.0)*v + w*w)); };
 
   poisson_fft pf(N, 1./((double) N+1));
   memset(prefix, 0, 199);
@@ -31,6 +30,10 @@ void prob2_part_a()
 
   printf("entering Ritz Galerk init\n");
   Ritz_Galerk_sphere * FE1 = new Ritz_Galerk_sphere(N);
+  FE1->assemble_b(f_main);
+
+
+  // FE1->solve_pre(true);
 
 }
 

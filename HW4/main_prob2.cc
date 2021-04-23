@@ -11,7 +11,7 @@ extern "C"
 
 void prob2_part_a()
 {
-  int N = 300;
+  int N = 100;
   char prefix[200];
   char prefix2[200];
 

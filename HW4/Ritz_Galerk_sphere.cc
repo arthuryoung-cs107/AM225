@@ -9,7 +9,7 @@ extern "C"
 }
 
 Ritz_Galerk_sphere::Ritz_Galerk_sphere(int n_) : conj_grad(((n_-1)*(n_-1))),
-dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(10),
+dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(4),
 f(new double[dof]), xy(new double[2]), vw(new double[2]),
 vw_coords(dmatrix(0, dof-1, 0, 1)), xy_coords(dmatrix(0, dof-1, 0, 1)),
 h(2.0/n_full),
@@ -31,17 +31,31 @@ a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
       map(xy_coords[n*(i) + j], vw_coords[n*(i) + j]);
     }
   }
-  assemble_a();
+  // assemble_a();
 
-  for ( i = 0; i < dof; i++)
-  {
-    printf("%d: ", i);
-    for ( j = 0; j < a_count[i]; j++)
-    {
-      printf("%f, ", a_vals->get(i, j));
-    }
-    printf("\n" );
-  }
+  // for ( i = 0; i < dof; i++)
+  // {
+  //   printf("%d: ", i);
+  //   for ( j = 0; j < a_count[i]; j++)
+  //   {
+  //     printf("%f, ", a_vals->get(i, j));
+  //   }
+  //   printf("\n" );
+  // }
+
+  quadrat * q = new quadrat(n_q);
+  i = dof-1;
+  j = i - n;
+
+  printf("i, j: %f\n", a_prod(q, i, j));
+  printf("j, i: %f\n", a_prod(q, j, i));
+
+  // quadrat q(n_q);
+  //
+  // for ( i = 0; i < n_q; i++)
+  // {
+  //   printf("%d: %f\n", i, q->x[i]);
+  // }
 
 }
 
@@ -262,8 +276,6 @@ double Ritz_Galerk_sphere::a_prod(quadrat * q_in, int i_in, int j_in)
   int i, j, k;
   double acc_full, acc, acc_r, x_c, y_c, x_j, y_j, del_x, del_y;
 
-  int n_q = q_in->n;
-
   acc = 0;
   x_c = xy_coords[i_in][0];
   y_c = xy_coords[i_in][1];
@@ -277,12 +289,14 @@ double Ritz_Galerk_sphere::a_prod(quadrat * q_in, int i_in, int j_in)
   for ( j = 0; j < n_q; j++)
   {
     acc_r = 0;
-    xy[1] = y_c + q_in->x[j]*h;
+    xy[1] = y_c + (q_in->x[j]*h);
     for ( k = 0; k < n_q; k++)
     {
-      xy[0] = x_c + q_in->x[k]*h;
+      xy[0] = x_c + (q_in->x[k]*h);
       if ( (abs(xy[0] - x_j) < h) && (abs(xy[1] - y_j) < h) ) // overlap with phi_j
       {
+        printf("%f, %f\n", xy[0], xy[1]);
+
         Jac_eval(xy, Jac);
         Jac_invert(Jac, Jac_inv);
         grad_phi_eval(q_in->x[k], q_in->x[j], dphi_i);

@@ -1,14 +1,14 @@
-fig1 = figure('Name', 'FFT on Poisson, full grid', 'Renderer', 'painters', 'Position', fig_pos(1, :));
+fig1 = figure('Name', 'u, Ritz Galerk, xy', 'Renderer', 'painters', 'Position', fig_pos(1, :));
 xlabel('x')
 ylabel('y')
-zlabel('v')
+zlabel('u')
 view(40, 35)
 hold on
 
-fig2 = figure('Name', 'FFT on Poisson, full grid, source', 'Renderer', 'painters', 'Position', fig_pos(2, :));
-xlabel('x')
-ylabel('y')
-zlabel('f')
+fig2 = figure('Name', 'u, Ritz Galerk, vw', 'Renderer', 'painters', 'Position', fig_pos(2, :));
+xlabel('v')
+ylabel('w')
+zlabel('u')
 view(40, 35)
 hold on
 
@@ -26,14 +26,14 @@ zlabel('u')
 view(40, 35)
 hold on
 
-grid_A_conv = aysml_read('../dat_dir/prob2_square_fft');
-grid_A_source = aysml_read('../dat_dir/prob2_square_fft_source');
+Ritz_galerk_xyvw = aysml_read('../dat_dir/prob2_Ritz_Galerk_xyvw');
+Ritz_galerk_u = aysml_read('../dat_dir/prob2_Ritz_Galerk_u');
 
 figure(fig1.Number);
-surf(grid_A_conv);
-
-figure(fig2.Number);
-surf(grid_A_source);
+surf(Ritz_galerk_xyvw(1:(size(Ritz_galerk_u, 1)), 2), Ritz_galerk_xyvw(1:(size(Ritz_galerk_u, 1)), 2), Ritz_galerk_u)
+%
+% figure(fig2.Number);
+% surf(xyvw_mat(:, 3), xyvw_mat(:,4), phi_mat)
 
 x_vec = -1:0.1:1;
 y_vec = -1:0.1:1;

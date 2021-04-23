@@ -12,7 +12,7 @@ Ritz_Galerk_sphere::Ritz_Galerk_sphere(int n_) : conj_grad(((n_-1)*(n_-1))),
 dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(10),
 f(new double[dof]), xy(new double[2]), vw(new double[2]),
 vw_coords(dmatrix(0, dof-1, 0, 1)), xy_coords(dmatrix(0, dof-1, 0, 1)),
-h(2.0/n_full),
+h(2.0/((double) n_)),
 Jac(new AYmat(2, 2)), a_vals(new AYmat(dof, 9)), Jac_inv(new AYmat(2, 2)),
 dphi_i(new AYmat(2, 1)), dphi_j(new AYmat(2, 1)), work1(new AYmat(2, 1)), work2(new AYmat(2, 1)),
 a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
@@ -32,30 +32,6 @@ a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
     }
   }
   assemble_a();
-
-  // for ( i = 0; i < dof; i++)
-  // {
-  //   printf("%d: ", i);
-  //   for ( j = 0; j < a_count[i]; j++)
-  //   {
-  //     printf("%f, ", a_vals->get(i, j));
-  //   }
-  //   printf("\n" );
-  // }
-
-  // quadrat * q = new quadrat(n_q);
-  // i = dof-1;
-  // j = i - n;
-  //
-  // printf("i, j: %f\n", a_prod(q, i, j));
-  // printf("j, i: %f\n", a_prod(q, j, i));
-
-  // quadrat q(n_q);
-  //
-  // for ( i = 0; i < n_q; i++)
-  // {
-  //   printf("%d: %f\n", i, q->x[i]);
-  // }
 
 }
 
@@ -345,4 +321,46 @@ void Ritz_Galerk_sphere::grad_phi_eval(double x_loc, double y_loc, AYmat * grad_
       grad_out->set(1, 0, (1.0 + x_loc)*(1.0/h));
     }
   }
+}
+
+void Ritz_Galerk_sphere::write_out(char prefix1[], char prefix2[], int N)
+{
+    int i, j, k ;
+    double acc;
+
+    double * test_coords = new double[N];
+    double ** xyvw = dmatrix(0, N*N-1, 0, 3);
+    double ** sol_out = dmatrix(0, N-1, 0, N-1);
+
+    double del = 2.0/( (double) N - 1 );
+
+    for ( i = 0; i < N; i++) test_coords[i] = -1.0 + del*( (double) i);
+
+    for ( i = 0; i < N; i++)
+    {
+      for ( j = 0; j < N; j++)
+      {
+        xyvw[i*N+j][0] = test_coords[i];
+        xyvw[i*N+j][1] = test_coords[j];
+        map(xyvw[i*N+j], xyvw[i*N+j]+2);
+        if (i == 0 || i == N-1 || j == 0 || j == N-1) // if edge/corner node
+        {
+          sol_out[i][j] = 0.0;
+        }
+        else
+        {
+          acc = 0;
+          for ( k = 0; k < dof; k++)
+          {
+            if ( abs(xyvw[i*N+j][0] - xy_coords[k][0]) < h && abs(xyvw[i*N+j][1] - xy_coords[k][1]) < h )
+            {
+              acc += x[k]*phi_eval( (xyvw[i*N+j][0] - xy_coords[k][0])/h , (xyvw[i*N+j][1] - xy_coords[k][1])/h );
+            }
+          }
+          sol_out[i][j] = acc;
+        }
+      }
+    }
+    fprintf_matrix(xyvw, N*N, 4, prefix1);
+    fprintf_matrix(sol_out, N, N, prefix2);
 }

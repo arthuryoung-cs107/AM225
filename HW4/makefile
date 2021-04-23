@@ -32,4 +32,9 @@ clean_dat:
 	rm -f *.dat
 	rm -f *.aysml
 	rm -f *.aydat
+clean_datdir:
+	rm -f ./dat_dir/*.dat
+	rm -f ./dat_dir/*.aysml
+	rm -f ./dat_dir/*.aydat
+
 clean_all: clean clean_dat

@@ -32,21 +32,20 @@ class Ritz_Galerk_sphere : public conj_grad {
 
         virtual void mul_A(double *in,double *out);
         void assemble_b(const std::function<double(double,double)>& f_source);
+        void write_out(char prefix1[], char prefix2[], int N);
+        void map(double * x_in, double * v_out);
+        double phi_eval(double x_loc, double y_loc);
 
     private:
         AYmat * Jac, * a_vals, * Jac_inv, * dphi_i, * dphi_j, * work1, * work2;
         int * a_count, ** a_indices;
 
-        void map(double * x_in, double * v_out);
         void Jac_eval(double * x_in, AYmat * mat_out );
         double Jac_det(AYmat * Jac_in);
-        double phi_eval(double x_loc, double y_loc);
         void grad_phi_eval(double x_loc, double y_loc, AYmat * grad_out);
         void assemble_a();
         double a_prod(quadrat * q_in, int i, int j);
         void Jac_invert( AYmat * Jac_in, AYmat * Jac_inverted );
-
-
 };
 
 #endif

@@ -11,30 +11,22 @@ extern "C"
 
 void prob2_part_a()
 {
-  int N = 100;
+  int N = 20;
   char prefix[200];
   char prefix2[200];
 
   auto f_main = [](double v, double w) { return ((std::exp(-v))*( 3.0 + (v - 4.0)*v + w*w)); };
 
-  poisson_fft pf(N, 1./((double) N+1));
   memset(prefix, 0, 199);
+  snprintf(prefix, 100, "./dat_dir/prob2_Ritz_Galerk_xyvw");
   memset(prefix2, 0, 199);
-  snprintf(prefix, 100, "./dat_dir/prob2_square_fft");
-  snprintf(prefix2, 100, "./dat_dir/prob2_square_fft_source");
+  snprintf(prefix2, 100, "./dat_dir/prob2_Ritz_Galerk_u");
 
-  pf.init(f_main);
-  pf.output_solution(prefix2, pf.f);
-  pf.solve();
-  pf.output_solution(prefix, pf.v);
-
-  printf("entering Ritz Galerk init\n");
   Ritz_Galerk_sphere * FE1 = new Ritz_Galerk_sphere(N);
   FE1->assemble_b(f_main);
-
-
-  // FE1->solve_pre(true);
   FE1->solve(true);
+
+  FE1->write_out(prefix, prefix2, 40);
 
 }
 
@@ -42,31 +34,6 @@ int main()
 {
 
   prob2_part_a();
-
-  // int m = 3; int n = 2;
-  //
-  // AYmat * A = new AYmat(m, n);
-  // AYmat * B = new AYmat(n, 1);
-  // AYmat * C = new AYmat(m, 1);
-  //
-  // A->init_123();
-  // B->set(0, 0, 3.); B->set(1, 0, 4.);
-  //
-  // printf("A:\n");
-  // A->print_mat();
-  //
-  // printf("B:\n");
-  // B->print_mat();
-  //
-  // C->mult_set(A, B, 1., 0.);
-  //
-  // printf("C:\n");
-  // C->print_mat();
-  //
-  // A->mult_put(B, C, 1., 0.);
-  //
-  // printf("C:\n");
-  // C->print_mat();
 
   return 0;
 }

@@ -15,13 +15,11 @@
 #include <cstdio>
 #include <cmath>
 
-/** Class for solving an elliptic PDE problem over the domain [1,2] using
- * piecewise cubic basis functions. */
 class Ritz_Galerk_sphere : public conj_grad {
     public:
-        /** The number of intervals to divide the domain into. */
+
         const int n, dof, n_full, n_q;
-        /** The source function. */
+
         double * f;
         double * xy, * vw;
         double ** xy_coords;

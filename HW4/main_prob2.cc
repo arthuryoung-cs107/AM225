@@ -34,6 +34,7 @@ void prob2_part_a()
 
 
   // FE1->solve_pre(true);
+  FE1->solve(true);
 
 }
 

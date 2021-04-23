@@ -9,7 +9,7 @@ extern "C"
 }
 
 Ritz_Galerk_sphere::Ritz_Galerk_sphere(int n_) : conj_grad(((n_-1)*(n_-1))),
-dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(4),
+dof((n_-1)*(n_-1)),  n_full(n_), n(n_-1), n_q(10),
 f(new double[dof]), xy(new double[2]), vw(new double[2]),
 vw_coords(dmatrix(0, dof-1, 0, 1)), xy_coords(dmatrix(0, dof-1, 0, 1)),
 h(2.0/n_full),
@@ -31,7 +31,7 @@ a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
       map(xy_coords[n*(i) + j], vw_coords[n*(i) + j]);
     }
   }
-  // assemble_a();
+  assemble_a();
 
   // for ( i = 0; i < dof; i++)
   // {
@@ -43,12 +43,12 @@ a_count(new int[dof]), a_indices(imatrix(0, dof-1, 0, 8))
   //   printf("\n" );
   // }
 
-  quadrat * q = new quadrat(n_q);
-  i = dof-1;
-  j = i - n;
-
-  printf("i, j: %f\n", a_prod(q, i, j));
-  printf("j, i: %f\n", a_prod(q, j, i));
+  // quadrat * q = new quadrat(n_q);
+  // i = dof-1;
+  // j = i - n;
+  //
+  // printf("i, j: %f\n", a_prod(q, i, j));
+  // printf("j, i: %f\n", a_prod(q, j, i));
 
   // quadrat q(n_q);
   //
@@ -133,8 +133,6 @@ double Ritz_Galerk_sphere::phi_eval(double x_loc, double y_loc)
   }
 }
 
-/** Computes the source vector in the linear system, which is based
- * on multiplying the source function by the mass matrix. */
 void Ritz_Galerk_sphere::assemble_b(const std::function<double(double,double)>& f_source)
 {
   int i, j, k;
@@ -295,8 +293,6 @@ double Ritz_Galerk_sphere::a_prod(quadrat * q_in, int i_in, int j_in)
       xy[0] = x_c + (q_in->x[k]*h);
       if ( (abs(xy[0] - x_j) < h) && (abs(xy[1] - y_j) < h) ) // overlap with phi_j
       {
-        printf("%f, %f\n", xy[0], xy[1]);
-
         Jac_eval(xy, Jac);
         Jac_invert(Jac, Jac_inv);
         grad_phi_eval(q_in->x[k], q_in->x[j], dphi_i);

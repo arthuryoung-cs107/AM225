@@ -38,9 +38,7 @@ Ritz_Galerk_sphere::~Ritz_Galerk_sphere()
 {
   delete [] xy;
   delete [] vw;
-
   delete [] a_count;
-
   delete Jac;
   delete a_vals;
   delete Jac_inv;
@@ -49,10 +47,9 @@ Ritz_Galerk_sphere::~Ritz_Galerk_sphere()
   delete work1;
   delete work2;
   delete q;
-  //
-  // free_imatrix(a_indices, 0, dof-1, 0, 8);
-  // free_dmatrix(xy_coords, 0, dof-1, 0, 1);
-  // free_dmatrix(vw_coords, 0, dof-1, 0, 1);
+  free_imatrix(a_indices, 0, dof-1, 0, 8);
+  free_dmatrix(xy_coords, 0, dof-1, 0, 1);
+  free_dmatrix(vw_coords, 0, dof-1, 0, 1);
 }
 
 /** Performs multiplication on a vector by the stiffness matrix. */

@@ -1,5 +1,3 @@
-#include <cstring>
-
 #include "blas.h"
 #include "omp.h"
 extern "C"

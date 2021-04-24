@@ -10,7 +10,7 @@ CDEPS = nrutil.h auxiliary_functions.h knuth_lcg.h
 
 CPPDEPS = blas.h Ritz_Galerk_sphere.hh conj_grad.hh quadrat.hh AYmat.hh
 
-OBJS2 = main_prob2.o  nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk_sphere.o conj_grad.o quadrat.o AYmat.o
+OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk_sphere.o conj_grad.o quadrat.o AYmat.o
 
 OBJS3 = main_prob3.o
 

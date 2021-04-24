@@ -9,11 +9,11 @@ u_sol_xy_fun = @(x, y) (1 - v_map(x, y)^2 - w_map(x, y)^2)*exp(- v_map(x, y) );
 
 l2_error = [];
 
-N_test=20;
+N_test=500;
 
 N_min = 10;
-delta = 10;
-N_max = 100;
+delta = 5;
+N_max = 200;
 
 for N=N_min:delta:N_max
   prob2_x = aysml_read(['../dat_dir/prob2_Ritz_Galerk_x_N', num2str(N), '_Ntest', num2str(N_test)]);

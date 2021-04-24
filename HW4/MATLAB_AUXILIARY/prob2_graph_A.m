@@ -26,25 +26,42 @@ zlabel('u')
 view(40, 35)
 hold on
 
-fig5 = figure('Name', 'l2 error', 'Renderer', 'painters', 'Position', fig_pos(5, :));
-xlabel('N_{fea}')
-ylabel('l_2 error')
+fig5 = figure('Name', 'source, xy', 'Renderer', 'painters', 'Position', fig_pos(5, :));
+xlabel('x')
+ylabel('y')
+zlabel('f')
+view(40, 35)
+hold on
+
+fig6 = figure('Name', 'source, wv', 'Renderer', 'painters', 'Position', fig_pos(6, :));
+xlabel('w')
+ylabel('v')
+zlabel('f')
+view(40, 35)
 hold on
 
 
 v_map = @(x, y) x*( 1 - 0.5* (y*y) ).^(0.5) ;
 w_map = @(x, y) y*( 1 - 0.5* (x*x) ).^(0.5) ;
 u_sol_xy_fun = @(x, y) (1 - v_map(x, y)^2 - w_map(x, y)^2)*exp(- v_map(x, y) );
+u_source_fun = @(x, y) (3.0 + (v_map(x, y) - 4.0 )*v_map(x, y) + w_map(x, y)*w_map(x, y))*exp(- v_map(x, y) );
 
 l2_error = [];
 
-N_test=20;
+N_test=40;
 
 N_min = 10;
-delta = 10;
+delta = 5;
 N_max = 100;
 
 for N=N_min:delta:N_max
+  clf(fig1)
+  clf(fig2)
+  clf(fig3)
+  clf(fig4)
+  clf(fig5)
+  clf(fig6)
+
   prob2_x = aysml_read(['../dat_dir/prob2_Ritz_Galerk_x_N', num2str(N), '_Ntest', num2str(N_test)]);
   prob2_y = aysml_read(['../dat_dir/prob2_Ritz_Galerk_y_N', num2str(N), '_Ntest', num2str(N_test)]);
   prob2_v = aysml_read(['../dat_dir/prob2_Ritz_Galerk_v_N', num2str(N), '_Ntest', num2str(N_test)]);
@@ -52,10 +69,12 @@ for N=N_min:delta:N_max
   prob2_u = aysml_read(['../dat_dir/prob2_Ritz_Galerk_u_N', num2str(N), '_Ntest', num2str(N_test)]);
 
   u_sol = zeros(size(prob2_u));
+  u_source = zeros(size(prob2_u));
 
   for i=1:size(u_sol, 1)
     for j=1:size(u_sol, 2)
       u_sol(i, j) = u_sol_xy_fun( prob2_x(i, j), prob2_y(i, j) );
+      u_source(i, j) = u_source_fun( prob2_x(i, j), prob2_y(i, j) );
     end
   end
 
@@ -73,14 +92,12 @@ for N=N_min:delta:N_max
   figure(fig4.Number)
   surf(prob2_v, prob2_w, u_sol)
 
+  figure(fig5.Number)
+  surf(prob2_x, prob2_y, u_source)
+
+  figure(fig6.Number)
+  surf(prob2_v, prob2_w, u_source)
+
   pause(1)
 
-  clf(fig1)
-  clf(fig2)
-  clf(fig3)
-  clf(fig4)
 end
-
-figure(fig5.Number)
-plot(N_min:delta:N_max, l2_error, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '||u_{sol}-u_{RG}||/N_t^2')
-legend('Show')

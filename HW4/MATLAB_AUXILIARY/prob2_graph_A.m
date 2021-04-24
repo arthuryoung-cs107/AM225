@@ -81,23 +81,55 @@ for N=N_min:delta:N_max
   l2_error = [l2_error, (norm(u_sol-prob2_u ,'fro'))/(size(u_sol, 1)*size(u_sol, 2)) ];
 
   figure(fig1.Number);
+  hold on
+  xlabel('x')
+  ylabel('y')
+  zlabel('u_{FEA}')
+  view(40, 35)
   surf(prob2_x, prob2_y, prob2_u)
 
   figure(fig2.Number);
+  hold on
+  xlabel('v')
+  ylabel('w')
+  zlabel('u_{FEA}')
+  view(40, 35)
   surf(prob2_v, prob2_w, prob2_u)
 
   figure(fig3.Number)
+  hold on
+  xlabel('x')
+  ylabel('y')
+  zlabel('u_{sol}')
+  view(40, 35)
   surf(prob2_x, prob2_y, u_sol)
 
   figure(fig4.Number)
+  hold on
+  xlabel('v')
+  ylabel('w')
+  zlabel('u_{sol}')
+  view(40, 35)
   surf(prob2_v, prob2_w, u_sol)
 
   figure(fig5.Number)
+  hold on
+  xlabel('x')
+  ylabel('y')
+  zlabel('f')
+  view(40, 35)
   surf(prob2_x, prob2_y, u_source)
 
   figure(fig6.Number)
+  hold on
+  xlabel('v')
+  ylabel('w')
+  zlabel('f')
+  view(40, 35)
   surf(prob2_v, prob2_w, u_source)
 
-  pause(1)
+  N
+
+  pause()
 
 end

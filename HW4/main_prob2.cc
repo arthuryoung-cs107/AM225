@@ -12,7 +12,7 @@ extern "C"
 void prob2_part_a()
 {
   int N;
-  int N_test = 500;
+  int N_test = 40;
 
   char prefix_x[200];
   char prefix_y[200];
@@ -22,7 +22,7 @@ void prob2_part_a()
 
   auto f_main = [](double v, double w) { return ((std::exp(-v))*( 3.0 + (v - 4.0)*v + w*w)); };
 
-  for ( N = 10; N <= 200; N+=5)
+  for ( N = 10; N <= 100; N+=5)
   {
       memset(prefix_x, 0, 199);
       snprintf(prefix_x, 100, "./dat_dir/prob2_Ritz_Galerk_x_N%d_Ntest%d", N, N_test);

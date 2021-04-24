@@ -1,16 +1,14 @@
 #include <cstring>
+
 #include "blas.h"
 #include "omp.h"
-// #include "poisson_fft_AY.hh"
-#include "Ritz_Galerk_sphere.hh"
-
 extern "C"
 {
   #include "nrutil.h"
   #include "auxiliary_functions.h"
 }
 
-void prob2_part_a()
+void prob3_part_a()
 {
   int N;
   int N_test = 40;
@@ -49,7 +47,7 @@ void prob2_part_a()
 int main()
 {
 
-  prob2_part_a();
+  prob3_part_a();
 
   return 0;
 }

@@ -8,9 +8,11 @@ LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas -lfftw3 -lblas
 
 CDEPS = nrutil.h auxiliary_functions.h knuth_lcg.h
 
-CPPDEPS = poisson_fft_AY.hh blas.h Ritz_Galerk_sphere.hh conj_grad.hh quadrat.hh AYmat.hh
+CPPDEPS = blas.h Ritz_Galerk_sphere.hh conj_grad.hh quadrat.hh AYmat.hh
 
-OBJS2 = main_prob2.o poisson_fft_AY.o nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk_sphere.o conj_grad.o quadrat.o AYmat.o
+OBJS2 = main_prob2.o  nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk_sphere.o conj_grad.o quadrat.o AYmat.o
+
+OBJS3 = main_prob3.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)
@@ -23,10 +25,16 @@ all: prob2_solve
 prob2_solve: $(OBJS2)
 	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
 
+prob3_solve: $(OBJS3)
+	$(CXX) -o $@ $^ $(CFLAGS) $(LINK)
+
 prob2: prob2_solve
+
+prob3: prob3-solve
 
 clean:
 	rm -f prob2_solve
+	rm -f prob3_solve
 	rm -f *.o
 clean_dat:
 	rm -f *.dat

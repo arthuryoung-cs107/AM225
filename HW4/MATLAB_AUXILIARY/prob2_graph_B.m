@@ -1,36 +1,7 @@
-fig1 = figure('Name', 'u, Ritz Galerk, xy', 'Renderer', 'painters', 'Position', fig_pos(1, :));
-xlabel('x')
-ylabel('y')
-zlabel('u')
-view(40, 35)
-hold on
-
-fig2 = figure('Name', 'u, Ritz Galerk, vw', 'Renderer', 'painters', 'Position', fig_pos(2, :));
-xlabel('v')
-ylabel('w')
-zlabel('u')
-view(40, 35)
-hold on
-
-fig3 = figure('Name', 'u, analytical, xy', 'Renderer', 'painters', 'Position', fig_pos(3, :));
-xlabel('x')
-ylabel('y')
-zlabel('u')
-view(40, 35)
-hold on
-
-fig4 = figure('Name', 'u, analytical, wv', 'Renderer', 'painters', 'Position', fig_pos(4, :));
-xlabel('w')
-ylabel('v')
-zlabel('u')
-view(40, 35)
-hold on
-
-fig5 = figure('Name', 'l2 error', 'Renderer', 'painters', 'Position', fig_pos(5, :));
+fig1 = figure('Name', 'l2 error', 'Renderer', 'painters', 'Position', fig_pos(1, :));
 xlabel('N_{fea}')
 ylabel('l_2 error')
 hold on
-
 
 v_map = @(x, y) x*( 1 - 0.5* (y*y) ).^(0.5) ;
 w_map = @(x, y) y*( 1 - 0.5* (x*x) ).^(0.5) ;
@@ -60,27 +31,8 @@ for N=N_min:delta:N_max
   end
 
   l2_error = [l2_error, (norm(u_sol-prob2_u ,'fro'))/(size(u_sol, 1)*size(u_sol, 2)) ];
-
-  figure(fig1.Number);
-  surf(prob2_x, prob2_y, prob2_u)
-
-  figure(fig2.Number);
-  surf(prob2_v, prob2_w, prob2_u)
-
-  figure(fig3.Number)
-  surf(prob2_x, prob2_y, u_sol)
-
-  figure(fig4.Number)
-  surf(prob2_v, prob2_w, u_sol)
-
-  pause(1)
-
-  clf(fig1)
-  clf(fig2)
-  clf(fig3)
-  clf(fig4)
 end
 
-figure(fig5.Number)
+figure(fig1.Number)
 plot(N_min:delta:N_max, l2_error, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '||u_{sol}-u_{RG}||/N_t^2')
 legend('Show')

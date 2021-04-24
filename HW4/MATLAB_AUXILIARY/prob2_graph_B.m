@@ -1,7 +1,13 @@
-fig1 = figure('Name', 'l2 error', 'Renderer', 'painters', 'Position', fig_pos(1, :));
+fig1 = figure('Name', 'l2 error vs. N', 'Renderer', 'painters', 'Position', fig_pos(1, :));
 xlabel('N_{fea}')
 ylabel('l_2 error')
 hold on
+
+fig2 = figure('Name', 'l2 error vs. h', 'Renderer', 'painters', 'Position', fig_pos(2, :));
+xlabel('h')
+ylabel('l_2 error')
+hold on
+
 
 v_map = @(x, y) x*( 1 - 0.5* (y*y) ).^(0.5) ;
 w_map = @(x, y) y*( 1 - 0.5* (x*x) ).^(0.5) ;
@@ -34,5 +40,9 @@ for N=N_min:delta:N_max
 end
 
 figure(fig1.Number)
-plot(N_min:delta:N_max, l2_error, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '||u_{sol}-u_{RG}||/N_t^2')
+plot(N_min:delta:N_max, l2_error, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '||u_{sol}-u_{fea}||/N_t^2')
+legend('Show')
+
+figure(fig2.Number)
+plot( (N_min:delta:N_max).^(-1), l2_error, ' o', 'Color', red4, 'LineWidth', 1.5, 'DisplayName', '||u_{sol}-u_{fea}||/N_t^2')
 legend('Show')

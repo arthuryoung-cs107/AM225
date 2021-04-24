@@ -130,6 +130,6 @@ for N=N_min:delta:N_max
 
   N
 
-  pause()
+  % pause()
 
 end

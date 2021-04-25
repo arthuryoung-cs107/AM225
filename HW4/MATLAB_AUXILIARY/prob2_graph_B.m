@@ -4,6 +4,8 @@ ylabel('l_2 error')
 hold on
 
 fig2 = figure('Name', 'l2 error vs. h', 'Renderer', 'painters', 'Position', fig_pos(2, :));
+set(gca, 'XScale', 'log')
+set(gca, 'YScale', 'log')
 xlabel('h')
 ylabel('l_2 error')
 hold on
@@ -45,4 +47,4 @@ legend('Show')
 
 figure(fig2.Number)
 plot( (N_min:delta:N_max).^(-1), l2_error, ' o', 'Color', red4, 'LineWidth', 1.5, 'DisplayName', '||u_{sol}-u_{fea}||/N_t^2')
-legend('Show')
+legend('Show', 'Location', 'SouthEast')

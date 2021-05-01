@@ -3,7 +3,7 @@
 #include "blas.h"
 #include "omp.h"
 #include "cubic_1d_fe.hh"
-#include "cubic_1d_alt.hh"
+#include "cubic_1d_alt_C2.hh"
 
 extern "C"
 {
@@ -24,7 +24,7 @@ void prob3_part_a()
 
   for ( N = 10; N <= 1000; N+=10)
   {
-    cubic_1d_alt * FE1 = new cubic_1d_alt(N);
+    cubic_1d_alt_C2 * FE1 = new cubic_1d_alt_C2(N);
     FE1->g = exp(-1.0)*(5.0)*M_PI;
     FE1->assemble_b();
     FE1->solve();
@@ -36,7 +36,7 @@ void prob3_part_a()
 
   // //debugging zone
   N = 10;
-  cubic_1d_alt * FE1 = new cubic_1d_alt(N);
+  cubic_1d_alt_C2 * FE1 = new cubic_1d_alt_C2(N);
   FE1->assemble_b();
   double * omega = FE1->omega_1;
   double ** phi_check_all = dmatrix( 0, N_test-1, 0, 2 );
@@ -66,10 +66,10 @@ void prob3_part_a()
     for ( j = 0; j < FE1->n_full; j++)
     {
 
-      phi_check[i][j + 1] = FE1->phi_C1(phi_check[i][0], j) + ((double ) j);
-      grad_phi_check[i][j + 1] = FE1->grad_phi_C1(phi_check[i][0], j) + ((double ) j);
-      acc1 += FE1->phi_C1(phi_check[i][0], j);
-      acc2 += FE1->grad_phi_C1(phi_check[i][0], j);
+      phi_check[i][j + 1] = FE1->phi_C2(phi_check[i][0], j) + ((double ) j);
+      grad_phi_check[i][j + 1] = FE1->grad_phi_C2(phi_check[i][0], j) + ((double ) j);
+      acc1 += FE1->phi_C2(phi_check[i][0], j);
+      acc2 += FE1->grad_phi_C2(phi_check[i][0], j);
     }
     phi_check_all[i][1] = acc1;
     phi_check_all[i][2] = acc2;

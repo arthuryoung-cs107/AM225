@@ -19,29 +19,47 @@ class cubic_1d_alt : public conj_grad {
     public:
         /** The number of intervals to divide the domain into. */
         const int n;
+        const int n_full;
         quadrat * q;
         /** The grid spacing. */
-        const double h;
+        double h;
         /** The Neumann condition to apply at x=2. */
         double g;
 
         double* const node_pos;
         double* const omega;
+        double* const omega_1;
+        double* x_full;
+        double* b_full;
         double ** a_vals;
-        int * a_count;
+        double ** a_short;
+        int ** a_ind;
+        double ** bounds;
 
         cubic_1d_alt(int n_);
         ~cubic_1d_alt();
 
         void assemble_b();
         void assemble_a();
+
         void write_out(char prefix[], int N_test);
+
         double phi_C1(double x_in, int i);
         double grad_phi_C1(double x_in, int i);
 
     private:
         virtual void mul_A(double *in,double *out);
         double f_source(double xx);
+        double min(double R1, double R2)
+        {
+          if (R1 < R2) {return R1;}
+          else {return R2;}
+        }
+        double max(double R1, double R2)
+        {
+          if (R1 < R2) {return R2;}
+          else {return R1;}
+        }
 
 };
 

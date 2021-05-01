@@ -12,7 +12,7 @@ CPPDEPS = blas.h Ritz_Galerk_sphere.hh conj_grad.hh quadrat.hh AYmat.hh cubic_1d
 
 OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk_sphere.o conj_grad.o quadrat.o AYmat.o
 
-OBJS3 = main_prob3.o cubic_1d_fe.o cubic_1d_alt.o conj_grad.o quadrat.o
+OBJS3 = main_prob3.o nrutil.o auxiliary_functions.o cubic_1d_fe.o cubic_1d_alt.o conj_grad.o quadrat.o 
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)

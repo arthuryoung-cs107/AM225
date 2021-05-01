@@ -28,7 +28,10 @@ for N=N_min:delta:N_max
   plot(prob3_sol(:, 1), prob3_sol(:, 2), ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'FEA solution')
   plot(prob3_sol(:, 1), u_sol, ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'analytical solution')
   legend('Show')
-
+  N
   pause(1);
 
 end
+
+figure(fig2.Number)
+plot(1:0.01:2 , u_sol_fun(1:0.01:2), ' o', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'analytical solution')

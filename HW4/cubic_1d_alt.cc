@@ -3,20 +3,38 @@
 #include "cubic_1d_alt.hh"
 #include "blas.h"
 
-cubic_1d_alt::cubic_1d_alt(int n_) : conj_grad(n_), n(n_),
-h(1.0/( (double) n )), q(new quadrat(7)), node_pos(new double[n]), omega(new double[2]),
-a_vals(dmatrix(0, n-1, 0, 4)), a_count(new int[n])
+cubic_1d_alt::cubic_1d_alt(int n_) : conj_grad(n_+5), n(n_+5), n_full(n_+5), x_full(new double[n]),
+h(1.0/( (double) n_ )), q(new quadrat(7)), node_pos(new double[n_full]),
+omega(new double[2]), omega_1(new double[2]),
+a_vals(dmatrix(0, n_full-1, -3, 3)), a_ind(imatrix(0, n_full-1, -3, 3)),
+bounds(dmatrix(0, n_full-1, -3, 3)), a_short(dmatrix(0, n-1, -3, 3)),
+b_full(new double[n_full])
 {
   int i, j;
 
   omega[0] = 1.0;
   omega[1] = 2.0;
-  zerom_init(a_vals, 0, n-1, 0, 2);
+  omega_1[0] = omega[0] - 2.0*h;
+  omega_1[1] = omega[1] + 2.0*h;
 
-  for ( i = 0; i < n; i++)
+  zerom_init(a_vals, 0, n_full-1, -3, 3);
+  zerom_init(a_short, 0, n-1, -3, 3);
+  zeromint_init(a_ind, 0, n_full-1, -3, 3);
+  for ( i = 0; i < n_full; i++)
   {
-    node_pos[i] = omega[0] + h*( (double) i + 1 );
-    a_count[i] = 0;
+    node_pos[i] = omega_1[0] + h*( (double) i );
+    bounds[i][0] = max(omega_1[0], node_pos[i] - 2.0*h);
+    bounds[i][1] = min(omega_1[1], node_pos[i] + 2.0*h);
+  }
+  for ( i = 0; i < n_full; i++)
+  {
+    for ( j = -3; j <= 3; j++)
+    {
+      if (i + j > -1 && i + j < n_full)
+      {
+        a_ind[i][j] = 1;
+      }
+    }
   }
   assemble_a();
 }
@@ -26,179 +44,121 @@ cubic_1d_alt::~cubic_1d_alt()
   delete q;
   delete [] node_pos;
   delete [] omega;
-  delete [] a_count;
-  free_dmatrix(a_vals, 0, n-1, 0, 2);
+  delete [] omega_1;
+  delete [] x_full;
+  delete [] b_full;
+
+  free_dmatrix(a_vals, 0, n_full-1, -3, 3);
+  free_dmatrix(a_short, 0, n-1, -3, 3);
+  free_imatrix(a_ind, 0, n_full-1, -3, 3);
+  free_dmatrix(bounds, 0, n_full-1, -3, 3);
 }
 
 /** Performs multiplication on a vector by the stiffness matrix. */
 void cubic_1d_alt::mul_A(double *in,double *out)
 {
-  int i;
-  out[0] = in[0]*(a_vals[0][0]) + in[1]*(a_vals[0][1]);
-  for ( i = 1; i < n-1; i++)
+  int i, k;
+  double acc;
+
+  for ( i = 0; i < n; i++)
   {
-    out[i] = in[i-1]*(a_vals[i][0]) + in[i]*(a_vals[i][1]) + in[i+1]*(a_vals[i][2]);
+    acc = 0.0;
+    for ( k = -3; k <= 3; k++)
+    {
+      if (a_ind[i][k] == 1)
+      {
+        acc += a_vals[i][k]*in[i+k];
+      }
+    }
+    out[i] = acc;
   }
-  out[n-1] = in[n-2]*(a_vals[n-1][0]) + in[n-1]*(a_vals[n-1][1]);
+
 }
 
 void cubic_1d_alt::assemble_b()
 {
-  int i, j;
+  int i, j, k;
   double acc, val, C1, C2, C3, C4;
-  for ( i = 0; i < n-1; i++)
+  for ( i = 0; i < n_full; i++)
   {
     acc = 0.0;
-    C1 = node_pos[i]-h;
-    C2 = node_pos[i]+h;
+    C1 = bounds[i][0];
+    C2 = bounds[i][1];
     C3 = (C2-C1)/2.0;
     C4 = (C2+C1)/2.0;
     for ( j = 0; j < q->n; j++)
     {
-      acc += q->w[j]*(phi_C1(C3*q->x[j] + C4, i))*(f_source(C3*q->x[j] + C4));
+      acc += q->w[j]*(phi_C1(C3*(q->x[j]) + C4, i))*(f_source(C3*(q->x[j]) + C4));
     }
     b[i] = acc*C3;
-
+    b[i] += 2.0*g*(phi_C1(omega[1], i));
   }
-
-  acc = 0.0;
-  C1 = node_pos[n-2];
-  C2 = node_pos[n-1];
-  C3 = (C2-C1)/2.0;
-  C4 = (C2+C1)/2.0;
-  for ( j = 0; j < q->n; j++)
-  {
-    acc += q->w[j]*(phi_C1(C3*q->x[j] + C4, n-1))*(f_source(C3*q->x[j] + C4));
-  }
-  b[n-1] = acc*C3;
-
-  b[n-1]+=2.0*g;
 }
 
 void cubic_1d_alt::assemble_a()
 {
-  int i, j;
-  double acc, val, C1, C2, C3, C4;
+  int i, j, k;
+  double acc, val, C1, C2, C3, C4, phi0, phi1, phi2;
 
-  acc = 0.0;
-  C1 = node_pos[0]-h;
-  C2 = node_pos[0]+h;
-  C3 = (C2-C1)/2.0;
-  C4 = (C2+C1)/2.0;
-  for ( j = 0; j < q->n; j++)
+  for ( i = 0; i < n_full; i++)
   {
-    val = grad_phi_C1(C3*q->x[j] + C4, 0);
-    acc += q->w[j]*(val*val)*(C3*q->x[j] + C4);
-    // acc += q->w[j]*(val*val);
-  }
-  a_vals[0][0] = acc*C3;
-
-  acc = 0.0;
-  C1 = node_pos[0];
-  C2 = node_pos[0]+h;
-  C3 = (C2-C1)/2.0;
-  C4 = (C2+C1)/2.0;
-  for ( j = 0; j < q->n; j++)
-  {
-    val = grad_phi_C1(C3*q->x[j] + C4, 0)*grad_phi_C1(C3*q->x[j] + C4, 1);
-    acc += q->w[j]*(val)*(C3*q->x[j] + C4);
-    // acc += q->w[j]*(val);
-  }
-  a_vals[0][1] = acc*C3;
-
-  for ( i = 1; i < n-1; i++)
-  {
-    acc = 0.0;
-    C1 = node_pos[i-1];
-    C2 = node_pos[i];
-    C3 = (C2-C1)/2.0;
-    C4 = (C2+C1)/2.0;
-    for ( j = 0; j < q->n; j++)
+    for ( k = -3; k <= 3; k++)
     {
-      val = grad_phi_C1(C3*q->x[j] + C4, i)*grad_phi_C1(C3*q->x[j] + C4, i-1);
-      acc += q->w[j]*(val)*(C3*q->x[j] + C4);
-      // acc += q->w[j]*(val);
+      if (a_ind[i][k] == 1)
+      {
+        acc = 0.0;
+        C1 = max(bounds[i][0], bounds[i+k][0]);
+        C2 = min(bounds[i][1], bounds[i+k][1]);
+        C3 = (C2-C1)/2.0;
+        C4 = (C2+C1)/2.0;
+        for ( j = 0; j < q->n; j++)
+        {
+          val = grad_phi_C1(C3*q->x[j] + C4, i)*grad_phi_C1(C3*q->x[j] + C4, i+k);
+          acc += q->w[j]*(val)*(C3*q->x[j] + C4);
+        }
+        a_vals[i][k] = acc*C3;
+      }
     }
-    a_vals[i][0] = acc*C3;
-
-    acc = 0.0;
-    C1 = node_pos[i-1];
-    C2 = node_pos[i+1];
-    C3 = (C2-C1)/2.0;
-    C4 = (C2+C1)/2.0;
-    for ( j = 0; j < q->n; j++)
-    {
-      val = grad_phi_C1(C3*q->x[j] + C4, i);
-      acc += q->w[j]*(val*val)*(C3*q->x[j] + C4);
-      // acc += q->w[j]*(val*val);
-    }
-    a_vals[i][1] = acc*C3;
-
-    acc = 0.0;
-    C1 = node_pos[i];
-    C2 = node_pos[i+1];
-    C3 = (C2-C1)/2.0;
-    C4 = (C2+C1)/2.0;
-    for ( j = 0; j < q->n; j++)
-    {
-      val = grad_phi_C1(C3*q->x[j] + C4, i)*grad_phi_C1(C3*q->x[j] + C4, i+1);
-      acc += q->w[j]*(val)*(C3*q->x[j] + C4);
-      // acc += q->w[j]*(val);
-    }
-    a_vals[i][2] = acc*C3;
   }
 
-  acc = 0.0;
-  C1 = node_pos[n-2];
-  C2 = node_pos[n-1];
-  C3 = (C2-C1)/2.0;
-  C4 = (C2+C1)/2.0;
-  for ( j = 0; j < q->n; j++)
-  {
-    val = grad_phi_C1(C3*q->x[j] + C4, n-2)*grad_phi_C1(C3*q->x[j] + C4, n-1);
-    acc += q->w[j]*(val)*(C3*q->x[j] + C4);
-    // acc += q->w[j]*(val);
-  }
-  a_vals[n-1][0] = acc*C3;
+  phi0 = phi_C1(omega[0], 1);
+  phi1 = phi_C1(omega[0], 2);
+  phi2 = phi_C1(omega[0], 3);
 
-  acc = 0.0;
-  C1 = node_pos[n-2];
-  C2 = node_pos[n-1];
-  C3 = (C2-C1)/2.0;
-  C4 = (C2+C1)/2.0;
-  for ( j = 0; j < q->n; j++)
-  {
-    val = grad_phi_C1(C3*q->x[j] + C4, n-1);
-    acc += q->w[j]*(val*val)*(C3*q->x[j] + C4);
-    // acc += q->w[j]*(val*val);
-  }
-  a_vals[n-1][1] = acc*C3;
+  a_vals[1][0] -= (1.0/6.0)*phi0;
+  a_vals[1][1] -= (1.0/6.0)*phi1;
+  a_vals[1][2] -= (1.0/6.0)*phi2;
+
+  a_vals[2][-1] -= (2.0/3.0)*phi0;
+  a_vals[2][0]  -= (2.0/3.0)*phi1;
+  a_vals[2][1]  -= (2.0/3.0)*phi2;
+
+  a_vals[3][-2] -= (1.0/6.0)*phi0;
+  a_vals[3][-1] -= (1.0/6.0)*phi1;
+  a_vals[3][0]  -= (1.0/6.0)*phi2;
 
 }
 
 double cubic_1d_alt::phi_C1(double x_in, int i)
 {
   double x_out=0.0;
-  double x_eval = (abs(x_in - node_pos[i]))/h;
 
-  if (i == n-1)
+  if (x_in < bounds[i][0] || x_in > bounds[i][1] )
   {
-    if (x_in > omega[1] || x_eval > 1.0)
-    {
-      return x_out;
-    }
-    else
-    {
-      x_out = 1.0  - x_eval - (x_eval*x_eval) + (x_eval*x_eval*x_eval);
-      // x_out = 1.0 - 3.0*(x_eval*x_eval) + 2.0*(x_eval*x_eval*x_eval);
-    }
     return x_out;
   }
   else
   {
-    if (x_eval < 1.0)
+    double x_eval = (abs(x_in - node_pos[i]))/(h);
+    if ( x_eval < 1.0 )
     {
-      x_out = 1.0 - 3.0*(x_eval*x_eval) + 2.0*(x_eval*x_eval*x_eval);
+      double del = 1.0 - x_eval;
+      x_out = 0.25*(1.0 + 3.0*(del) + 3.0*(del*del) - 3.0*(del*del*del) );
+    }
+    else
+    {
+      double del = 2.0 - x_eval;
+      x_out = 0.25*( del*del*del );
     }
     return x_out;
   }
@@ -213,31 +173,28 @@ double cubic_1d_alt::f_source(double xx)
 double cubic_1d_alt::grad_phi_C1(double x_in, int i)
 {
   double x_out=0.0;
-  double x_eval = (abs(x_in - node_pos[i]))/h;
-
-  if (i == n-1)
+  if (x_in < bounds[i][0] || x_in > bounds[i][1] )
   {
-    if (x_in > omega[1] || x_eval > 1.0)
-    {
-      return x_out;
-    }
-    else
-    {
-      x_out = -(-1.0 - 2.0*(x_eval) + 3.0*(x_eval*x_eval))*(1.0/h);
-      // x_out = -6.0*(-(x_eval) + (x_eval*x_eval) )*(1.0/h) ;
-    }
     return x_out;
   }
   else
   {
-    if (x_eval < 1.0)
+    double x_eval = (abs(x_in - node_pos[i]))/(h);
+    if ( x_eval < 1.0 )
     {
-      x_out = 6.0*(-(x_eval) + (x_eval*x_eval) )*(1.0/h) ;
-      if (x_in < node_pos[i])
-      {
-        x_out *= -1.0;
-      }
+      double del = 1.0 - x_eval;
+      x_out = -0.75 - (0.25)*6.0*del + (0.25)*9.0*del*del;
     }
+    else
+    {
+      double del = 2.0 - x_eval;
+      x_out = -0.75*( del*del );
+    }
+    if (x_in < node_pos[i])
+    {
+      x_out *= -1.0;
+    }
+    x_out*= (1.0/h);
     return x_out;
   }
 }
@@ -252,16 +209,13 @@ void cubic_1d_alt::write_out(char prefix[], int N_test)
 
   for ( i = 0; i < N_test; i++) test_coords[i] = omega[0] + ((double) i)*del;
 
-  sol_out[0][0] = test_coords[0];
-  sol_out[0][1] = 0.0;
-
-  for ( i = 1; i < N_test; i++)
+  for ( i = 0; i < N_test; i++)
   {
     sol_out[i][0] = test_coords[i];
-    acc = 0;
+    acc = 0.0;
     for ( j = 0; j < n; j++)
     {
-      if ( abs(test_coords[i] - node_pos[j]) < h )
+      if (test_coords[i] > bounds[j][0] && test_coords[i] < bounds[j][1])
       {
         acc += x[j]*phi_C1(test_coords[i], j);
       }

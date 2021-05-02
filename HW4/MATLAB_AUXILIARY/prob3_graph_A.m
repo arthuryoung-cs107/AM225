@@ -15,7 +15,7 @@ hold on
 
 fig4 = figure('Name', 'cubic C1 basis functions from C', 'Renderer', 'painters', 'Position', fig_pos(4, :));
 xlabel('x')
-ylabel('grad \phi (x) + i')
+ylabel('d_x \phi (x) + i')
 hold on
 
 fig5 = figure('Name', 'cubic C2 basis ', 'Renderer', 'painters', 'Position', fig_pos(5, :));
@@ -79,9 +79,9 @@ legend('Show')
 grad_phi_C_check = aysml_read('../dat_dir/grad_phi_check');
 figure(fig4.Number)
 for i=1:(size(grad_phi_C_check, 2) -1 )
-  plot( grad_phi_C_check(:, 1), grad_phi_C_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['d \phi ', num2str(i -1)])
+  plot( grad_phi_C_check(:, 1), grad_phi_C_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['d_x \phi ', num2str(i -1)])
 end
-legend('Show')
+% legend('Show')
 
 x_test = -2:0.01:2;
 x_test0 = -1:0.01:2;

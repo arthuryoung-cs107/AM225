@@ -1,30 +1,23 @@
 #include <cstdlib>
 
-#include "cubic_1d_alt_C2.hh"
+#include "cubic_1d_alt_C1.hh"
 #include "blas.h"
 
-cubic_1d_alt_C2::cubic_1d_alt_C2(int n_) : conj_grad(n_+2),
-n_in(n_), n(n_+2), n_full(n_+3), h(1.0/((double)n_)),
-q(new quadrat(7)), node_pos(new double[n_full]), x_full(new double[n_full]),
-omega(new double[2]), omega_1(new double[2]), b_full(new double[n_full]),
-a_vals(dmatrix(0, n_full-1, -3, 3)), a_short(dmatrix(0, n-1, -3, 3)),
-a_ind(imatrix(0, n_full-1, -3, 3)), bounds(dmatrix(0, n_full-1, -3, 3))
+cubic_1d_alt_C1::cubic_1d_alt_C1(int n_) : conj_grad(2*n_ + 1),
+n_in(n_), n(2*n_ + 1), n_full(3*n_), h(1.0/((double)n_)),
+q(new quadrat(7)), node_pos(new double[n_full]), omega(new double[2])
 {
   int i, j;
 
   omega[0] = 1.0;
   omega[1] = 2.0;
-  omega_1[0] = omega[0] - 1.0*h;
-  omega_1[1] = omega[1] + 1.0*h;
 
-  zerom_init(a_vals, 0, n_full-1, -3, 3);
-  zerom_init(a_short, 0, n-1, -3, 3);
-  zeromint_init(a_ind, 0, n_full-1, -3, 3);
+  zerom_init(a_vals, 0, n_full-1, );
   for ( i = 0; i < n_full; i++)
   {
-    node_pos[i] = omega_1[0] + h*( (double) i );
-    bounds[i][0] = max(omega_1[0], node_pos[i] - 2.0*h);
-    bounds[i][1] = min(omega_1[1], node_pos[i] + 2.0*h);
+    node_pos[i] = omega[0] + h*( (double) i );
+    bounds[i][0] =
+    bounds[i][1] =
   }
   for ( i = 0; i < n_full; i++)
   {
@@ -39,7 +32,7 @@ a_ind(imatrix(0, n_full-1, -3, 3)), bounds(dmatrix(0, n_full-1, -3, 3))
   assemble_a();
 }
 
-cubic_1d_alt_C2::~cubic_1d_alt_C2()
+cubic_1d_alt_C1::~cubic_1d_alt_C1()
 {
   delete q;
   delete [] node_pos;
@@ -54,7 +47,7 @@ cubic_1d_alt_C2::~cubic_1d_alt_C2()
 }
 
 /** Performs multiplication on a vector by the stiffness matrix. */
-void cubic_1d_alt_C2::mul_A(double *in,double *out)
+void cubic_1d_alt_C1::mul_A(double *in,double *out)
 {
   int i, k;
   double acc;
@@ -74,7 +67,7 @@ void cubic_1d_alt_C2::mul_A(double *in,double *out)
 
 }
 
-void cubic_1d_alt_C2::assemble_b()
+void cubic_1d_alt_C1::assemble_b()
 {
   int i, j, k;
   double acc, val, C1, C2, C3, C4;
@@ -87,17 +80,17 @@ void cubic_1d_alt_C2::assemble_b()
     C4 = (C2+C1)/2.0;
     for ( j = 0; j < q->n; j++)
     {
-      acc += q->w[j]*(phi_C2(C3*q->x[j] + C4, i))*(f_source(C3*q->x[j] + C4));
+      acc += q->w[j]*(phi_C1(C3*q->x[j] + C4, i))*(f_source(C3*q->x[j] + C4));
     }
     b_full[i] = acc*C3;
-    b_full[i] += 2.0*g*(phi_C2(omega[1], i));
+    b_full[i] += 2.0*g*(phi_C1(omega[1], i));
   }
   for ( i = 0; i < n; i++) b[i] = b_full[i+1];
   b[0] -= 4.0*b_full[0];
   b[1] -= b_full[0];
 }
 
-void cubic_1d_alt_C2::assemble_a()
+void cubic_1d_alt_C1::assemble_a()
 {
   int i, j, k;
   double acc, val, C1, C2, C3, C4, phi0, phi1, phi2;
@@ -115,7 +108,7 @@ void cubic_1d_alt_C2::assemble_a()
         C4 = (C2+C1)/2.0;
         for ( j = 0; j < q->n; j++)
         {
-          val = grad_phi_C2(C3*q->x[j] + C4, i)*grad_phi_C2(C3*q->x[j] + C4, i+k);
+          val = grad_phi_C1(C3*q->x[j] + C4, i)*grad_phi_C1(C3*q->x[j] + C4, i+k);
           acc += q->w[j]*(val)*(C3*q->x[j] + C4);
         }
         a_vals[i][k] = acc*C3;
@@ -170,7 +163,7 @@ void cubic_1d_alt_C2::assemble_a()
   // getchar();
 }
 
-double cubic_1d_alt_C2::phi_C2(double x_in, int i)
+double cubic_1d_alt_C1::phi_C1(double x_in, int i)
 {
   double x_out=0.0;
 
@@ -195,13 +188,13 @@ double cubic_1d_alt_C2::phi_C2(double x_in, int i)
   }
 }
 
-double cubic_1d_alt_C2::f_source(double xx)
+double cubic_1d_alt_C1::f_source(double xx)
 {
   const double o=5.0*M_PI;
   return (-exp(1.0-xx)*(o*(1.0-2.0*xx)*cos(o*xx)+((1.0-o*o)*xx-1.0)*sin(o*xx)));
 }
 
-double cubic_1d_alt_C2::grad_phi_C2(double x_in, int i)
+double cubic_1d_alt_C1::grad_phi_C1(double x_in, int i)
 {
   double x_out=0.0;
   if (x_in < bounds[i][0] || x_in > bounds[i][1] )
@@ -230,12 +223,7 @@ double cubic_1d_alt_C2::grad_phi_C2(double x_in, int i)
   }
 }
 
-void cubic_1d_alt_C2::M_inv(double *in,double *out)
-{
-  for ( int i = 0; i < n; i++) out[i] = (in[i])/(a_short[i][0]);
-}
-
-void cubic_1d_alt_C2::write_out(char prefix[], int N_test)
+void cubic_1d_alt_C1::write_out(char prefix[], int N_test)
 {
   int i, j;
   double acc;
@@ -254,7 +242,7 @@ void cubic_1d_alt_C2::write_out(char prefix[], int N_test)
     acc = 0.0;
     for ( j = 0; j < n_full; j++)
     {
-      acc += x_full[j]*phi_C2(test_coords[i], j);
+      acc += x_full[j]*phi_C1(test_coords[i], j);
     }
     sol_out[i][1] = acc;
   }

@@ -2,12 +2,6 @@ fig1 = figure('Name', 'alt cubic solution', 'Renderer', 'painters', 'Position', 
 xlabel('x')
 ylabel('u_{fea}')
 hold on
-
-fig2 = figure('Name', 'analytical solution', 'Renderer', 'painters', 'Position', fig_pos(2, :));
-xlabel('x')
-ylabel('u_{sol}')
-hold on
-
 N_test=1000;
 
 N_min = 10;
@@ -16,9 +10,6 @@ N_max = 1000;
 
 u_sol_fun = @(x) exp(1-x).*sin(5*pi*x);
 
-
-figure(fig2.Number)
-plot(1:0.001:2 , u_sol_fun(1:0.001:2), ' -', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', 'analytical solution')
 
 figure(fig1.Number)
 for N=N_min:delta:N_max

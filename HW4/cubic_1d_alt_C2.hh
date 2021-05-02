@@ -21,7 +21,6 @@ class cubic_1d_alt_C2 : public conj_grad {
         const int n_in;
         const int n;
         const int n_full;
-        const int n_sol;
         quadrat * q;
         /** The grid spacing. */
         double h;
@@ -31,13 +30,11 @@ class cubic_1d_alt_C2 : public conj_grad {
         double* const node_pos;
         double* const omega;
         double* const omega_1;
-        double* const omega_2;
-        double* x_sol;
+        double* x_full;
         double* b_full;
         double ** a_vals;
         double ** a_short;
         int ** a_ind;
-        int * ind;
         double ** bounds;
 
         cubic_1d_alt_C2(int n_);

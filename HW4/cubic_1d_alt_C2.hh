@@ -50,6 +50,7 @@ class cubic_1d_alt_C2 : public conj_grad {
 
     private:
         virtual void mul_A(double *in,double *out);
+        virtual void M_inv(double *in,double *out);
         double f_source(double xx);
         double min(double R1, double R2)
         {

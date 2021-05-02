@@ -5,7 +5,7 @@
 
 cubic_1d_alt_C2::cubic_1d_alt_C2(int n_) : conj_grad(n_+2),
 n_in(n_), n(n_+2), n_full(n_+3), h(1.0/((double)n_)),
-q(new quadrat(21)), node_pos(new double[n_full]), x_full(new double[n_full]),
+q(new quadrat(11)), node_pos(new double[n_full]), x_full(new double[n_full]),
 omega(new double[2]), omega_1(new double[2]), b_full(new double[n_full]),
 a_vals(dmatrix(0, n_full-1, -3, 3)), a_short(dmatrix(0, n-1, -3, 3)),
 a_ind(imatrix(0, n_full-1, -3, 3)), bounds(dmatrix(0, n_full-1, -3, 3))
@@ -228,6 +228,11 @@ double cubic_1d_alt_C2::grad_phi_C2(double x_in, int i)
     x_out*= (1.0/h);
     return x_out;
   }
+}
+
+void cubic_1d_alt_C2::M_inv(double *in,double *out)
+{
+  for ( int i = 0; i < n; i++) out[i] = (in[i])/(a_short[i][0]);
 }
 
 void cubic_1d_alt_C2::write_out(char prefix[], int N_test)

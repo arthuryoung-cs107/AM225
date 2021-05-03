@@ -3,33 +3,48 @@
 #include "cubic_1d_alt_C1.hh"
 #include "blas.h"
 
-cubic_1d_alt_C1::cubic_1d_alt_C1(int n_) : conj_grad(2*n_ + 1),
-n_in(n_), n(2*n_ + 1), n_full(3*n_), h(1.0/((double)n_)),
-q(new quadrat(7)), node_pos(new double[n_full]), omega(new double[2])
+cubic_1d_alt_C1::cubic_1d_alt_C1(int n_) : conj_grad(2*(n_)+1),
+n_in(n_), n(2*(n_)+1), h(1.0/((double)n_)),
+q(new quadrat(11)), node_pos(new double[n_+1]), omega(new double[2]), a_vals(dmatrix(0, n-1, -2, 2)),
+a_ind(imatrix(0, n-1, -2, 2)), bounds(dmatrix(0, n-1, 0, 1))
 {
   int i, j;
 
   omega[0] = 1.0;
   omega[1] = 2.0;
 
-  zerom_init(a_vals, 0, n_full-1, );
-  for ( i = 0; i < n_full; i++)
+  zerom_init(a_vals, 0, n-1, -2, 2);
+  zeromint_init(a_ind, 0, n-1, -2, 2);
+  for ( i = 0; i <= n_in; i++)
   {
     node_pos[i] = omega[0] + h*( (double) i );
-    bounds[i][0] =
-    bounds[i][1] =
   }
-  for ( i = 0; i < n_full; i++)
+
+  bounds[0][0] = omega[0]; bounds[0][1] = omega[0] + h;
+  j = 1;
+  for ( i = 1; i < n_in; i++)
   {
-    for ( j = -3; j <= 3; j++)
+    bounds[j][0] = bounds[j+1][0] = node_pos[i]-h;
+    bounds[j][1] = bounds[j+1][1] = node_pos[i]+h;
+    j+=2;
+  }
+  bounds[n-2][0] = bounds[n-1][0] = omega[1]-h;
+  bounds[n-2][1] = bounds[n-1][1] = omega[1];
+
+  a_ind[0][0] = a_ind[0][1] = a_ind[0][2] = 1;
+  a_ind[1][-1] = a_ind[1][0] = a_ind[1][1] = a_ind[1][2] = 1;
+  for ( i = 2; i < n-2; i++)
+  {
+    for ( j = -2; j <= 2; j++)
     {
-      if (i + j > -1 && i + j < n_full)
-      {
-        a_ind[i][j] = 1;
-      }
+      a_ind[i][j] = 1;
     }
   }
+  a_ind[n-2][1] = a_ind[n-2][0] = a_ind[n-2][-1] = a_ind[n-2][-2] = 1;
+  a_ind[n-1][0] = a_ind[n-1][-1] = a_ind[n-1][-2] = 1;
+
   assemble_a();
+
 }
 
 cubic_1d_alt_C1::~cubic_1d_alt_C1()
@@ -37,13 +52,10 @@ cubic_1d_alt_C1::~cubic_1d_alt_C1()
   delete q;
   delete [] node_pos;
   delete [] omega;
-  delete [] omega_1;
-  delete [] x_full;
 
-  free_dmatrix(a_short, 0, n-1, -3, 3);
-  free_dmatrix(a_vals, 0, n_full-1, -3, 3);
-  free_imatrix(a_ind, 0, n_full-1, -3, 3);
-  free_dmatrix(bounds, 0, n_full-1, -3, 3);
+  free_dmatrix(a_vals, 0, n-1, -2, 2);
+  free_imatrix(a_ind, 0, n-1, -2, 2);
+
 }
 
 /** Performs multiplication on a vector by the stiffness matrix. */
@@ -55,11 +67,11 @@ void cubic_1d_alt_C1::mul_A(double *in,double *out)
   for ( i = 0; i < n; i++)
   {
     acc = 0.0;
-    for ( k = -3; k <= 3; k++)
+    for ( k = -2; k <= 2; k++)
     {
-      if (a_ind[i+1][k] == 1)
+      if (a_ind[i][k] == 1)
       {
-        acc += a_short[i][k]*in[i+k];
+        acc += a_vals[i][k]*in[i+k];
       }
     }
     out[i] = acc;
@@ -71,7 +83,7 @@ void cubic_1d_alt_C1::assemble_b()
 {
   int i, j, k;
   double acc, val, C1, C2, C3, C4;
-  for ( i = 0; i < n_full; i++)
+  for ( i = 0; i < n; i++)
   {
     acc = 0.0;
     C1 = bounds[i][0];
@@ -82,12 +94,10 @@ void cubic_1d_alt_C1::assemble_b()
     {
       acc += q->w[j]*(phi_C1(C3*q->x[j] + C4, i))*(f_source(C3*q->x[j] + C4));
     }
-    b_full[i] = acc*C3;
-    b_full[i] += 2.0*g*(phi_C1(omega[1], i));
+    b[i] = acc*C3;
+    b[i] += 2.0*g*(phi_C1(omega[1], i));
   }
-  for ( i = 0; i < n; i++) b[i] = b_full[i+1];
-  b[0] -= 4.0*b_full[0];
-  b[1] -= b_full[0];
+
 }
 
 void cubic_1d_alt_C1::assemble_a()
@@ -95,9 +105,9 @@ void cubic_1d_alt_C1::assemble_a()
   int i, j, k;
   double acc, val, C1, C2, C3, C4, phi0, phi1, phi2;
 
-  for ( i = 0; i < n_full; i++)
+  for ( i = 0; i < n; i++)
   {
-    for ( k = -3; k <= 3; k++)
+    for ( k = -2; k <= 2; k++)
     {
       if (a_ind[i][k] == 1)
       {
@@ -112,55 +122,11 @@ void cubic_1d_alt_C1::assemble_a()
           acc += q->w[j]*(val)*(C3*q->x[j] + C4);
         }
         a_vals[i][k] = acc*C3;
+
       }
     }
   }
 
-  for ( i = 0; i < n; i++)
-  {
-    for ( k = -3; k <= 3; k++)
-    {
-      a_short[i][k] = a_vals[i+1][k];
-    }
-  }
-
-  // assert Dirichlet
-  a_short[0][0] -= 4.0*a_vals[0][1];
-  a_short[1][-1] -= 4.0*a_vals[0][2];
-  a_short[2][-2] -= 4.0*a_vals[0][3];
-  a_short[0][1] -= a_vals[0][1];
-  a_short[1][0] -= a_vals[0][2];
-  a_short[2][-1] -= a_vals[0][3];
-
-  a_short[0][0] -= 4.0*(a_vals[0][1] - 4.0*a_vals[0][0]);
-  a_short[0][1] -= 4.0*(a_vals[0][2] - a_vals[0][0]);
-  a_short[0][2] -= 4.0*(a_vals[0][3]);
-
-  a_short[1][-1] -= a_vals[0][1] - 4.0*a_vals[0][0];
-  a_short[1][0]  -= a_vals[0][2] - a_vals[0][0];
-  a_short[1][1]  -= a_vals[0][3];
-
-  a_short[0][-1] = a_short[1][-2] = a_short[2][-3] = 0.0;
-  a_ind[1][-1] = a_ind[2][-2] = a_ind[3][-3] = 0;
-
-  // for ( i = 0; i < n; i++)
-  // {
-  //   printf("%d (%f) : ", i+1, node_pos[i]);
-  //   for ( k = 0; k < n; k++)
-  //   {
-  //     if (abs(i-k) < 4 )
-  //     {
-  //       printf("%f ", a_short[i][k-i]);
-  //     }
-  //     else
-  //     {
-  //       printf("%f ", 0.0);
-  //     }
-  //   }
-  //   printf("|| %f \n", b[i]);
-  // }
-  //
-  // getchar();
 }
 
 double cubic_1d_alt_C1::phi_C1(double x_in, int i)
@@ -173,18 +139,52 @@ double cubic_1d_alt_C1::phi_C1(double x_in, int i)
   }
   else
   {
-    double x_eval = (abs(x_in - node_pos[i]))/(h);
-    if ( x_eval < 1.0 )
+    if (i > 0 && i < n-2 ) // is interior function?
     {
-      double del = 1.0 - x_eval;
-      x_out = 0.25*(1.0 + 3.0*(del) + 3.0*(del*del) - 3.0*(del*del*del) );
+      if ( i%2 == 1) // is phi_odd?
+      {
+        int j = (i+1)/2;
+        double x_eval = abs(x_in - node_pos[j])/h;
+        x_out = (x_eval - 1.0)*(x_eval - 1.0)*x_eval; // phi_1, phi_3
+        if (x_in < node_pos[j]) {x_out*=-1.0 ;}
+      }
+      else // is phi_even.
+      {
+        int j = (i+1)/2;
+        double x_eval = abs(x_in - node_pos[j])/h;
+        x_out = 2.0*(x_eval*x_eval*x_eval)-3.0*(x_eval*x_eval)+1.0; // phi_2, phi_0
+      }
+      return x_out;
     }
-    else
+    else // is boundary function.
     {
-      double del = 2.0 - x_eval;
-      x_out = 0.25*( del*del*del );
+      if (i == 0)
+      {
+        double x_eval = abs(x_in - node_pos[0])/h;
+        x_out = (x_eval - 1.0)*(x_eval - 1.0)*x_eval; // phi_1
+      }
+      else
+      {
+        if (i == n-2)
+        {
+          double x_eval = abs(x_in - node_pos[n_in-1])/h;
+          x_out = -(x_eval*x_eval)*(1.0 - x_eval); // phi_3
+        }
+        else
+        {
+          if (i == n-1)
+          {
+            double x_eval = abs(x_in - node_pos[n_in-1])/h;
+            x_out = (x_eval*x_eval)*(3.0 - 2.0*x_eval); // phi_2
+          }
+          else
+          {
+            printf("we got a problem\n");
+          }
+        }
+      }
+      return x_out;
     }
-    return x_out;
   }
 }
 
@@ -197,29 +197,61 @@ double cubic_1d_alt_C1::f_source(double xx)
 double cubic_1d_alt_C1::grad_phi_C1(double x_in, int i)
 {
   double x_out=0.0;
+
   if (x_in < bounds[i][0] || x_in > bounds[i][1] )
   {
     return x_out;
   }
   else
   {
-    double x_eval = (abs(x_in - node_pos[i]))/(h);
-    if ( x_eval < 1.0 )
+    if (i > 0 && i < n-2 ) // is interior function?
     {
-      double del = 1.0 - x_eval;
-      x_out = -0.75 - (0.25)*6.0*del + (0.25)*9.0*del*del;
+      if ( i%2 == 1) // is phi_odd?
+      {
+        int j = (i+1)/2;
+        double x_eval = abs(x_in - node_pos[j])/h;
+        x_out = (x_eval - 1.0)*(x_eval - 1.0) + 2.0*(x_eval)*(x_eval - 1.0); // phi_1, phi_3
+      }
+      else // is phi_even.
+      {
+        int j = (i+1)/2;
+        double x_eval = abs(x_in - node_pos[j])/h;
+        x_out = 6.0*(x_eval*x_eval) - 6.0*x_eval; // phi_2, phi_0
+        if (x_in < node_pos[j]) {x_out*=-1.0 ;}
+      }
+      x_out*= (1.0/h);
+      return x_out;
     }
-    else
+    else // is boundary function.
     {
-      double del = 2.0 - x_eval;
-      x_out = -0.75*( del*del );
+      if (i == 0)
+      {
+        double x_eval = abs(x_in - node_pos[0])/h;
+        x_out = (x_eval - 1.0)*(x_eval - 1.0) + 2.0*(x_eval)*(x_eval - 1.0); // phi_1
+      }
+      else
+      {
+        if (i == n-2)
+        {
+          double x_eval = abs(x_in - node_pos[n_in-1])/h;
+          x_out = -2.0*x_eval*(1.0-x_eval) + (x_eval*x_eval);  // phi_3
+        }
+        else
+        {
+          if (i == n-1)
+          {
+            double x_eval = abs(x_in - node_pos[n_in-1])/h;
+            x_out = 2.0*(x_eval)*(3.0 - 2.0*x_eval)-2.0*(x_eval*x_eval); //phi_2
+          }
+          else
+          {
+            printf("we got a problem\n");
+          }
+        }
+      }
+      x_out*= (1.0/h);
+      return x_out;
     }
-    if (x_in < node_pos[i])
-    {
-      x_out *= -1.0;
-    }
-    x_out*= (1.0/h);
-    return x_out;
   }
 }
 
@@ -231,18 +263,15 @@ void cubic_1d_alt_C1::write_out(char prefix[], int N_test)
   double ** sol_out = dmatrix(0, N_test-1, 0, 1);
   double * test_coords = new double[N_test];
 
-  for ( i = 0; i < n; i++) x_full[i+1] = x[i];
-  x_full[0] = -(x[0] + x[1]*0.25)/(0.25);
-
   for ( i = 0; i < N_test; i++) test_coords[i] = omega[0] + ((double) i)*del;
 
   for ( i = 0; i < N_test; i++)
   {
     sol_out[i][0] = test_coords[i];
     acc = 0.0;
-    for ( j = 0; j < n_full; j++)
+    for ( j = 0; j < n; j++)
     {
-      acc += x_full[j]*phi_C1(test_coords[i], j);
+      acc += x[j]*phi_C1(test_coords[i], j);
     }
     sol_out[i][1] = acc;
   }
@@ -250,5 +279,4 @@ void cubic_1d_alt_C1::write_out(char prefix[], int N_test)
 
   delete [] test_coords;
   free_dmatrix(sol_out, 0, N_test-1, 0, 1);
-
 }

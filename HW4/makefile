@@ -8,11 +8,11 @@ LINK= -L/usr/local/lib/ -lm -lgsl -lgslcblas -lfftw3 -lblas
 
 CDEPS = nrutil.h auxiliary_functions.h knuth_lcg.h
 
-CPPDEPS = blas.h Ritz_Galerk_sphere.hh conj_grad.hh quadrat.hh AYmat.hh cubic_1d_fe.hh cubic_1d_alt_C2.hh
+CPPDEPS = blas.h Ritz_Galerk_sphere.hh conj_grad.hh quadrat.hh AYmat.hh cubic_1d_fe.hh cubic_1d_alt_C2.hh cubic_1d_alt_C1.hh
 
 OBJS2 = main_prob2.o nrutil.o auxiliary_functions.o knuth_lcg.o Ritz_Galerk_sphere.o conj_grad.o quadrat.o AYmat.o
 
-OBJS3 = main_prob3.o nrutil.o auxiliary_functions.o cubic_1d_fe.o conj_grad.o quadrat.o cubic_1d_alt_C2.o
+OBJS3 = main_prob3.o nrutil.o auxiliary_functions.o cubic_1d_fe.o conj_grad.o quadrat.o cubic_1d_alt_C2.o cubic_1d_alt_C1.o
 
 %.o: %.c $(CDEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDIR)

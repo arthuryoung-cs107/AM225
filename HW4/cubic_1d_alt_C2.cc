@@ -8,7 +8,7 @@ n_in(n_), n(n_+2), n_full(n_+3), h(1.0/((double)n_)),
 q(new quadrat(7)), node_pos(new double[n_full]), x_full(new double[n_full]),
 omega(new double[2]), omega_1(new double[2]), b_full(new double[n_full]),
 a_vals(dmatrix(0, n_full-1, -3, 3)), a_short(dmatrix(0, n-1, -3, 3)),
-a_ind(imatrix(0, n_full-1, -3, 3)), bounds(dmatrix(0, n_full-1, -3, 3))
+a_ind(imatrix(0, n_full-1, -3, 3)), bounds(dmatrix(0, n_full-1, 0, 1))
 {
   int i, j;
 
@@ -50,7 +50,7 @@ cubic_1d_alt_C2::~cubic_1d_alt_C2()
   free_dmatrix(a_short, 0, n-1, -3, 3);
   free_dmatrix(a_vals, 0, n_full-1, -3, 3);
   free_imatrix(a_ind, 0, n_full-1, -3, 3);
-  free_dmatrix(bounds, 0, n_full-1, -3, 3);
+  free_dmatrix(bounds, 0, n_full-1, 0, 1);
 }
 
 /** Performs multiplication on a vector by the stiffness matrix. */

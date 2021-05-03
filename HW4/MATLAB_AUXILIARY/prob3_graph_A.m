@@ -69,14 +69,14 @@ end
 legend('Show')
 
 
-phi_C_check = aysml_read('../dat_dir/phi_check');
+phi_C_check = aysml_read('../dat_dir/phi_check_C2');
 figure(fig3.Number)
 for i=1:(size(phi_C_check, 2)-1)
   plot( phi_C_check(:, 1), phi_C_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['\phi ', num2str(i -1)])
 end
 legend('Show')
 
-grad_phi_C_check = aysml_read('../dat_dir/grad_phi_check');
+grad_phi_C_check = aysml_read('../dat_dir/grad_phi_check_C2');
 figure(fig4.Number)
 for i=1:(size(grad_phi_C_check, 2) -1 )
   plot( grad_phi_C_check(:, 1), grad_phi_C_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['d_x \phi ', num2str(i -1)])
@@ -98,7 +98,7 @@ figure(fig5.Number)
 plot( x_testN, phiN(x_testN), ' -', 'LineWidth', 1.5, 'DisplayName', '')
 
 
-phi_C2_check_all = aysml_read('../dat_dir/phi_check_all');
+phi_C2_check_all = aysml_read('../dat_dir/phi_check_all_C2');
 figure(fig6.Number)
 plot( phi_C2_check_all(:, 1), phi_C2_check_all(:, 2), ' -', 'LineWidth', 1.5, 'DisplayName', '')
 

@@ -44,7 +44,7 @@ void prob3_part_b_C1()
 
     memset(prefix, 0, 199);
     snprintf(prefix, 100, "./dat_dir/prob3_altcube_C1_N%d_xsol", N);
-    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix4);
+    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix);
 
 
     t_end = t1 - t0;
@@ -140,7 +140,7 @@ void prob3_part_b_C2()
 
     memset(prefix, 0, 199);
     snprintf(prefix, 100, "./dat_dir/prob3_altcube_C2_N%d_xsol", N);
-    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix4);
+    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix);
 
     t_end = t1 - t0;
     mat_out[count][0] = (double) N;

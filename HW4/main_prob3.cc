@@ -44,17 +44,30 @@ void prob3_part_b_C1()
 
     memset(prefix, 0, 199);
     snprintf(prefix, 100, "./dat_dir/prob3_altcube_C1_N%d_xsol", N);
-    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix);
 
+    double ** x_sol = dmatrix(0, FE1->n_in, 0, 1);
+    x_sol[0][0] = FE1->omega[0];
+    x_sol[0][1] = 0.0;
+    j = 1;
+    for ( i = 1; i < FE1->n; i+=2)
+    {
+      x_sol[j][0] = FE1->omega[0] + ((double) j)*FE1->h;
+      x_sol[j][1] = FE1->x[i+1];
+      j++;
+    }
+    fprintf_matrix(x_sol, FE1->n_in+1, 2, prefix);
 
     t_end = t1 - t0;
     mat_out[count][0] = (double) N;
     mat_out[count][1] = FE1->h;
     mat_out[count][2] = t_end;
 
+    printf("C1 N = %d done. \n", N);
+    free_dmatrix(x_sol, 0, FE1->n_in, 0, 1);
+
     delete FE1;
     count++;
-    printf("C1 N = %d done. \n", N);
+
   }
   fprintf_matrix(mat_out, count, 3, prefix4);
 
@@ -141,16 +154,26 @@ void prob3_part_b_C2()
 
     memset(prefix, 0, 199);
     snprintf(prefix, 100, "./dat_dir/prob3_altcube_C2_N%d_xsol", N);
-    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix);
+
+    double ** x_sol = dmatrix(0, FE1->n_in, 0, 1);
+
+    for ( i = 0; i <= FE1->n_in; i++)
+    {
+      x_sol[i][0] = FE1->omega[0] + ((double) i)*FE1->h;
+      x_sol[i][1] = 0.25*(FE1->x_full[i] + FE1->x_full[i+2]) + FE1->x_full[i+1];
+    }
+    fprintf_matrix(x_sol, FE1->n_in+1, 2, prefix);
 
     t_end = t1 - t0;
     mat_out[count][0] = (double) N;
     mat_out[count][1] = FE1->h;
     mat_out[count][2] = t_end;
 
-    delete FE1;
+    free_dmatrix(x_sol, 0, FE1->n_in, 0, 1);
+
     count++;
     printf("C2 N = %d done. \n", N);
+    delete FE1;
   }
 
   fprintf_matrix(mat_out, count, 3, prefix4);
@@ -237,7 +260,7 @@ void prob3_part_b_C0()
 
       printf("%d %g %g\n",j,cf.h,cf.l2_norm_mms());
   }
-  fprintf_matrix(output_mat, i_max, 4, prefix);
+  fprintf_matrix(output_mat, i_max+1, 4, prefix);
 
 }
 

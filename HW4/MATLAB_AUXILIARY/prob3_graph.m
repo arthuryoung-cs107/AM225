@@ -52,6 +52,6 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 
 % run prob3_graph_A.m
 % run prob3_graph_B.m
-run prob3_graph_C.m
+% run prob3_graph_C.m
 % run prob3_graph_D.m
-% run prob3_graph_E.m
+run prob3_graph_E.m

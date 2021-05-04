@@ -5,7 +5,7 @@
 
 cubic_1d_alt_C1::cubic_1d_alt_C1(int n_) : conj_grad(2*(n_)+1),
 n_in(n_), n(2*(n_)+1), h(1.0/((double)n_)),
-q(new quadrat(11)), node_pos(new double[n_+1]), omega(new double[2]), a_vals(dmatrix(0, n-1, -2, 2)),
+q(new quadrat(7)), q2(new quadrat(15)), node_pos(new double[n_+1]), omega(new double[2]), a_vals(dmatrix(0, n-1, -2, 2)),
 a_ind(imatrix(0, n-1, -2, 2)), bounds(dmatrix(0, n-1, 0, 1))
 {
   int i, j;
@@ -50,6 +50,7 @@ a_ind(imatrix(0, n-1, -2, 2)), bounds(dmatrix(0, n-1, 0, 1))
 cubic_1d_alt_C1::~cubic_1d_alt_C1()
 {
   delete q;
+  delete q2;
   delete [] node_pos;
   delete [] omega;
 
@@ -90,9 +91,9 @@ void cubic_1d_alt_C1::assemble_b()
     C2 = bounds[i][1];
     C3 = (C2-C1)/2.0;
     C4 = (C2+C1)/2.0;
-    for ( j = 0; j < q->n; j++)
+    for ( j = 0; j < q2->n; j++)
     {
-      acc += q->w[j]*(phi_C1(C3*q->x[j] + C4, i))*(f_source(C3*q->x[j] + C4));
+      acc += q2->w[j]*(phi_C1(C3*q2->x[j] + C4, i))*(f_source(C3*q2->x[j] + C4));
     }
     b[i] = acc*C3;
     b[i] += 2.0*g*(phi_C1(omega[1], i));

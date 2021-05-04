@@ -41,30 +41,32 @@ C2_err = zeros(1, size(C2_data, 1));
 i =  1;
 
 for N=N_min:delta:N_max
-  C1_sol = aysml_read(['../dat_dir/prob3_altcube_C1_N', num2str(N),'_Ntest', num2str(N_test)]);
-  C2_sol = aysml_read(['../dat_dir/prob3_altcube_C2_N', num2str(N),'_Ntest', num2str(N_test)]);
+  % C1_sol = aysml_read(['../dat_dir/prob3_altcube_C1_N', num2str(N),'_Ntest', num2str(N_test)]);
+  % C2_sol = aysml_read(['../dat_dir/prob3_altcube_C2_N', num2str(N),'_Ntest', num2str(N_test)]);
+  C1_xvals = aysml_read(['../dat_dir/prob3_altcube_C1_N', num2str(N), '_xsol']);
+  C2_xvals = aysml_read(['../dat_dir/prob3_altcube_C2_N', num2str(N), '_xsol']);
 
-  C1_err(i) = norm(C1_sol(:, 2)-u_sol_fun(C1_sol(:, 1)) );
-  C2_err(i) = norm(C2_sol(:, 2)-u_sol_fun(C2_sol(:, 1)) );
+  C1_err(i) = norm(C1_xvals(:, 2)-u_sol_fun(C1_xvals(:, 1)) )/C1_data(i, 1);
+  C2_err(i) = norm(C2_xvals(:, 2)-u_sol_fun(C2_xvals(:, 1)) )/C2_data(i, 1);
 
   i = i +1;
 end
 
 figure(fig1.Number)
-plot(C1_data(:, 1), (C1_err')./C1_data(:, 1), ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1 FEA')
-plot(C2_data(:, 1), (C2_err')./C2_data(:, 1), ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2 FEA')
+plot(C1_data(:, 1), C1_err, ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1 FEA')
+plot(C2_data(:, 1), C2_err, ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2 FEA')
 plot(C0_data(:, 1), C0_data(:, 4)./C0_data(:, 1), ' o', 'Color', [0 0 0], 'LineWidth', 1.5, 'DisplayName', 'C0 FEA')
 legend('Show', 'Location', 'SouthWest')
 
 figure(fig2.Number)
-plot(C1_data(:, 2), (C1_err')./C1_data(:, 1), ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1 FEA')
-plot(C2_data(:, 2), (C2_err')./C2_data(:, 1), ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2 FEA')
+plot(C1_data(:, 2), C1_err, ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1 FEA')
+plot(C2_data(:, 2), C2_err, ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2 FEA')
 plot(C0_data(:, 2), C0_data(:, 4)./C0_data(:, 1), ' o', 'Color', [0 0 0], 'LineWidth', 1.5, 'DisplayName', 'C0 FEA')
-legend('Show', 'Location', 'SouthWest')
+legend('Show', 'Location', 'SouthEast')
 
 figure(fig3.Number)
-plot(C1_data(:, 3), (C1_err')./C1_data(:, 1), ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1 FEA')
-plot(C2_data(:, 3), (C2_err')./C2_data(:, 1), ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2 FEA')
+plot(C1_data(:, 3), C1_err, ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1 FEA')
+plot(C2_data(:, 3), C2_err, ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2 FEA')
 plot(C0_data(:, 3), C0_data(:, 4)./C0_data(:, 1), ' o', 'Color', [0 0 0], 'LineWidth', 1.5, 'DisplayName', 'C0 FEA')
 legend('Show', 'Location', 'SouthWest')
 
@@ -78,9 +80,12 @@ for N=N_min:delta:N_max
   xlabel('x')
   ylabel('u_{coeff}')
   hold on
-  % plot(linspace(1, 2, length(C1_xvals) ), C1_xvals, ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1')
-  plot(linspace(1, 2, length(C2_xvals) ), C2_xvals, ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2')
-  plot(linspace(1, 2, length(C1_xvals) ), u_sol_fun(linspace(1, 2, length(C1_xvals) )), ' o', 'Color', [0 0 0], 'LineWidth', 1.5, 'DisplayName', 'analytical')
+  plot(C1_xvals(:, 1), C1_xvals(:, 2), ' o', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', 'C1')
+  plot(C2_xvals(:, 1), C2_xvals(:, 2), ' o', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', 'C2')
+  plot(1:0.001:2, u_sol_fun(1:0.001:2), ' -', 'Color', [0 0 0], 'LineWidth', 1.5, 'DisplayName', 'analytical')
+  legend('Show', 'Location', 'SouthWest')
+
+  N
 
   pause(1);
 end

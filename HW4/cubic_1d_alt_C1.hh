@@ -21,6 +21,7 @@ class cubic_1d_alt_C1 : public conj_grad {
         const int n_in;
         const int n;
         quadrat * q;
+        quadrat * q2;
         /** The grid spacing. */
         double h;
         /** The Neumann condition to apply at x=2. */

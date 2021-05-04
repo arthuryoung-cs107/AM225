@@ -26,7 +26,7 @@ class cubic_1d_alt_C1 : public conj_grad {
         /** The Neumann condition to apply at x=2. */
         double g;
 
-        int ** a_ind; 
+        int ** a_ind;
         double* const node_pos;
         double* const omega;
         double ** a_vals;

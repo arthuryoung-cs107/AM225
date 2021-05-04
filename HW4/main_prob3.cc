@@ -12,31 +12,54 @@ extern "C"
   #include "auxiliary_functions.h"
 }
 
-void prob3_part_a_C1()
+void prob3_part_b_C1()
 {
   int i,j, N;
   int N_test = 1000;
+  double t0, t1, t_end;
 
   char prefix[200];
   char prefix2[200];
   char prefix3[200];
+  char prefix4[200];
 
-  // N = 10;
+  double ** mat_out = dmatrix(0, 198, 0, 2);
+  memset(prefix4, 0, 199);
+  snprintf(prefix4, 100, "./dat_dir/prob3_altcube_C1_times");
 
-  for ( N = 10; N <= 1000; N+=10)
+  int count = 0;
+  for ( N = 10; N <= 1000; N+=5)
   {
     cubic_1d_alt_C1 * FE1 = new cubic_1d_alt_C1(N);
     FE1->g = exp(-1.0)*(5.0)*M_PI;
     FE1->assemble_b();
+
+    t0 = omp_get_wtime();
     FE1->solve();
+    t1 = omp_get_wtime();
+
     memset(prefix, 0, 199);
     snprintf(prefix, 100, "./dat_dir/prob3_altcube_C1_N%d_Ntest%d", N, N_test);
     FE1->write_out(prefix, N_test);
+
+    memset(prefix, 0, 199);
+    snprintf(prefix, 100, "./dat_dir/prob3_altcube_C1_N%d_xsol", N);
+    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix4);
+
+
+    t_end = t1 - t0;
+    mat_out[count][0] = (double) N;
+    mat_out[count][1] = FE1->h;
+    mat_out[count][2] = t_end;
+
     delete FE1;
+    count++;
   }
+  fprintf_matrix(mat_out, count, 3, prefix4);
+
 
   //debugging zone
-  N = 5;
+  N = 3;
   cubic_1d_alt_C1 * FE1 = new cubic_1d_alt_C1(N);
   FE1->assemble_b();
   double * omega = FE1->omega;
@@ -83,31 +106,55 @@ void prob3_part_a_C1()
 
 }
 
-void prob3_part_a_C2()
+void prob3_part_b_C2()
 {
   int i,j, N;
   int N_test = 1000;
 
+  double t0, t1, t_end;
+
   char prefix[200];
   char prefix2[200];
   char prefix3[200];
+  char prefix4[200];
+
+  double ** mat_out = dmatrix(0, 198, 0, 2);
+  memset(prefix4, 0, 199);
+  snprintf(prefix4, 100, "./dat_dir/prob3_altcube_C2_times");
 
   // N = 10;
-
-  for ( N = 10; N <= 1000; N+=10)
+  int count = 0;
+  for ( N = 10; N <= 1000; N+=5)
   {
     cubic_1d_alt_C2 * FE1 = new cubic_1d_alt_C2(N);
     FE1->g = exp(-1.0)*(5.0)*M_PI;
     FE1->assemble_b();
+
+    t0 = omp_get_wtime();
     FE1->solve();
+    t1 = omp_get_wtime();
+
     memset(prefix, 0, 199);
     snprintf(prefix, 100, "./dat_dir/prob3_altcube_C2_N%d_Ntest%d", N, N_test);
     FE1->write_out(prefix, N_test);
+
+    memset(prefix, 0, 199);
+    snprintf(prefix, 100, "./dat_dir/prob3_altcube_C2_N%d_xsol", N);
+    fprintf_matrix(&(FE1->x), 1, FE1->n, prefix4);
+
+    t_end = t1 - t0;
+    mat_out[count][0] = (double) N;
+    mat_out[count][1] = FE1->h;
+    mat_out[count][2] = t_end;
+
     delete FE1;
+    count++;
   }
 
+  fprintf_matrix(mat_out, count, 3, prefix4);
+
   // //debugging zone
-  N = 10;
+  N = 3;
   cubic_1d_alt_C2 * FE1 = new cubic_1d_alt_C2(N);
   FE1->assemble_b();
   double * omega = FE1->omega_1;
@@ -154,10 +201,49 @@ void prob3_part_a_C2()
 
 }
 
+void prob3_part_b_C0()
+{
+  int i_max = 30;
+  double mean_count, t0, t1, t_end;
+  double ** output_mat = dmatrix(0, i_max, 0, 3);
+
+  char prefix[200];
+  memset(prefix, 0, 199);
+  snprintf(prefix, 100, "./dat_dir/prob3_cube_C0_error");
+
+  for(int i=0;i<=i_max;i++)
+  {
+      // Create the finite-element problem and set the Neumann boundary
+      // condition to match the manufactured solution
+      int j=int(10*pow(100,(1/30.)*i)+0.5);
+      cubic_1d_fe cf(j);
+      cf.g=exp(-1)*5*M_PI;
+
+      // Initialize the source term for the manufactured solution, solve, and
+      // the print the L2 error
+      cf.init_mms();
+
+      t0 = omp_get_wtime();
+      cf.solve();
+      t1 = omp_get_wtime();
+      t_end = t1-t0;
+
+      output_mat[i][0] = (double) j;
+      output_mat[i][1] = cf.h;
+      output_mat[i][2] = t_end;
+      output_mat[i][3] = cf.l2_norm_mms();
+
+      printf("%d %g %g\n",j,cf.h,cf.l2_norm_mms());
+  }
+  fprintf_matrix(output_mat, i_max, 4, prefix);
+
+}
+
 int main()
 {
-  // prob3_part_a_C2();
-  prob3_part_a_C1();
+  prob3_part_b_C2();
+  prob3_part_b_C1();
+  prob3_part_b_C0();
 
   return 0;
 }

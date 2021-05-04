@@ -54,6 +54,7 @@ void prob3_part_b_C1()
 
     delete FE1;
     count++;
+    printf("C1 N = %d done. \n", N);
   }
   fprintf_matrix(mat_out, count, 3, prefix4);
 
@@ -149,6 +150,7 @@ void prob3_part_b_C2()
 
     delete FE1;
     count++;
+    printf("C2 N = %d done. \n", N);
   }
 
   fprintf_matrix(mat_out, count, 3, prefix4);

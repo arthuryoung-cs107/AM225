@@ -2,7 +2,7 @@ function mat_return = aysml_read(name)
   dims = dlmread([name '.aysml']);
   m = dims(1);
   n = dims(2);
-
-  mat_return = (fread(fopen([name '.aydat']), [n, m], 'float64=>float64'))';
-
+  id = fopen([name '.aydat']);
+  mat_return = (fread( id,[n, m], 'float64=>float64'))';
+  fclose(id);
 end

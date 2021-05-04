@@ -1,12 +1,8 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <stdint.h>
-#include <string.h>
-
+#include <cstring>
 #include "blas.h"
 #include "omp.h"
-#include "poisson_fft_AY.hh"
+// #include "poisson_fft_AY.hh"
+#include "Ritz_Galerk_sphere.hh"
 
 extern "C"
 {
@@ -16,26 +12,37 @@ extern "C"
 
 void prob2_part_a()
 {
-  int N_full = 112;
-  int N = N_full - 1;
-  char prefix[200];
-  char prefix2[200];
+  int N;
+  int N_test = 40;
 
-  auto f_main = [](double x, double y) { return std::exp(x-y); };
+  char prefix_x[200];
+  char prefix_y[200];
+  char prefix_v[200];
+  char prefix_w[200];
+  char prefix_u[200];
 
-  poisson_fft pf(N, 1./((double) N+1));
-  memset(prefix, 0, 199);
-  memset(prefix2, 0, 199);
-  snprintf(prefix, 100, "./dat_dir/prob2_square_fft");
-  snprintf(prefix2, 100, "./dat_dir/prob2_square_fft_source");
+  auto f_main = [](double v, double w) { return ((std::exp(-v))*( 3.0 + (v - 4.0)*v + w*w)); };
 
-  pf.init(f_main);
-  pf.output_solution(prefix2, pf.f);
-  pf.solve();
-  pf.output_solution(prefix, pf.v);
+  for ( N = 10; N <= 100; N+=5)
+  {
+      memset(prefix_x, 0, 199);
+      snprintf(prefix_x, 100, "./dat_dir/prob2_Ritz_Galerk_x_N%d_Ntest%d", N, N_test);
+      memset(prefix_y, 0, 199);
+      snprintf(prefix_y, 100, "./dat_dir/prob2_Ritz_Galerk_y_N%d_Ntest%d", N, N_test);
+      memset(prefix_v, 0, 199);
+      snprintf(prefix_v, 100, "./dat_dir/prob2_Ritz_Galerk_v_N%d_Ntest%d", N, N_test);
+      memset(prefix_w, 0, 199);
+      snprintf(prefix_w, 100, "./dat_dir/prob2_Ritz_Galerk_w_N%d_Ntest%d", N, N_test);
+      memset(prefix_u, 0, 199);
+      snprintf(prefix_u, 100, "./dat_dir/prob2_Ritz_Galerk_u_N%d_Ntest%d", N, N_test);
 
-  Ritz_Galerk * FE1 = new Ritz_Galerk();
-  // sphere_Ritz_Galerk * FE1 = new sphere_Ritz_Galerk(N);
+      Ritz_Galerk_sphere * FE1 = new Ritz_Galerk_sphere(N);
+      FE1->assemble_b(f_main);
+      FE1->solve();
+
+      FE1->write_out(prefix_x, prefix_y, prefix_v, prefix_w, prefix_u, N_test);
+      delete FE1;
+  }
 
 }
 

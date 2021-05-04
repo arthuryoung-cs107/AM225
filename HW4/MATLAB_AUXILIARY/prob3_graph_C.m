@@ -1,36 +1,26 @@
-fig1 = figure('Name', 'cubic basis functions', 'Renderer', 'painters', 'Position', fig_pos(1, :));
+fig1 = figure('Name', 'C0 cubic basis functions', 'Renderer', 'painters', 'Position', fig_pos(1, :));
 xlabel('x')
 ylabel('\phi (x) + i')
 hold on
 
-fig2 = figure('Name', 'cubic C1 basis functions', 'Renderer', 'painters', 'Position', fig_pos(2, :));
+fig2 = figure('Name', 'C1 cubic basis functions', 'Renderer', 'painters', 'Position', fig_pos(2, :));
 xlabel('x')
 ylabel('\phi (x) + i')
 hold on
 
-fig3 = figure('Name', 'cubic C1 basis functions from C', 'Renderer', 'painters', 'Position', fig_pos(3, :));
+fig3 = figure('Name', 'C1 cubic basis gradient', 'Renderer', 'painters', 'Position', fig_pos(3, :));
 xlabel('x')
 ylabel('\phi (x) + i')
 hold on
 
-fig4 = figure('Name', 'cubic C1 basis functions from C', 'Renderer', 'painters', 'Position', fig_pos(4, :));
+fig4 = figure('Name', 'C2 cubic basis functions', 'Renderer', 'painters', 'Position', fig_pos(4, :));
 xlabel('x')
-ylabel('d_x \phi (x) + i')
+ylabel('\phi (x) + i')
 hold on
 
-fig5 = figure('Name', 'cubic C1 basis ', 'Renderer', 'painters', 'Position', fig_pos(5, :));
+fig5 = figure('Name', 'C2 cubic basis gradient', 'Renderer', 'painters', 'Position', fig_pos(5, :));
 xlabel('x')
-ylabel(' \phi (x) + i')
-hold on
-
-fig6 = figure('Name', 'C1 phi check all ', 'Renderer', 'painters', 'Position', fig_pos(6, :));
-xlabel('x')
-ylabel(' \phi (x)')
-hold on
-
-fig7 = figure('Name', 'C1 grad phi check all ', 'Renderer', 'painters', 'Position', fig_pos(7, :));
-xlabel('x')
-ylabel('d \phi (x)')
+ylabel('\phi (x) + i')
 hold on
 
 
@@ -50,53 +40,37 @@ phiN= @(x) 1 + -x - (7.0/4.0)*(x.*x) - 0.5*(x.*x.*x);
 
 figure(fig1.Number)
 for i=1:N_full
-
   for j=1:length(x_vec)
       phi_mat(i, j) = phi_cubic(x_vec(j), i) + (i-1);
   end
   plot( x_vec, phi_mat(i, :), ' -', 'LineWidth', 1.5, 'DisplayName', ['\phi ', num2str(i -1)])
 end
-legend('Show')
+legend('Show', 'Location', 'NorthWest')
 
+phi_C1_check = aysml_read('../dat_dir/phi_check_C1');
 figure(fig2.Number)
-for i=1:(N+1)
-
-  for j=1:length(x_vec)
-      phi_C1_mat(i, j) = phi_cubic_C1(x_vec(j), i) + (i-1);
-  end
-  plot( x_vec, phi_C1_mat(i, :), ' -', 'LineWidth', 1.5, 'DisplayName', ['\phi ', num2str(i -1)])
+for i=1:(size(phi_C1_check, 2)-1)
+  plot( phi_C1_check(:, 1), phi_C1_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['\phi ', num2str(i -1)])
 end
-legend('Show')
+legend('Show', 'Location', 'NorthWest')
 
-
-phi_C_check = aysml_read('../dat_dir/phi_check_C1');
+grad_phi_C1_check = aysml_read('../dat_dir/grad_phi_check_C1');
 figure(fig3.Number)
-for i=1:(size(phi_C_check, 2)-1)
-  plot( phi_C_check(:, 1), phi_C_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['\phi ', num2str(i -1)])
+for i=1:(size(grad_phi_C1_check, 2) -1 )
+  plot( grad_phi_C1_check(:, 1), grad_phi_C1_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['d_x \phi ', num2str(i -1)])
 end
-legend('Show')
+legend('Show', 'Location', 'SouthWest')
 
-grad_phi_C_check = aysml_read('../dat_dir/grad_phi_check_C1');
+phi_C2_check = aysml_read('../dat_dir/phi_check_C2');
 figure(fig4.Number)
-for i=1:(size(grad_phi_C_check, 2) -1 )
-  plot( grad_phi_C_check(:, 1), grad_phi_C_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['d_x \phi ', num2str(i -1)])
+for i=1:(size(phi_C2_check, 2)-1)
+  plot( phi_C2_check(:, 1), phi_C2_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['\phi ', num2str(i -1)])
 end
-% legend('Show')
+legend('Show', 'Location', 'NorthWest')
 
-x_test = -2:0.01:2;
-x_test0 = -1:0.01:2;
-x_testN = -2:0.01:0;
-phi_C1_vec = zeros(size(x_test));
-
-
+grad_phi_C2_check = aysml_read('../dat_dir/grad_phi_check_C2');
 figure(fig5.Number)
-plot( x_testN, phiN(x_testN), ' -', 'LineWidth', 1.5, 'DisplayName', '')
-
-
-phi_C1_check_all = aysml_read('../dat_dir/phi_check_all_C1');
-figure(fig6.Number)
-plot( phi_C1_check_all(:, 1), phi_C1_check_all(:, 2), ' -', 'LineWidth', 1.5, 'DisplayName', '')
-
-
-figure(fig7.Number)
-plot( phi_C1_check_all(:, 1), phi_C1_check_all(:, 3), ' -', 'LineWidth', 1.5, 'DisplayName', '')
+for i=1:(size(grad_phi_C2_check, 2) -1 )
+  plot( grad_phi_C2_check(:, 1), grad_phi_C2_check(:, i+1), ' -', 'LineWidth', 1.5, 'DisplayName', ['d_x \phi ', num2str(i -1)])
+end
+legend('Show', 'Location', 'SouthEast')

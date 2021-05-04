@@ -92,16 +92,16 @@ for i=1:length(x_test)
   phi_C2_vec(i) = phi_cubic_C2(x_test(i));
 end
 
-figure(fig5.Number)
-% plot( x_test, phi_C2_vec, ' -', 'LineWidth', 1.5, 'DisplayName', '')
-% plot( x_test0, phi0(x_test0), ' -', 'LineWidth', 1.5, 'DisplayName', '')
-plot( x_testN, phiN(x_testN), ' -', 'LineWidth', 1.5, 'DisplayName', '')
-
-
-phi_C2_check_all = aysml_read('../dat_dir/phi_check_all_C2');
-figure(fig6.Number)
-plot( phi_C2_check_all(:, 1), phi_C2_check_all(:, 2), ' -', 'LineWidth', 1.5, 'DisplayName', '')
-
-
-figure(fig7.Number)
-plot( phi_C2_check_all(:, 1), phi_C2_check_all(:, 3), ' -', 'LineWidth', 1.5, 'DisplayName', '')
+% figure(fig5.Number)
+% % plot( x_test, phi_C2_vec, ' -', 'LineWidth', 1.5, 'DisplayName', '')
+% % plot( x_test0, phi0(x_test0), ' -', 'LineWidth', 1.5, 'DisplayName', '')
+% plot( x_testN, phiN(x_testN), ' -', 'LineWidth', 1.5, 'DisplayName', '')
+%
+%
+% phi_C2_check_all = aysml_read('../dat_dir/phi_check_all_C2');
+% figure(fig6.Number)
+% plot( phi_C2_check_all(:, 1), phi_C2_check_all(:, 2), ' -', 'LineWidth', 1.5, 'DisplayName', '')
+%
+%
+% figure(fig7.Number)
+% plot( phi_C2_check_all(:, 1), phi_C2_check_all(:, 3), ' -', 'LineWidth', 1.5, 'DisplayName', '')

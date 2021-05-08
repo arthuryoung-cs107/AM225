@@ -321,10 +321,3 @@ double up_order(double a)
   result = ceil(result);
   return pow(10, result);
 }
-
-void AY_GSLmatrix_add(gsl_matrix * W, gsl_matrix * K, gsl_matrix * work, double scalar)
-{
-  gsl_matrix_memcpy(work, K);
-  gsl_matrix_scale(work, scalar);
-  gsl_matrix_add(W, work);
-}

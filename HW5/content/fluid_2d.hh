@@ -92,6 +92,7 @@ class fluid_2d {
         void init_tracers();
         void update_tracers(double dt);
         void output(const char *prefix,const int mode,const int sn,const bool ghost=false);
+        void output_color(int k);
         void output_tracers(const char *prefix,const int sn);
         void save_header(double duration,int frames);
         /** Chooses a timestep size that is the largest value smaller than dt_reg,
@@ -109,10 +110,12 @@ class fluid_2d {
          * system to be solved using the multigrid method. */
         mgs_fem ms_fem;
         void set_boundaries();
+        void set_colour_boundaries();
         void fem_source_term_conditions();
         double average_pressure();
         void copy_pressure();
         inline void vel_eno2(double &ud,double &vd,double hs,field &f0,field &f1,field &f2,field &f3);
+        inline void col_eno(double &Rd,double &Gd,double &Bd,double hs,field &f0,field &f1,field &f2,field &f3);
         inline double eno2(double p0,double p1,double p2,double p3);
         inline double min(double a,double b) {return a<b?a:b;}
         inline double max(double a,double b) {return a>b?a:b;}

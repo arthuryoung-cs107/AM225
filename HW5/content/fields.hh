@@ -11,6 +11,16 @@ struct field {
     double v;
     /** The pressure. */
     double p;
+
+    // additional RGB terms
+    double R;
+    double G;
+    double B;
+    double Rs;
+    double Gs;
+    double Bs;    
+
+
     /** The intermediate horizontal velocity. */
     double us;
     /** The intermediate vertical velocity. */

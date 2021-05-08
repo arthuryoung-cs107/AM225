@@ -4,6 +4,12 @@
 #include "common.hh"
 #include "fluid_2d.hh"
 
+// extern "C"
+// {
+//   #include "nrutil.h"
+//   #include "auxiliary_functions.h"
+// }
+
 /** The class constructor sets up constants the control the geometry and the
  * simulation, dynamically allocates memory for the fields, and calls the
  * routine to initialize the fields.
@@ -132,6 +138,7 @@ void fluid_2d::solve(double duration,int frames) {
     double t0,t1,t2,adt;
     int l=timestep_select(duration/frames,adt);
 
+
     // Save header file, output the initial fields and record the initial wall
     // clock time
     save_header(duration,frames);
@@ -174,23 +181,30 @@ void fluid_2d::step_forward(double dt) {
 
         // Compute the second derivatives that are needed to evaluate the
         // viscous stresses
-        double ux,vx,uy,vy,&uc=f.u,&vc=f.v,
+        double ux,vx,uy,vy,Rx,Ry,Gx,Gy,Bx,By,&uc=f.u,&vc=f.v, &Rc=f.R,&Gc=f.G,&Bc=f.B,
                uyy=hyy*(fp[-ml].u-2*uc+fp[ml].u),
                vyy=hyy*(fp[-ml].v-2*vc+fp[ml].v),
-               uxx=hxx*(fp[-1].u-2*uc+fp[1].u),
-               vxx=hxx*(fp[-1].v-2*vc+fp[1].v);
+               uxx=hxx*(fp[-1].u-2.0*uc+fp[1].u),
+               vxx=hxx*(fp[-1].v-2.0*vc+fp[1].v);
 
         // Compute advective terms using the second-order ENO scheme
         uc>0?vel_eno2(ux,vx,hx,fp[1],f,fp[-1],fp[-2])
             :vel_eno2(ux,vx,-hx,fp[-1],f,fp[1],fp[2]);
         vc>0?vel_eno2(uy,vy,hy,fp[ml],f,fp[-ml],fp[-2*ml])
             :vel_eno2(uy,vy,-hy,fp[-ml],f,fp[ml],fp[2*ml]);
+        uc>0?col_eno(Rx,Gx,Bx,hx,fp[1],f,fp[-1],fp[-2])
+            :col_eno(Rx,Gx,Bx,-hx,fp[-1],f,fp[1],fp[2]);
+        vc>0?col_eno(Ry,Gy,By,hy,fp[ml],f,fp[-ml],fp[-2*ml])
+            :col_eno(Ry,Gy,By,-hy,fp[-ml],f,fp[ml],fp[2*ml]);
 
         // Compute the intermediate velocity using advection and viscosity.
         // Note that the terms ux, uyy, etc. are already scaled by the correct
         // constants.
         f.us=f.u-uc*ux-vc*uy+uxx+uyy;
         f.vs=f.v-uc*vx-vc*vy+vxx+vyy;
+        f.R=Rc-uc*Rx-vc*Ry; // all these are also already appropriately scaled.
+        f.G=Gc-uc*Gx-vc*Gy;
+        f.B=Bc-uc*Bx-vc*By;
     }
 
     // Calculate the source term for the finite-element projection, doing
@@ -224,6 +238,7 @@ void fluid_2d::step_forward(double dt) {
 
     // Reset the ghost points according to the boundary conditions
     set_boundaries();
+    set_colour_boundaries();
 
     // Increment time at end of step
     time+=dt;
@@ -274,6 +289,13 @@ inline void fluid_2d::vel_eno2(double &ud,double &vd,double hs,field &f0,field &
     vd=hs*eno2(f0.v,f1.v,f2.v,f3.v);
 }
 
+inline void fluid_2d::col_eno(double &Rd,double &Gd,double &Bd,double hs,field &f0,field &f1,field &f2,field &f3)
+{
+    Rd=hs*eno2(f0.R,f1.R,f2.R,f3.R);
+    Gd=hs*eno2(f0.G,f1.G,f2.G,f3.G);
+    Bd=hs*eno2(f0.B,f1.B,f2.B,f3.B);
+}
+
 /** Calculates the ENO derivative using a sequence of values at four
  * gridpoints.
  * \param[in] (p0,p1,p2,p3) the sequence of values to use.
@@ -321,6 +343,33 @@ void fluid_2d::set_boundaries() {
         }
     }
 }
+
+void fluid_2d::set_colour_boundaries()
+{
+  for(field *fp=fm,*fe=fm+n*ml;fp<fe;fp+=ml) // left and right ghost nodes
+  {
+      fp[-2].R = fp[-1].R = fp[0].R;
+      fp[-2].G = fp[-1].G = fp[0].G;
+      fp[-2].B = fp[-1].B = fp[0].B;
+
+      fp[m+2].R = fp[m+1].R = fp[m].R;
+      fp[m+2].G = fp[m+1].G = fp[m].G;
+      fp[m+2].B = fp[m+1].B = fp[m].B;
+  }
+
+  const int tl=2*ml,g=n*ml;
+  for(field *fp=fm-2,*fe=fm+m+2;fp<fe;fp++) // top and bottom ghost nodes
+  {
+    fp[-tl].R = fp[-ml].R = fp[0].R;
+    fp[-tl].G = fp[-ml].G = fp[0].G;
+    fp[-tl].B = fp[-ml].B = fp[0].B;
+
+    fp[g].R = fp[g+ml].R = fp[g-ml].R;
+    fp[g].G = fp[g+ml].G = fp[g-ml].G;
+    fp[g].B = fp[g+ml].B = fp[g-ml].B;
+ }
+}
+
 
 /** Sets boundary conditions for the FEM source term computation, taking into
  * account periodicity */
@@ -434,11 +483,13 @@ void fluid_2d::output_tracers(const char *prefix,const int sn) {
 
 /** Writes a selection of simulation fields to the output directory.
  * \param[in] k the frame number to append to the output. */
-void fluid_2d::write_files(int k) {
-    if(fflags&1) output("u",0,k);
-    if(fflags&2) output("v",1,k);
-    if(fflags&4) output("p",2,k);
+void fluid_2d::write_files(int k)
+{
+    if(fflags&1){ output("u",0,k); }
+    if(fflags&2){ output("v",1,k); }
+    if(fflags&4){ output("p",2,k); }
     output_tracers("trace",k);
+    output_color(k);
 }
 
 /** Saves the header file.
@@ -491,4 +542,42 @@ void fluid_2d::output(const char *prefix,const int mode,const int sn,const bool 
 
     // Close the file
     fclose(outf);
+}
+void fluid_2d::output_color(int k)
+{
+  int i,j;
+
+  char name[200];
+
+  double ** out_mat_R = dmatrix(0, n-1, 0, m-1);
+  double ** out_mat_G = dmatrix(0, n-1, 0, m-1);
+  double ** out_mat_B = dmatrix(0, n-1, 0, m-1);
+
+  for ( i = 0; i < n; i++)
+  {
+    field *fp=fm+ml*i;
+    for ( j = 0; j < m; j++)
+    {
+      out_mat_R[i][j] = fp->R;
+      out_mat_G[i][j] = fp->G;
+      out_mat_B[i][j] = fp->B;
+      fp++;
+    }
+  }
+
+  memset(name, 0, 199);
+  snprintf(name, 100, "./dat_dir/sim_colourR_frame%d", k);
+  fprintf_matrix(out_mat_R, n, m, name);
+
+  memset(name, 0, 199);
+  snprintf(name, 100, "./dat_dir/sim_colourG_frame%d", k);
+  fprintf_matrix(out_mat_G, n, m, name);
+
+  memset(name, 0, 199);
+  snprintf(name, 100, "./dat_dir/sim_colourB_frame%d", k);
+  fprintf_matrix(out_mat_B, n, m, name);
+
+  free_dmatrix( out_mat_R, 0, n-1, 0, m-1);
+  free_dmatrix( out_mat_G, 0, n-1, 0, m-1);
+  free_dmatrix( out_mat_B, 0, n-1, 0, m-1);
 }

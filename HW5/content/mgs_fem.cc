@@ -50,7 +50,7 @@ double mgs_fem::mul_a(int i,int ij) {
 }
 
 // Explicit instantiation
-#include "tgmg.hh"
+#include "tgmg.cc"
 template class tgmg<mgs_fem,double,double>;
 template void tgmg_base<mgs_fem,double,double>::output(char const*,double*,double,double,double,double);
 template void tgmg_base<mgs_fem,double,double>::output_res(char const*,double,double,double,double);

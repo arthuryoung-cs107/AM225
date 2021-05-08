@@ -1,10 +1,6 @@
 #ifndef auxiliary_functions_H  /* Include guard */
 #define auxiliary_functions_H
 
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_linalg.h>
-
-
 void aysml_gen(char name[], int m, int n);
 void fprintf_matrix(double ** matrix, int M, int N, char prefix[]);
 
@@ -30,8 +26,6 @@ double norm_l2(double * input_vector, int nrl, int nrh);
 double norm_frob(double ** X, int nrl, int nrh, int ncl, int nch);
 double up_order(double a);
 void transpose_dmatrix(double ** a, int arl, int arh, int acl, int ach, double ** b);
-
-void AY_GSLmatrix_add(gsl_matrix * W, gsl_matrix * K, gsl_matrix * work, double scalar);
 
 
 #endif // auxiliary_functions_H

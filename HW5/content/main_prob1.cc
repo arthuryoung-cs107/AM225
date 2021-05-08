@@ -77,14 +77,14 @@ void color_init1(fluid_2d * m2in)
 
 void color_init2(fluid_2d * m2in)
 {
-  double work;
-  int check;
+  double r;
+  int index;
 
   int m = m2in->m; int n = m2in->n; int ml = m2in->ml;
   double ay = m2in->ay; double ax = m2in->ax; double dy = m2in->dy; double dx = m2in->dx;
   field * fm =  m2in->fm;
 
-
+  double colors[5][3] = {250./250., 50./250., 250./250., 255./255., 229./255., 0., 25./250., 111./250., 61./250., 10./250., 50./250., 150./250., 100./250., 30./250. , 22./250.};
 // #pragma omp parallel for
       for(int j=0;j<n;j++) // generic nodes
       {
@@ -92,22 +92,27 @@ void color_init2(fluid_2d * m2in)
           field *fp=fm+ml*j;
           for(int i=0;i<m;i++)
           {
-              double x=ax+dx*(i+0.5);
-              work = ((x*6.0) + 6.0 );
-              check = (int) work;
-              work = ((y*6.0) + 6.0 );
-              check += (int) work;
-              if (check%2 == 0)
-              {
-
-              }
+            double x=ax+dx*(i+0.5);
+            r = sqrt(x*x + y*y);
+            if (r < 0.2) {index = 0;}
+            else
+            {
+              if (r < 0.4) {index = 1;}
               else
               {
-                fp->R = 0.2;
-                fp->G = 0.4;
-                fp->B = 0.9;
+                if (r < 0.6) {index = 2;}
+                else
+                {
+                  if (r < 0.8) {index = 3;}
+                  else {index = 4;}
+                }
               }
-              fp++;
+            }
+            fp->R = colors[index][0];
+            fp->G = colors[index][1];
+            fp->B = colors[index][2];
+
+            fp++;
           }
       }
       for(field *fp=fm,*fe=fm+n*ml;fp<fe;fp+=ml) // left and right ghost nodes
@@ -157,7 +162,8 @@ void prob1_part_a()
   // maximum allowable by a padding factor
   // f2d.initialize(512,0.6);
   m2d.initialize(512,0.6);
-  color_init1(&m2d);
+  // color_init1(&m2d);
+  color_init2(&m2d);
 
   // Run the simulation for a specified duration, outputting snapshots at
   // regular intervals

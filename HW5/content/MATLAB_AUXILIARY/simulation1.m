@@ -5,7 +5,6 @@ hold on
 
 
 for i = 0:199
-  clf(fig1);
   red = aysml_read(['../dat_dir/sim_colourR_frame', num2str(i)]);
   green = aysml_read(['../dat_dir/sim_colourG_frame', num2str(i)]);
   blue = aysml_read(['../dat_dir/sim_colourB_frame', num2str(i)]);
@@ -14,7 +13,8 @@ for i = 0:199
   RGB(:, :, 1) = red;
   RGB(:, :, 2) = green;
   RGB(:, :, 3) = blue;
-
+  
+  clf(fig1);
   figure(fig1.Number);
   imshow(RGB);
 

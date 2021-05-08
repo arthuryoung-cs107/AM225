@@ -162,8 +162,8 @@ void prob1_part_a()
   // maximum allowable by a padding factor
   // f2d.initialize(512,0.6);
   m2d.initialize(512,0.6);
-  // color_init1(&m2d);
-  color_init2(&m2d);
+  color_init1(&m2d);
+  // color_init2(&m2d);
 
   // Run the simulation for a specified duration, outputting snapshots at
   // regular intervals

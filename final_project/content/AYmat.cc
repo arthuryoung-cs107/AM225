@@ -243,3 +243,41 @@ double AYmat::norm_1()
 }
 
 void AYmat::svd(gsl_vector * S_in, gsl_matrix * V_in, gsl_vector * work) {GSL_init(); gsl_linalg_SV_decomp(A_gsl, V_in, S_in, work);}
+
+AYmat * aysml_read(char name[])
+{
+  int i, j, M, N;
+  double data;
+  size_t success;
+  char extract[1000];
+  char aysml_specfile[200];
+  char aydat_specfile[200];
+  memset(aysml_specfile, 0, 199);
+  memset(aydat_specfile, 0, 199);
+  snprintf(aysml_specfile, 200, "%s.aysml", name);
+  snprintf(aydat_specfile, 200, "%s.aydat", name);
+
+  FILE * aysml_stream = fopen(aysml_specfile, "r");
+
+  char * check = fgets(extract, sizeof(extract), aysml_stream);
+  M = atoi(extract);
+  int next = (int) log10((double) M) + 1;
+  N = atoi(extract+next);
+
+  AYmat * out = new AYmat(M, N);
+  fclose(aysml_stream);
+
+  FILE * aydat_stream = fopen(aydat_specfile, "r");
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      success = fread(&data, sizeof(double), 1, aydat_stream );
+      out->set(i, j, data);
+    }
+  }
+  fclose(aydat_stream);
+
+  return out;
+}

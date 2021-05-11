@@ -37,13 +37,21 @@ void test1()
 
 void test2()
 {
-  int m = 4; int n = 3;
 
-  AYmat * X_main = new AYmat(m, n);
-  X_main->init_randuni();
-  X_main->print_mat();
+  char specfile_X00[200];
+  memset(specfile_X00, 0, 199);
+  snprintf(specfile_X00, 200, "./dat_dir/X00");
+  char specfile_X0[200];
+  memset(specfile_X0, 0, 199);
+  snprintf(specfile_X0, 200, "./dat_dir/X0");
 
-  ADM * adm1 = new ADM(X_main);
+
+  AYmat * X00_main = aysml_read(specfile_X00);
+  AYmat * X0_main = aysml_read(specfile_X0);
+
+  X0_main-> print_mat();
+
+  ADM * adm1 = new ADM(X00_main);
 
   delete adm1;
 

@@ -48,5 +48,7 @@ class AYmat {
       double ** AT;
 };
 
+AYmat * aysml_read(char name[]);
+
 
 #endif

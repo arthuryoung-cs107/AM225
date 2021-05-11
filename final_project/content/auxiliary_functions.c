@@ -34,8 +34,8 @@ void fprintf_matrix(double ** matrix, int M, int N, char name[])
   fclose(data_file);
 
   aysml_gen( name, M, N);
-
 }
+
 
 // math functions
 double dmax_element(double * vector, int vector_low, int vector_high )

@@ -11,7 +11,7 @@ extern "C"
 }
 
 // note: this is designed to play nicely with BLAS, hence we store column major
-AYmat::AYmat(int M_, int N_): M(M_), N(N_), AT(dmatrix(0, N-1, 0, M-1))
+AYmat::AYmat(int M_, int N_): M(M_), N(N_), AT(dmatrix(0, N-1, 0, M-1)), GSL_flag(0)
 {
   A_ptr = AT[0];
 }
@@ -19,7 +19,49 @@ AYmat::AYmat(int M_, int N_): M(M_), N(N_), AT(dmatrix(0, N-1, 0, M-1))
 AYmat::~AYmat()
 {
   free_dmatrix(AT, 0, N-1, 0, M-1);
+  if (GSL_flag == 1)
+  {
+    gsl_matrix_free(A_gsl);
+  }
 }
+
+void AYmat::GSL_init()
+{
+  int i, j;
+  if (GSL_flag == 0)
+  {
+    A_gsl = gsl_matrix_alloc(M, N);
+    GSL_flag = 1;
+  }
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      gsl_matrix_set(A_gsl, i, j, AT[j][i]);
+    }
+  }
+}
+
+void AYmat::GSL_send()
+{
+  int i, j;
+  if (GSL_flag == 0)
+  {
+    printf("GSL matrix not allocated.");
+  }
+  else
+  {
+    for ( i = 0; i < M; i++)
+    {
+      for ( j = 0; j < N; j++)
+      {
+        AT[j][i] = gsl_matrix_get(A_gsl, i, j);
+      }
+    }
+  }
+}
+
 
 void AYmat::print_mat()
 {
@@ -74,29 +116,80 @@ void AYmat::set(int i, int j, double val) {AT[j][i] = val;}
 
 double AYmat::get(int i, int j) {return AT[j][i];}
 
-// take in two matrices, multiply A and B, set contents of this one, C
-void AYmat::mult_set(AYmat * A_in, AYmat * B_in, double alpha, double beta )
+AYmat * AYmat::copy_gen()
 {
-  char trans = 'n';
-  int inc = 1;
-  if (B_in->N == 1) // matrix vector multiplication
+  AYmat * X_out = new AYmat(M, N);
+  memcpy(X_out->A_ptr, A_ptr, M*N*sizeof(double));
+  return X_out;
+}
+
+void AYmat::copy_set(AYmat * X_in) { memcpy(X_in->A_ptr, A_ptr, M*N*sizeof(double)); }
+
+AYmat * AYmat::transpose_gen()
+{
+  int i, j;
+  AYmat * X_out = new AYmat(N, M);
+  for ( i = 0; i < M; i++)
   {
-    dgemv_(&trans, &(A_in->M), &(A_in->N), &alpha, (A_in->A_ptr), &(A_in->M), (B_in->A_ptr), &inc, &beta, A_ptr, &inc);
+    for ( j = 0; j < N; j++)
+    {
+      X_out->A_ptr[i*N + j] = AT[j][i];
+    }
   }
-  else // matrix-matrix multiplication
+  return X_out;
+}
+
+void AYmat::transpose_set(AYmat * X_in)
+{
+  int i, j;
+  for ( i = 0; i < M; i++)
   {
-    dgemm_(&trans,&trans,&(A_in->M),&(N),&(B_in->M),&alpha,(A_in->A_ptr),&(A_in->M), (B_in->A_ptr),&(B_in->M),&beta,A_ptr,&(M));
+    for ( j = 0; j < N; j++)
+    {
+      X_in->A_ptr[i*N + j] = AT[j][i];
+    }
   }
 }
 
-// take in two matrices, multiply this one and the A, set C with outcome
-void AYmat::mult_put(AYmat * B_in, AYmat * C_in, double alpha, double beta )
+void AYmat::add(AYmat * B_in, AYmat * C_in, double alpha, double beta )
+{
+  for (int i = 0; i < M; i++)
+  {
+    for (int j = 0; j < N; j++)
+    {
+      C_in->AT[j][i] = AT[j][i] + alpha*B_in->AT[j][i] + beta*C_in->AT[j][i];
+    }
+  }
+}
+
+// take in one matrix, post multiply this matrix with input, return pointer to new matrix
+AYmat * AYmat::mult_gen(AYmat * B_in, double alpha)
+{
+  double beta = 0.0;
+  char trans = 'n';
+  int inc = 1;
+
+  AYmat * C_out = new AYmat(M, B_in->N);
+
+  if (B_in->N == 1) // matrix vector multiplication
+  {
+    dgemv_(&trans, &(M), &(N), &alpha, (A_ptr), &(M), (B_in->A_ptr), &inc, &beta, (C_out->A_ptr), &inc);
+  }
+  else // matrix-matrix multiplication
+  {
+    dgemm_(&trans,&trans,&(M),&(C_out->N),&(B_in->M),&alpha,(A_ptr),&(M), (B_in->A_ptr),&(B_in->M),&beta,(C_out->A_ptr),&(C_out->M));
+  }
+  return C_out;
+}
+
+// take in two matrices, post multiply this one with B, set contents of C_in
+void AYmat::mult_set(AYmat * B_in, AYmat * C_in, double alpha, double beta )
 {
   char trans = 'n';
   int inc = 1;
   if (B_in->N == 1) // matrix vector multiplication
   {
-    dgemv_(&trans, &(M), &(N), &alpha, (A_ptr), &(M), (B_in->A_ptr), &inc, &beta, (C_in->A_ptr), &inc);
+    dgemv_(&trans, &(M), &(N), &alpha, (A_ptr), &(M), (B_in->A_ptr), &inc, &beta, C_in->A_ptr, &inc);
   }
   else // matrix-matrix multiplication
   {
@@ -117,3 +210,36 @@ double AYmat::inner(AYmat * B_in)
   }
   return sum;
 }
+
+double AYmat::norm_frob()
+{
+  int i,j;
+  double out = 0.0;
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      out += (AT[j][i])*(AT[j][i]);
+    }
+  }
+  return sqrt(out);
+}
+
+double AYmat::norm_1()
+{
+  int i, j;
+  double out = 0.0;
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      out += abs(AT[j][i]);
+    }
+  }
+
+  return out;
+}
+
+void AYmat::svd(gsl_vector * S_in, gsl_matrix * V_in, gsl_vector * work) {GSL_init(); gsl_linalg_SV_decomp(A_gsl, V_in, S_in, work);}

@@ -39,6 +39,7 @@ void ADM::solve(bool verbose)
   int count;
   int max_count = 1000;
   double tol;
+  char prefix[200];
 
   mu = ((double) M)*((double) N)/(4.0*X00->norm_1());
   lambda = 1.0/(sqrt(max((double) M, (double) N)));
@@ -61,7 +62,20 @@ void ADM::solve(bool verbose)
     X_k->add(workMN, X_k, mu, 0.0 );
     count++;
 
-    if (verbose) printf("iteration %d: error = %f \n", count, err_eval(X00, L, S));
+    if (verbose)
+    {
+      // if (count%10 == 0)
+      if ((count+1)%2 == 0)
+      // if (count < 10)
+      {
+        memset(prefix, 0, 199);
+        snprintf(prefix, 200, "./dat_dir/test2_it%d", count);
+        write_out(prefix);
+      }
+
+      printf("iteration %d: error = %f \n", count, err_eval(X00, L, S));
+    }
+
   }
 }
 

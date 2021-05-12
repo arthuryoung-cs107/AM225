@@ -39,7 +39,7 @@ void ADM::solve(bool verbose)
   int count;
   int max_count = 1000;
   double tol;
-  char prefix[200];
+  char prefix[100];
 
   mu = ((double) M)*((double) N)/(4.0*X00->norm_1());
   lambda = 1.0/(sqrt(max((double) M, (double) N)));
@@ -68,8 +68,8 @@ void ADM::solve(bool verbose)
       if ((count+1)%2 == 0)
       // if (count < 10)
       {
-        memset(prefix, 0, 199);
-        snprintf(prefix, 200, "./dat_dir/test2_it%d", count);
+        memset(prefix, 0, 99);
+        snprintf(prefix, 100, "./dat_dir/test2_it%d", count);
         write_out(prefix);
       }
 

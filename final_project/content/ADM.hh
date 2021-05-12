@@ -6,6 +6,9 @@
 class ADM
 {
   public:
+    ADM(AYmat * X_);
+    ~ADM();
+
     const int M, N;
     double mu, lambda;
 
@@ -18,19 +21,17 @@ class ADM
     AYmat * workMN;
 
     gsl_matrix * V_gsl;
+    gsl_matrix * workNN_gsl;
+
+    gsl_vector * workN_gsl;
     gsl_vector * s_gsl;
 
-    gsl_matrix * workNN_gsl;
-    gsl_vector * workN_gsl;
-
-    ADM(AYmat * X_);
-    ~ADM();
-
-    void solve();
+    void solve(bool verbose = false);
+    void write_out(char prefix[]);
 
   private:
     void SVT();
-    void shrink(AYmat * X_in, double tau, int flag=1);
+    void shrink(AYmat * X_in, double tau, bool flag=false);
     double err_eval(AYmat * X, AYmat * L, AYmat * S);
     double max(double a, double b) { if (a > b) {return a;} else {return b;} }
     double min(double a, double b) { if (a < b) {return a;} else {return b;} }

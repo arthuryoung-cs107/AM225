@@ -76,6 +76,26 @@ void AYmat::print_mat()
   }
 }
 
+void AYmat::fprintf_mat(char name[])
+{
+  int i, j;
+  char specfile[200];
+  memset(specfile, 0, 199);
+  snprintf(specfile, 200, "%s.aydat", name);
+  FILE * data_file = fopen(specfile, "wb");
+
+  for ( i = 0; i < M; i++)
+  {
+    for ( j = 0; j < N; j++)
+    {
+      fwrite(&(AT[j][i]), sizeof(double), 1, data_file);
+    }
+  }
+  fclose(data_file);
+
+  aysml_gen( name, M, N);
+}
+
 void AYmat::init_123()
 {
   int i, j, count;
@@ -123,7 +143,7 @@ AYmat * AYmat::copy_gen()
   return X_out;
 }
 
-void AYmat::copy_set(AYmat * X_in) { memcpy(X_in->A_ptr, A_ptr, M*N*sizeof(double)); }
+void AYmat::copy_set(AYmat * X_in) {memcpy(X_in->A_ptr, A_ptr, M*N*sizeof(double));}
 
 AYmat * AYmat::transpose_gen()
 {

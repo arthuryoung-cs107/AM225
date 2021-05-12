@@ -34,7 +34,7 @@ ADM::~ADM()
   gsl_vector_free(workN_gsl);
 }
 
-void ADM::solve()
+void ADM::solve(bool verbose)
 {
   int count;
   int max_count = 1000;
@@ -46,6 +46,9 @@ void ADM::solve()
 
   count = 0;
 
+  L->init_0();
+  S->init_0();
+  X_k->init_0();
   while ( (err_eval(X00, L, S) > tol ) && (count < max_count) )
   {
     SVT();
@@ -55,9 +58,25 @@ void ADM::solve()
 
     S->copy_set(workMN);
     X00->add(L, workMN, -1., -1.);
-    X_k->add(workMN, X_k, mu, 1.0 );
+    X_k->add(workMN, X_k, mu, 0.0 );
     count++;
+
+    if (verbose) printf("iteration %d: error = %f \n", count, err_eval(X00, L, S));
   }
+}
+
+void ADM::write_out(char prefix[])
+{
+  char nameS[200];
+  memset(nameS, 0, 199);
+  snprintf(nameS, 200, "%s_S_out", prefix);
+  char nameL[200];
+  memset(nameL, 0, 199);
+  snprintf(nameL, 200, "%s_L_out", prefix);
+
+  S->fprintf_mat(nameS);
+  L->fprintf_mat(nameL);
+
 }
 
 void ADM::SVT()
@@ -69,7 +88,7 @@ void ADM::SVT()
 
   for ( i = 0; i < N; i++) Sigma_work->set(i, i, gsl_vector_get(s_gsl, i));
 
-  shrink(Sigma_work, 1.0/mu, 0);
+  shrink(Sigma_work, 1.0/mu, true);
   Sigma_work->GSL_init();
 
   gsl_blas_dgemm(CblasNoTrans, CblasTrans, (double) 1.0, Sigma_work->A_gsl, V_gsl, (double) 0.0, workNN_gsl);
@@ -77,14 +96,12 @@ void ADM::SVT()
   L->GSL_send();
 }
 
-void ADM::shrink(AYmat * X_in, double tau, int flag)
+void ADM::shrink(AYmat * X_in, double tau, bool flag)
 {
-  int i;
   double val;
-
-  if (flag == 0)
+  if (flag)
   {
-    for ( i = 0; i < N; i++)
+    for ( int i = 0; i < N; i++)
     {
       val = max(abs(X_in->get(i, i))-tau, 0.0);
       if (X_in->get(i, i) < 0) val*=-1.0;
@@ -93,10 +110,9 @@ void ADM::shrink(AYmat * X_in, double tau, int flag)
   }
   else
   {
-    int j;
-    for ( i = 0; i < M; i++)
+    for ( int i = 0; i < M; i++)
     {
-      for ( j = 0; j < N; j++)
+      for ( int j = 0; j < N; j++)
       {
         val = max(abs(X_in->get(i, j))-tau, 0.0);
         if (X_in->get(i, j) < 0) val*=-1.0;

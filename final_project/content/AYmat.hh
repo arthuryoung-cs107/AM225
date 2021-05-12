@@ -21,6 +21,7 @@ class AYmat {
       void GSL_send();
 
       void print_mat();
+      void fprintf_mat(char name[]);
       void init_123();
       void init_0();
       void init_randuni();

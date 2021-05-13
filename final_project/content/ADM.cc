@@ -69,7 +69,7 @@ void ADM::solve(bool verbose)
       // if (count < 10)
       {
         memset(prefix, 0, 99);
-        snprintf(prefix, 100, "./dat_dir/test2_it%d", count);
+        snprintf(prefix, 100, "./logo_dat_dir/test2_it%d", count);
         write_out(prefix);
       }
 

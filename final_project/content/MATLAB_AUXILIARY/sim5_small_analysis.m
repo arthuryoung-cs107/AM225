@@ -6,8 +6,8 @@ prefix = '../aydat_dir_small_sim5/sim1_';
 
 for i=0:1:500
 
-  S_it = aysml_read([prefix, num2str(i), '_S_out']);
-  L_it = aysml_read([prefix, num2str(i), '_L_out']);
+  S_it = (aysml_read([prefix, num2str(i), '_S_out']))';
+  L_it = (aysml_read([prefix, num2str(i), '_L_out']))';
   temp_it = aysml_read(['../aydat_dir_small_sim5/tem', num2str(i)]);
 
   figure(figure1.Number)

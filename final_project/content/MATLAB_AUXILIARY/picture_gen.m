@@ -31,8 +31,8 @@ X0_check = double_to_image2(X0);
 figure(figure3.Number)
 imshow(X0_check)
 
-fprintf_matrix(X0, '../dat_dir/X_true')
-fprintf_matrix(X0/S_0(1), '../dat_dir/Xnorm_true')
+fprintf_matrix(X0, '../logo_dat_dir/X_true')
+fprintf_matrix(X0/S_0(1), '../logo_dat_dir/Xnorm_true')
 
 X0_vec = X0(:);
 
@@ -68,9 +68,9 @@ Xn = reshape(Xn, [m, n]);
 pure_noise = reshape(pure_noise, [m, n]);
 
 
-fprintf_matrix(X, '../dat_dir/X_completion')
-fprintf_matrix(Xn, '../dat_dir/X_noised')
-fprintf_matrix(pure_noise, '../dat_dir/pure_noise')
+fprintf_matrix(X, '../logo_dat_dir/X_completion')
+fprintf_matrix(Xn, '../logo_dat_dir/X_noised')
+fprintf_matrix(pure_noise, '../logo_dat_dir/pure_noise')
 
 [U,S,V] = svd(X, 'econ');
 [Un,Sn,Vn] = svd(Xn, 'econ');
@@ -89,5 +89,5 @@ X = X/S(1, 1);
 Xn = Xn/Sn(1, 1);
 M = M_raw/S(1, 1);
 
-fprintf_matrix(X, '../dat_dir/Xnorm_completion')
-fprintf_matrix(Xn, '../dat_dir/Xnorm_noised')
+fprintf_matrix(X, '../logo_dat_dir/Xnorm_completion')
+fprintf_matrix(Xn, '../logo_dat_dir/Xnorm_noised')

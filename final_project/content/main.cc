@@ -70,11 +70,11 @@ void test3()
     double t0, t1, tend;
     char specfile_X_noised[200];
     memset(specfile_X_noised, 0, 199);
-    snprintf(specfile_X_noised, 200, "./aydat_dir_sim1/tem%d", i );
+    snprintf(specfile_X_noised, 200, "./aydat_dir_small_sim3/tem%d", i );
 
     char prefix1[200];
     memset(prefix1, 0, 199);
-    snprintf(prefix1, 200, "./aydat_dir_sim1/sim1_%d", i);
+    snprintf(prefix1, 200, "./aydat_dir_small_sim3/sim1_%d", i);
 
     AYmat * X_noised_main_T = aysml_read(specfile_X_noised);
     AYmat * X_noised_main = X_noised_main_T->transpose_gen();

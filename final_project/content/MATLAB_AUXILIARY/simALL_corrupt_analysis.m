@@ -6,6 +6,14 @@ xlabel('frame')
 ylabel('l_2 error')
 hold on
 
+figure2 = figure('Name', 'sigma results', 'Renderer', 'painters', 'Position', fig_pos(2,:));
+% set(gca,/ 'XScale', 'log')
+set(gca, 'YScale', 'log')
+xlabel('frame')
+ylabel('\sigma(\chi)')
+hold on
+
+
 prefix3 = '../aydat_dir_small_sim3/sim_corrupt_';
 prefix4 = '../aydat_dir_small_sim4/sim_corrupt_';
 prefix5 = '../aydat_dir_small_sim5/sim_corrupt_';
@@ -18,6 +26,9 @@ err_n_3 = zeros(1, 501);
 err_n_4 = zeros(1, 501);
 err_n_5 = zeros(1, 501);
 
+std_3 = zeros(1, 501);
+std_4 = zeros(1, 501);
+std_5 = zeros(1, 501);
 
 for i=0:1:500
 
@@ -41,13 +52,23 @@ for i=0:1:500
   err_n_4(i + 1) = norm(temp_it_corrupt_4-temp_it_4, 'fro')/norm(temp_it_4, 'fro');
   err_n_5(i + 1) = norm(temp_it_corrupt_5-temp_it_5, 'fro')/norm(temp_it_5, 'fro');
 
+  std_3(i + 1) = std(temp_it_3(:));
+  std_4(i + 1) = std(temp_it_4(:));
+  std_5(i + 1) = std(temp_it_5(:));
+
 end
 
-plot(0:1:500, err_5, ' - ', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', '\sigma = 10 error')
-plot(0:1:500, err_4, ' - ', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '\sigma = 20 error')
-plot(0:1:500, err_3, ' - ', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '\sigma = 30 error')
+figure(figure1.Number)
+plot(0:1:500, err_5, ' - ', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '\sigma = 10 ')
+plot(0:1:500, err_4, ' - ', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '\sigma = 20 ')
+plot(0:1:500, err_3, ' - ', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', '\sigma = 30 ')
+plot(0:1:500, err_n_5, ' - ', 'Color', red4, 'LineWidth', 1.5, 'DisplayName', '\sigma = 10 noised ')
+plot(0:1:500, err_n_4, ' - ', 'Color', blue3, 'LineWidth', 1.5, 'DisplayName', '\sigma = 20 noised ')
+plot(0:1:500, err_n_3, ' - ', 'Color', green1, 'LineWidth', 1.5, 'DisplayName', '\sigma = 30 noised ')
+legend('Show', 'Location', 'SouthWest')
 
-plot(0:1:500, err_n_5, ' - ', 'Color', green1, 'LineWidth', 1.5, 'DisplayName', '\sigma = 10 noised error')
-plot(0:1:500, err_n_4, ' - ', 'Color', blue3, 'LineWidth', 1.5, 'DisplayName', '\sigma = 20 noised error')
-plot(0:1:500, err_n_3, ' - ', 'Color', red4, 'LineWidth', 1.5, 'DisplayName', '\sigma = 30 noised error')
+figure(figure2.Number)
+plot(0:1:500, std_5, ' - ', 'Color', red5, 'LineWidth', 1.5, 'DisplayName', '\sigma = 10 ')
+plot(0:1:500, std_4, ' - ', 'Color', blue5, 'LineWidth', 1.5, 'DisplayName', '\sigma = 20 ')
+plot(0:1:500, std_3, ' - ', 'Color', green4, 'LineWidth', 1.5, 'DisplayName', '\sigma = 30 ')
 legend('Show', 'Location', 'SouthWest')

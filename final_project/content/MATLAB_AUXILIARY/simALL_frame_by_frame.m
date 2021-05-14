@@ -6,7 +6,7 @@ figure4 = figure('Name', 'full temp, corrupted', 'Renderer', 'painters', 'Positi
 prefix = '../aydat_dir_small_sim';
 
 for k=1:3
-  for i=50:100:400
+  for i=50:25:300
     S_it = (aysml_read([prefix, num2str(2 + k), '/sim_corrupt_', num2str(i), '_S_out']))';
     L_it = (aysml_read([prefix, num2str(2 + k), '/sim_corrupt_', num2str(i), '_L_out']))';
     temp_it = aysml_read([prefix, num2str(2 + k), '/tem', num2str(i)]);
@@ -36,6 +36,9 @@ for k=1:3
     Ax4.XDisplayLabels = nan(size(Ax4.XDisplayData));
     Ax4.YDisplayLabels = nan(size(Ax4.YDisplayData));
 
-    pause;
+    fprintf('sim %d, it = %d \n', k+2, i);
+
+    % pause;
+    pause(1);
   end
 end

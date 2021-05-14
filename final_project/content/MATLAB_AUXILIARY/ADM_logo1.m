@@ -6,13 +6,13 @@ figure5 = figure('Name', 'X noised', 'Renderer', 'painters', 'Position', fig_pos
 figure6 = figure('Name', 'sparse, interim', 'Renderer', 'painters', 'Position', fig_pos(5,:));
 figure7 = figure('Name', 'low rank, interim', 'Renderer', 'painters', 'Position', fig_pos(6,:));
 
-prefix = '../dat_dir/test2';
+prefix = '../logo_dat_dir/test2';
 
 S_out = aysml_read([prefix, '_S_out']);
 L_out = aysml_read([prefix, '_L_out']);
-pure_noise = aysml_read('../dat_dir/pure_noise');
-X_true = aysml_read('../dat_dir/X_true');
-X_noised = aysml_read('../dat_dir/X_noised');
+pure_noise = aysml_read('../logo_dat_dir/pure_noise');
+X_true = aysml_read('../logo_dat_dir/X_true');
+X_noised = aysml_read('../logo_dat_dir/X_noised');
 
 S_out = S_out + mean(X_true(:))*ones(size(X_true)); % for improves comparison
 
@@ -56,6 +56,7 @@ for i=1:2:61
   imshow(S_check_it)
   figure(figure7.Number)
   imshow(L_check_it)
-
-  pause(1);
+  i
+  % pause(1);
+  pause;
 end

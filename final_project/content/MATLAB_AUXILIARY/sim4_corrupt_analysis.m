@@ -5,7 +5,7 @@ figure4 = figure('Name', 'full temp, corrupted', 'Renderer', 'painters', 'Positi
 
 prefix = '../aydat_dir_small_sim4/sim_corrupt_';
 
-for i=0:1:500
+for i=0:5:500
 
   S_it = (aysml_read([prefix, num2str(i), '_S_out']))';
   L_it = (aysml_read([prefix, num2str(i), '_L_out']))';

@@ -54,4 +54,5 @@ pink = [255 0 104 ; 243 0 112; 230 0 119 ; 216  0 125; 200 0 131; 183 0 136; 165
 % run sim4_corrupt_analysis.m
 % run sim5_corrupt_analysis.m
 
-run simALL_corrupt_analysis.m 
+% run simALL_corrupt_analysis.m
+run simALL_PC_analysis.m 

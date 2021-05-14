@@ -15,7 +15,7 @@ for i=110:5:110
     temp_corrupt = aysml_read([prefix, num2str(2 + k), '/tem_corrupt', num2str(i)]);
 
     figure(k)
-    heatmap(temp_corrupt, 'GridVisible','off');
+    heatmap(L_it, 'GridVisible','off');
     Ax1 = gca;
     Ax1.XDisplayLabels = nan(size(Ax1.XDisplayData));
     Ax1.YDisplayLabels = nan(size(Ax1.YDisplayData));
